@@ -1,0 +1,55 @@
+.btn.disabled, .btn:disabled {
+    cursor: default !important;
+}
+
+.dark-edition select.form-control {
+    color: #a9afbbd1;
+}
+.dark-edition select.form-control > * {
+    color: #a9afbbd1;
+    background: #202940;
+}
+
+.card .table>thead>tr>th,
+.card .table>tbody>tr>th,
+.card .table>tfoot>tr>th,
+.card .table>thead>tr>td,
+.card .table>tbody>tr>td,
+.card .table>tfoot>tr>td {
+    vertical-align: top;
+}
+
+.card [class*="card-header-"] .ct-chart .ct-series-a .ct-area {
+    stroke: rgba(255, 255, 255, 0);
+}
+
+.ct-chart svg .ct-series.ct-series-a > * {
+    stroke: #00bcd4;
+    fill: #00bcd4cc;
+}
+
+.ct-chart svg .ct-series.ct-series-b > * {
+    stroke: #288c6c;
+    fill: #288c6ccc;
+}
+.card [class*="card-header-"] .ct-chart .ct-series-b > * {
+    stroke: #288c6c99;
+    fill: #288c6c77;
+}
+.card-header-success .ct-chart svg .ct-series.ct-series-b > * {
+    stroke: #00bcd499;
+    fill: #00bcd477;
+}
+
+.ct-chart svg .ct-series.ct-series-c > * {
+    stroke: #ff9800;
+    fill: #ff9800cc;
+}
+.card [class*="card-header-"] .ct-chart .ct-series-c > * {
+    stroke: #ff980099;
+    fill: #ff980077;
+}
+.card-header-warning .ct-chart svg .ct-series.ct-series-c > * {
+    stroke: #f4433699;
+    fill: #f4433677;
+}
