@@ -2,7 +2,7 @@ import fs from 'fs';
 import addStorageStats from "./projections/StorageStats";
 
 export default async function getEventStore(options) {
-	const EventStore = require('../../index');
+	const EventStore = require('event-storage');
 	const config = JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
 	const defaultOptions = config.options || {};
 	const storeName = config.storeName || 'eventstore';

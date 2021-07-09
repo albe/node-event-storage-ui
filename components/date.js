@@ -7,7 +7,7 @@ const formatter = new Intl.DateTimeFormat(undefined, {
 	second: '2-digit'
 });
 
-export default function Date({value}) {
+export default function DateFormat({value}) {
 	let date = value instanceof Date ? value : new Date(value);
 
 	try {

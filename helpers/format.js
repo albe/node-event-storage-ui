@@ -13,6 +13,8 @@ const YEARS = 365 * DAYS;
  */
 export function formatTimeAgo(seconds) {
 	switch (true) {
+		case seconds < 0:
+			return 'never';
 		case seconds < 2:
 			return 'a second ago';
 		case seconds < 2 * MINUTES:

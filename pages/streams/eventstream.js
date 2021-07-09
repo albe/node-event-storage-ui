@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Layout from '../../components/layout';
 import Json from '../../components/json';
-import Date from '../../components/date';
+import DateFormat from '../../components/date';
 import getEventStore from '../../eventstore';
 
 export async function getServerSideProps(context) {
@@ -10,14 +10,12 @@ export async function getServerSideProps(context) {
 	return getEventStore({readOnly: true}).then(({eventstore}) => {
 		let { from, amount, direction, query } = context.query;
 		const events = [];
-		//console.log([from, direction, amount]);
-		from = parseInt(from ?? 1, 10) ?? 1;
-		amount = parseInt(amount ?? 10, 10) ?? 10;
-		//console.log([from, direction, amount]);
+		from = parseInt(from ?? '1', 10) ?? 1;
+		amount = parseInt(amount ?? '10', 10) ?? 10;
+
 		const until = direction === 'backwards' ? from - amount + 1 : from + amount - 1;
 		const streamLength = eventstore.getStreamVersion(streamName);
-		//console.log([until, streamLength]);
-		let stream = eventstore.getEventStream(streamName/*, Math.min(from, streamLength) - 1, Math.min(until, streamLength) - 1*/);
+		let stream = eventstore.getEventStream(streamName);
 		if (stream !== false) {
 			if (query instanceof Array) {
 				while (query.length > 0) {
@@ -79,7 +77,7 @@ export default function EventStream({ streamName, stream, from, direction, amoun
 						return (<tr key={event.stream+'@'+event.metadata.streamVersion}>
 							<td>{event.metadata.streamVersion}</td>
 							<td>{event.stream}</td>
-							<td><Date value={event.metadata.committedAt} /></td>
+							<td><DateFormat value={event.metadata.committedAt} /></td>
 							<td><Json data={event.payload} /></td>
 							<td><Json data={event.metadata} /></td>
 							<td className="text-right">{event.metadata.commitId}</td>

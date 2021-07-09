@@ -79,7 +79,7 @@ function EventsChart({ datas }) {
   const [currentStream, setStream] = useState('_all');
   const commitTimes = datas[currentStream]?.times || [];
   const lastCommit = commitTimes.length > 0 ? commitTimes[commitTimes.length-1] : 0;
-  const lastCommitAgo = lastCommit > 0 ? (Date.now() - lastCommit) / 1000 : 0;
+  const lastCommitAgo = lastCommit > 0 ? (Date.now() - lastCommit) / 1000 : -1;
 
   //console.log('last commit', lastCommit, lastCommitAgo);
   return (<div className="card card-chart">
@@ -88,7 +88,7 @@ function EventsChart({ datas }) {
     </div>
     <div className="card-body">
       <h4 className="card-title">Stream Events <form className="pull-right"><div className="form-group">
-          <label for="streamSelect">Stream</label>
+          <label htmlFor="streamSelect">Stream</label>
           <select id="streamSelect" className="form-control" value={currentStream} onChange={e => setStream(e.target.value)}>
             {Object.keys(datas).sort().map(stream =>
                 <option key={stream} value={stream}>{stream}</option>
@@ -96,7 +96,7 @@ function EventsChart({ datas }) {
           </select>
         </div></form></h4>
       <p className="card-category">
-        <span className="text-success"><i className="fa fa-long-arrow-up"></i> 55 events/s </span> in the last 24h
+        <span className="text-success"><i className="fa fa-long-arrow-up"/> 55 events/s </span> in the last 24h {/* TODO: */}
       </p>
     </div>
     <div className="card-footer">
