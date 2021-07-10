@@ -2,8 +2,10 @@ import Link from 'next/link';
 import Head from 'next/head';
 import Layout from '../../components/layout';
 import Json from '../../components/json';
+import DateFormat from '../../components/date';
 import getEventStore from '../../eventstore';
 import usePagination from '../../hooks/paginate';
+import fs from 'fs';
 
 export async function getServerSideProps(context) {
 	//await initEventStore();
@@ -13,10 +15,12 @@ export async function getServerSideProps(context) {
 				storeName: eventstore.storeName,
 				streams: Object.keys(eventstore.streams).map(streamName => {
 					const stream = eventstore.streams[streamName].index;
+					const crtime = fs.statSync(stream.fileName).birthtimeMs;
 					return {
 						name: streamName,
 						length: stream.length,
-						metadata: stream.metadata
+						metadata: stream.metadata,
+						crtime
 					};
 				})
 			}
@@ -39,7 +43,8 @@ export default function Index({ storeName, streams }) {
 					<table className="table table-hover">
 						<thead>
 							<tr>
-								<th style={{width:'35%'}}>Stream name</th>
+								<th style={{width:'30%'}}>Stream name</th>
+								<th style={{width:'15%'}}>Created at</th>
 								<th style={{width:'10%'}}>Events</th>
 								<th>Metadata</th>
 							</tr>
@@ -48,6 +53,7 @@ export default function Index({ storeName, streams }) {
 						{streams.slice(start, end).map(stream => {
 							return (<tr key={stream.name}>
 								<td><Link href={"/streams/"+stream.name}>{stream.name}</Link></td>
+								<td><DateFormat value={stream.crtime} /></td>
 								<td>{stream.length}</td>
 								<td><Json data={stream.metadata} /></td>
 							</tr>);
