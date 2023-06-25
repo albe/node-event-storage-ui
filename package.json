@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "chartist": "^0.10.1",
-    "event-storage": "github:albe/node-event-storage#admin-ui",
+    "event-storage": "^0.7.2",
     "material-dashboard-dark-edition": "^2.1.0",
     "next": "^10.0.0",
     "react": "17.0.1",
