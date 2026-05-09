@@ -17,21 +17,27 @@
   "author": "Alexander Berl",
   "license": "MIT",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "dev": "remix vite:dev",
+    "build": "remix vite:build",
+    "start": "remix-serve ./build/server/index.js"
   },
   "dependencies": {
+    "@remix-run/node": "^2.17.4",
+    "@remix-run/react": "^2.17.4",
+    "@remix-run/serve": "^2.17.4",
     "chartist": "^0.10.1",
-    "event-storage": "^0.7.2",
+    "event-storage": "^1.0.0",
     "material-dashboard-dark-edition": "^2.1.0",
-    "next": "^10.0.0",
-    "react": "17.0.1",
+    "react": "19.2.6",
     "react-chartist": "^0.14.4",
-    "react-dom": "17.0.1",
+    "react-dom": "19.2.6",
     "react-json-view": "^1.21.3",
-    "socket.io": "^4.1.2",
-    "socket.io-client": "^4.1.2",
     "systeminformation": "^5.7.7"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.17.4",
+    "@vitejs/plugin-react": "^5.2.0",
+    "postcss": "^8.5.14",
+    "vite": "^6.4.2"
   }
 }
