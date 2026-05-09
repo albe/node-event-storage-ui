@@ -1,5 +1,15 @@
 This is an admin dashboard for inspecting a running [node-event-storage](https://github.com/albe/node-event-storage) on the same machine. It is built using [Remix](https://remix.run/) with modern React and based on the creative-tim [material dashboard dark](https://demos.creative-tim.com/material-dashboard-dark/examples/dashboard.html).
 
+## Screenshots
+
+### Dashboard
+
+![Dashboard](public/screenshots/dashboard.png)
+
+### Event Stream
+
+![Event Stream](public/screenshots/event-stream.png)
+
 ## Usage
 
 ```
