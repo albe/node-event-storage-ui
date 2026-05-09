@@ -16,8 +16,7 @@ export default function Chart(props) {
   const options = props.options ? { ...props.options } : undefined;
   if (Interpolation && options?.lineSmooth?.type) {
     const { type, values } = options.lineSmooth;
-    options.lineSmooth =
-      type in Interpolation ? Interpolation[type](values) : undefined;
+    options.lineSmooth = type in Interpolation ? Interpolation[type](values) : undefined;
   }
 
   return <ChartistGraph {...props} options={options} />;

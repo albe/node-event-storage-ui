@@ -28,17 +28,19 @@ export async function loader({ params }) {
       });
     }
 
+    let next = until + 1;
+    if (direction === 'backwards') {
+      next = until - 1;
+    } else if (until >= streamLength) {
+      next = 0;
+    }
+
     return json({
       streamName,
       stream: events,
       direction,
       amount,
-      next:
-        direction === 'backwards'
-          ? until - 1
-          : until >= streamLength
-            ? 0
-            : until + 1,
+      next,
       prev: direction === 'backwards' ? from + amount : from - amount
     });
   } finally {

@@ -238,6 +238,12 @@ export default function Dashboard() {
   const { storeName, storageDirectory, streamsCount, eventsCount, consumersCount, stats } =
     useLoaderData();
   const sysinfo = useSysinfo();
+  const swapUsage =
+    sysinfo.mem && sysinfo.mem.swaptotal > 0
+      ? sysinfo.mem.swapused / sysinfo.mem.swaptotal
+      : 0;
+  const usedSpaceStatsClass =
+    sysinfo.fsSize && sysinfo.fsSize.use > 95 ? 'stats text-danger' : 'stats';
   if (sysinfo.fsSize instanceof Array) {
     sysinfo.fsSize = sysinfo.fsSize.find((fs) =>
       storageDirectory.startsWith(fs.mount)
@@ -298,11 +304,7 @@ export default function Dashboard() {
               )}
             </div>
             <div className="card-footer">
-              <div
-                className={
-                  `stats${sysinfo.fsSize && sysinfo.fsSize.use > 95 ? ' text-danger' : ''}`
-                }
-              >
+              <div className={usedSpaceStatsClass}>
                 <i className="material-icons">source</i>
                 {sysinfo.fsSize && (
                   <span>
@@ -331,13 +333,7 @@ export default function Dashboard() {
             </div>
             <div className="card-footer">
               <div
-                className={`stats${
-                  sysinfo.mem &&
-                  sysinfo.mem.swaptotal > 0 &&
-                  sysinfo.mem.swapused / sysinfo.mem.swaptotal > 0.95
-                    ? ' text-danger'
-                    : ''
-                }`}
+                className={`stats${swapUsage > 0.95 ? ' text-danger' : ''}`}
               >
                 <i className="material-icons">note_add</i>
                 {sysinfo.mem && (

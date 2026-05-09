@@ -26,6 +26,14 @@ function getMem({ total, free, used }) {
   return { total, free, used };
 }
 
+function appendHistory(history, value) {
+  const next = [...history, value];
+  if (next.length > 20) {
+    next.shift();
+  }
+  return next;
+}
+
 export default function useSysinfo() {
   const [sysinfo, setSysinfo] = useState({
     fsSize: null,
@@ -53,19 +61,23 @@ export default function useSysinfo() {
       }
 
       setSysinfo((current) => {
-        const cpu = current.history.cpu.concat(getCurrentLoad(data.currentLoad)).slice(-20);
+        const cpu = appendHistory(current.history.cpu, getCurrentLoad(data.currentLoad));
         const cpus =
           current.history.cpus?.map((cpuHistory, index) =>
-            cpuHistory.concat(getLoad(data.currentLoad.cpus[index])).slice(-20)
+            appendHistory(cpuHistory, getLoad(data.currentLoad.cpus[index]))
           ) || data.currentLoad.cpus.map((cpuStats) => [getLoad(cpuStats)]);
-        const mem = current.history.mem.concat(getMem(data.mem)).slice(-20);
+        const mem = appendHistory(current.history.mem, getMem(data.mem));
         return { ...data, history: { cpu, cpus, mem } };
       });
     };
 
-    refresh().catch(() => undefined);
+    refresh().catch((error) => {
+      console.error('Failed to load sysinfo', error);
+    });
     interval = setInterval(() => {
-      refresh().catch(() => undefined);
+      refresh().catch((error) => {
+        console.error('Failed to load sysinfo', error);
+      });
     }, 10000);
 
     return () => {
