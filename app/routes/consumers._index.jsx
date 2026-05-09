@@ -5,8 +5,10 @@ import usePagination from '../hooks/paginate';
 
 export const meta = () => [{ title: 'event-storage: Consumers' }];
 
-export async function loader() {
-  const { eventstore } = await getEventStore({ readOnly: true });
+export async function loader({ request }) {
+  const url = new URL(request.url);
+  const storeNameOverride = url.searchParams.get('store') || undefined;
+  const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
   try {
     const consumers = await new Promise((resolve, reject) => {

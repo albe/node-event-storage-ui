@@ -8,9 +8,11 @@ export const meta = ({ params }) => [
   { title: `event-storage: EventStream ${params.streamName}` }
 ];
 
-export async function loader({ params }) {
+export async function loader({ params, request }) {
   const { streamName } = params;
-  const { eventstore } = await getEventStore({ readOnly: true });
+  const url = new URL(request.url);
+  const storeNameOverride = url.searchParams.get('store') || undefined;
+  const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
   try {
     const from = 1;

@@ -1,12 +1,43 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import addStorageStats from './projections/StorageStats';
 
-export default async function getEventStore(options) {
+function readConfig() {
+  return JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
+}
+
+export function listStores() {
+  const config = readConfig();
+  if (!config.storesDirectory) return [];
+  try {
+    const entries = fs.readdirSync(config.storesDirectory, { withFileTypes: true });
+    return entries
+      .filter((entry) => entry.isDirectory())
+      .filter((entry) =>
+        fs.existsSync(path.join(config.storesDirectory, entry.name, '.index'))
+      )
+      .map((entry) => entry.name);
+  } catch {
+    return [];
+  }
+}
+
+function resolveStoreName(config, storeNameOverride) {
+  const baseName = storeNameOverride || config.storeName || 'eventstore';
+  if (config.storesDirectory) {
+    const available = listStores();
+    const selected = available.includes(baseName) ? baseName : (available[0] || baseName);
+    return path.join(config.storesDirectory, selected);
+  }
+  return baseName;
+}
+
+export default async function getEventStore(options, storeNameOverride) {
   const eventStoreModule = await import('event-storage');
   const EventStore = eventStoreModule.default || eventStoreModule;
-  const config = JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
+  const config = readConfig();
   const defaultOptions = config.options || {};
-  const storeName = config.storeName || 'eventstore';
+  const storeName = resolveStoreName(config, storeNameOverride);
   options = Object.assign(defaultOptions, options);
   if (options.readOnly === true) {
     await initEventStore(storeName, options);

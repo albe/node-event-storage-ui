@@ -4,10 +4,16 @@ import {
   NavLink,
   Outlet,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useSearchParams
 } from '@remix-run/react';
+import { json } from '@remix-run/node';
 import materialDashboardCss from 'material-dashboard-dark-edition/assets/css/material-dashboard.css?url';
 import materialIconsCss from '@fontsource/material-icons/index.css?url';
+import { listStores } from '../eventstore';
 
 export const links = () => [
   { rel: 'stylesheet', href: materialDashboardCss },
@@ -24,6 +30,10 @@ export const links = () => [
   { rel: 'icon', href: '/favicon.ico' }
 ];
 
+export async function loader() {
+  return json({ stores: listStores() });
+}
+
 export const meta = () => [
   { title: 'event-storage-ui' },
   {
@@ -34,6 +44,19 @@ export const meta = () => [
 ];
 
 export default function App() {
+  const { stores } = useLoaderData();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentStore = searchParams.get('store') || (stores.length > 0 ? stores[0] : '');
+  const storeSearch = currentStore ? `?store=${currentStore}` : '';
+
+  function handleStoreChange(e) {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('store', e.target.value);
+    navigate(`${location.pathname}?${newParams.toString()}`);
+  }
+
   return (
     <html lang="en">
       <head>
@@ -56,18 +79,35 @@ export default function App() {
                   </div>
                   <div className="collapse navbar-collapse justify-content-end">
                     <ul className="navbar-nav">
+                      {stores.length > 1 && (
+                        <li className="nav-item" style={{ display: 'flex', alignItems: 'center', marginRight: 8 }}>
+                          <select
+                            className="form-control"
+                            value={currentStore}
+                            onChange={handleStoreChange}
+                            style={{ height: 36 }}
+                            aria-label="Select store"
+                          >
+                            {stores.map((store) => (
+                              <option key={store} value={store}>
+                                {store}
+                              </option>
+                            ))}
+                          </select>
+                        </li>
+                      )}
                       <li className="nav-item">
-                        <NavLink to="/" className="btn btn-info">
+                        <NavLink to={`/${storeSearch}`} className="btn btn-info">
                           <i className="material-icons">dashboard</i> Dashboard
                         </NavLink>
                       </li>
                       <li className="nav-item">
-                        <NavLink to="/streams" className="btn btn-info">
+                        <NavLink to={`/streams${storeSearch}`} className="btn btn-info">
                           <i className="material-icons">table_rows</i> Stream Browser
                         </NavLink>
                       </li>
                       <li className="nav-item">
-                        <NavLink to="/consumers" className="btn btn-info">
+                        <NavLink to={`/consumers${storeSearch}`} className="btn btn-info">
                           <i className="material-icons">restore_page</i> Consumers
                         </NavLink>
                       </li>

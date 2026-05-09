@@ -7,9 +7,11 @@ export const meta = ({ params }) => [
   { title: `event-storage: Consumer ${params.consumerIdentifier}` }
 ];
 
-export async function loader({ params }) {
+export async function loader({ params, request }) {
   const consumerIdentifier = params.consumerIdentifier;
-  const { eventstore } = await getEventStore({ readOnly: true });
+  const url = new URL(request.url);
+  const storeNameOverride = url.searchParams.get('store') || undefined;
+  const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
   try {
     const [indexName, consumerName] = consumerIdentifier.split('.', 2);
