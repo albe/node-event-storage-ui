@@ -1,5 +1,6 @@
 import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
+import { useState } from 'react';
 import getEventStore from '../../eventstore';
 import DateFormat from '../components/date';
 import Json from '../components/json';
@@ -19,6 +20,19 @@ export async function loader({ params, request }) {
     const amount = 10;
     const direction = 'forwards';
     const events = [];
+    const streamIndex = eventstore.streams[streamName]?.index;
+    const streamIndexMetadata = streamIndex?.metadata || null;
+    const matcher = streamIndexMetadata?.matcher ?? null;
+    const writePartitionName = `${eventstore.storage.storageFile}.${streamName}`;
+    const writePartition = Object.values(eventstore.storage.partitions).find(
+      (partition) => partition.name === writePartitionName
+    );
+    const isWriteStream = !!writePartition;
+    let partitionMetadata = null;
+    if (writePartition) {
+      writePartition.open();
+      partitionMetadata = writePartition.metadata || null;
+    }
 
     const until = from + amount - 1;
     const streamLength = eventstore.getStreamVersion(streamName);
@@ -36,7 +50,13 @@ export async function loader({ params, request }) {
       direction,
       amount,
       next: until >= streamLength ? 0 : until + 1,
-      prev: from - amount
+      prev: from - amount,
+      streamInfo: {
+        indexMetadata: streamIndexMetadata,
+        matcher,
+        isWriteStream,
+        partitionMetadata
+      }
     });
   } finally {
     eventstore.close();
@@ -44,14 +64,47 @@ export async function loader({ params, request }) {
 }
 
 export default function EventStream() {
-  const { streamName, stream, direction, amount, next, prev } = useLoaderData();
+  const { streamName, stream, direction, amount, next, prev, streamInfo } = useLoaderData();
+  const [showInfo, setShowInfo] = useState(false);
 
   return (
     <div className="card">
       <div className="card-header card-header-info">
-        <h2>EventStream '{streamName}'</h2>
+        <div className="d-flex align-items-center justify-content-between">
+          <h2 className="mb-0">EventStream '{streamName}'</h2>
+          <button
+            type="button"
+            className="btn btn-link btn-sm text-white mb-0"
+            aria-label="Toggle stream info"
+            aria-expanded={showInfo}
+            onClick={() => setShowInfo((open) => !open)}
+          >
+            <i className="material-icons">info</i>
+          </button>
+        </div>
       </div>
       <div className="card-body">
+        {showInfo && (
+          <div className="alert alert-dark">
+            <div>
+              <strong>Matcher</strong>
+              <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 12 }}>
+                {JSON.stringify(streamInfo.matcher, null, 2)}
+              </pre>
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <strong>Write stream (partition):</strong> {streamInfo.isWriteStream ? 'Yes' : 'No'}
+            </div>
+            {streamInfo.isWriteStream && (
+              <div>
+                <strong>Partition metadata</strong>
+                <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
+                  {JSON.stringify(streamInfo.partitionMetadata, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
+        )}
         <table className="table table-hover">
           <thead>
             <tr>
