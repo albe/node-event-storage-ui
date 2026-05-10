@@ -13,7 +13,7 @@ import {
 import { json } from '@remix-run/node';
 import materialDashboardCss from 'material-dashboard-dark-edition/assets/css/material-dashboard.css?url';
 import materialIconsCss from '@fontsource/material-icons/index.css?url';
-import { listStores } from '../eventstore';
+import { listStores, getStoreLockStatus } from '../eventstore';
 
 export const links = () => [
   { rel: 'stylesheet', href: materialDashboardCss },
@@ -30,8 +30,12 @@ export const links = () => [
   { rel: 'icon', href: '/favicon.ico' }
 ];
 
-export async function loader() {
-  return json({ stores: listStores() });
+export async function loader({ request }) {
+  const url = new URL(request.url);
+  const storeNameOverride = url.searchParams.get('store') || undefined;
+  const stores = listStores();
+  const storeLocked = getStoreLockStatus(storeNameOverride);
+  return json({ stores, storeLocked });
 }
 
 export const meta = () => [
@@ -44,7 +48,7 @@ export const meta = () => [
 ];
 
 export default function App() {
-  const { stores } = useLoaderData();
+  const { stores, storeLocked } = useLoaderData();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -94,6 +98,24 @@ export default function App() {
                               </option>
                             ))}
                           </select>
+                          {storeLocked && (
+                            <span
+                              title="This store is locked for writing by an external process"
+                              style={{ marginLeft: 6, cursor: 'default', fontSize: 18, lineHeight: '36px' }}
+                            >
+                              ❗
+                            </span>
+                          )}
+                        </li>
+                      )}
+                      {stores.length <= 1 && storeLocked && (
+                        <li className="nav-item" style={{ display: 'flex', alignItems: 'center', marginRight: 8 }}>
+                          <span
+                            title="This store is locked for writing by an external process"
+                            style={{ cursor: 'default', fontSize: 18, lineHeight: '36px' }}
+                          >
+                            ❗
+                          </span>
                         </li>
                       )}
                       <li className="nav-item">
@@ -111,6 +133,13 @@ export default function App() {
                           <i className="material-icons">restore_page</i> Consumers
                         </NavLink>
                       </li>
+                      {!storeLocked && (
+                        <li className="nav-item">
+                          <NavLink to={`/write-events${storeSearch}`} className="btn btn-info">
+                            <i className="material-icons">edit</i> Write Events
+                          </NavLink>
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>

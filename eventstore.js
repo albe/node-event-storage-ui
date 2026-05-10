@@ -32,6 +32,39 @@ function resolveStoreName(config, storeNameOverride) {
   return baseName;
 }
 
+export function getStoreLockStatus(storeNameOverride) {
+  const config = readConfig();
+  const storePath = resolveStoreName(config, storeNameOverride);
+  return fs.existsSync(path.join(storePath, '.lock'));
+}
+
+export async function commitToEventStore(streamName, events, metadata, storeNameOverride) {
+  const eventStoreModule = await import('event-storage');
+  const EventStore = eventStoreModule.default || eventStoreModule;
+  const config = readConfig();
+  const defaultOptions = config.options || {};
+  const storeName = resolveStoreName(config, storeNameOverride);
+  const options = Object.assign({}, defaultOptions, { readOnly: false });
+
+  return new Promise((resolve, reject) => {
+    const eventstore = new EventStore(storeName, options);
+    eventstore.on('error', (err) => {
+      reject(new Error('The store is locked by another process. ' + (err?.message || '')));
+    });
+    eventstore.on('ready', () => {
+      try {
+        const eventsArray = Array.isArray(events) ? events : [events];
+        eventstore.commit(streamName, eventsArray, metadata || undefined);
+        eventstore.close();
+        resolve({ success: true });
+      } catch (err) {
+        eventstore.close();
+        reject(err);
+      }
+    });
+  });
+}
+
 export default async function getEventStore(options, storeNameOverride) {
   const eventStoreModule = await import('event-storage');
   const EventStore = eventStoreModule.default || eventStoreModule;
