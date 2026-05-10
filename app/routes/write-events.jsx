@@ -63,6 +63,14 @@ function tryParseJson(str) {
   }
 }
 
+function shouldShowPreview(result) {
+  return !result.empty && !result.error && result.value !== null;
+}
+
+function isFormValid(streamName, eventsResult) {
+  return !!streamName.trim() && !eventsResult.error && !eventsResult.empty;
+}
+
 export default function WriteEvents() {
   const { storeLocked, storeNameOverride } = useLoaderData();
   const actionData = useActionData();
@@ -176,7 +184,7 @@ export default function WriteEvents() {
                 {!eventsResult.empty && eventsResult.error && (
                   <span className="text-danger">Syntax error: {eventsResult.error}</span>
                 )}
-                {!eventsResult.empty && !eventsResult.error && eventsResult.value !== null && (
+                {shouldShowPreview(eventsResult) && (
                   <Json data={eventsResult.value} />
                 )}
               </div>
@@ -237,7 +245,7 @@ export default function WriteEvents() {
                   {!metadataResult.empty && metadataResult.error && (
                     <span className="text-danger">Syntax error: {metadataResult.error}</span>
                   )}
-                  {!metadataResult.empty && !metadataResult.error && metadataResult.value !== null && (
+                  {shouldShowPreview(metadataResult) && (
                     <Json data={metadataResult.value} />
                   )}
                 </div>
@@ -249,7 +257,7 @@ export default function WriteEvents() {
             <button
               type="submit"
               className="btn btn-info"
-              disabled={isSubmitting || eventsResult.error || eventsResult.empty || !streamName.trim()}
+              disabled={isSubmitting || !isFormValid(streamName, eventsResult)}
             >
               {isSubmitting ? (
                 <>

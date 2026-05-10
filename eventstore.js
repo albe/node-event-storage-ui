@@ -49,7 +49,7 @@ export async function commitToEventStore(streamName, events, metadata, storeName
   return new Promise((resolve, reject) => {
     const eventstore = new EventStore(storeName, options);
     eventstore.on('error', (err) => {
-      reject(new Error('The store is locked by another process. ' + (err?.message || '')));
+      reject(new Error('The store is locked by another process: ' + (err?.message || 'unknown error')));
     });
     eventstore.on('ready', () => {
       try {
