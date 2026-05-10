@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@remix-run/dev": "^2.17.4",
+    "cypress": "^15.14.2",
     "postcss": "^8.5.14",
     "vite": "^6.4.2"
   }
