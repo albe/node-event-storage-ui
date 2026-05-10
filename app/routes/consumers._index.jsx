@@ -6,6 +6,8 @@ import Json from '../components/json';
 import usePagination from '../hooks/paginate';
 
 export const meta = () => [{ title: 'event-storage: Consumers' }];
+const DEFAULT_CONSUMER_LOGIC =
+  '(event, state, setState) => {\n  setState({ ...state, count: (state.count || 0) + 1 });\n}';
 
 export async function loader({ request }) {
   const url = new URL(request.url);
@@ -104,9 +106,7 @@ export default function Consumers() {
   );
   const [streamName, setStreamName] = useState(streamNames[0] || '');
   const [consumerName, setConsumerName] = useState('');
-  const [consumerLogic, setConsumerLogic] = useState(
-    '(event, state, setState) => {\n  setState({ ...state, count: (state.count || 0) + 1 });\n}'
-  );
+  const [consumerLogic, setConsumerLogic] = useState(DEFAULT_CONSUMER_LOGIC);
   const [initialState, setInitialState] = useState('{}');
 
   useEffect(() => {
@@ -189,7 +189,7 @@ export default function Consumers() {
                 className="form-control"
                 value={consumerName}
                 onChange={(e) => setConsumerName(e.target.value)}
-                placeholder="e.g. billingProjection"
+                placeholder="e.g. myConsumer"
               />
             </div>
             <div className="form-group">

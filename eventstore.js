@@ -1,7 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { randomUUID } from 'node:crypto';
 import addStorageStats from './projections/StorageStats';
+
+const MAX_CONSUMER_LOGIC_LENGTH = 10000;
+const CONSUMER_LOGIC_TIMEOUT_MS = 200;
 
 function readConfig() {
   return JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
@@ -86,8 +90,8 @@ function validateConsumerLogicInput(consumerLogic) {
     throw new Error('Consumer logic is required.');
   }
 
-  if (consumerLogic.length > 10000) {
-    throw new Error('Consumer logic is too large.');
+  if (consumerLogic.length > MAX_CONSUMER_LOGIC_LENGTH) {
+    throw new Error(`Consumer logic is too large (max ${MAX_CONSUMER_LOGIC_LENGTH} characters).`);
   }
 
   const unsafePatterns = [
@@ -128,7 +132,7 @@ function executeConsumerLogic(consumerLogic, event, state, persistState) {
       return consumerHandler(event, state, setState);
     })()`,
     context,
-    { timeout: 200 }
+    { timeout: CONSUMER_LOGIC_TIMEOUT_MS }
   );
 
   if (!calledSetState && typeof result !== 'undefined') {
@@ -159,7 +163,7 @@ function readEventsForStreams(eventstore, streamNames) {
     return stream;
   }
 
-  return eventstore.fromStreams(`preview-${Date.now()}`, streamNames);
+  return eventstore.fromStreams(`preview-${randomUUID()}`, streamNames);
 }
 
 function replayConsumer({ stream, consumerLogic, initialState }) {
