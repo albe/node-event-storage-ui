@@ -19,7 +19,8 @@
   "scripts": {
     "dev": "remix vite:dev",
     "build": "remix vite:build",
-    "start": "remix-serve ./build/server/index.js"
+    "start": "remix-serve ./build/server/index.js",
+    "cypress:consumers": "cypress run --spec cypress/e2e/consumers.cy.js"
   },
   "dependencies": {
     "@fontsource/material-icons": "^5.2.7",
