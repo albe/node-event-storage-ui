@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function Json({ data, collapsed = true }) {
+export default function Json({ data, collapsed = true, style = undefined }) {
   const [ReactJson, setReactJson] = useState(null);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function Json({ data, collapsed = true }) {
       collapsed={collapsed}
       name={null}
       displayDataTypes={false}
-      style={{ background: 'transparent' }}
+      style={{ background: 'transparent', ...style }}
       theme="monokai"
     />
   );
