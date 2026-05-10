@@ -24,6 +24,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        # Required for current dependency graph (React 19 + Remix peer deps mismatch).
         run: npm ci --legacy-peer-deps
 
       - name: Build app

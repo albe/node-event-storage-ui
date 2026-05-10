@@ -16,7 +16,7 @@ describe('Core views', () => {
   });
 
   it('creates a consumer from the consumer view and opens its details', () => {
-    const consumerName = `cypress-core-${Date.now()}`;
+    const consumerName = Cypress._.uniqueId('cypress-core-');
 
     cy.visit('/consumers');
     cy.contains('Consumers').should('be.visible');
