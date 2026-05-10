@@ -1,5 +1,5 @@
 import { json } from '@remix-run/node';
-import { Link, useActionData, useFetcher, useLoaderData, useNavigation } from '@remix-run/react';
+import { Form, Link, useActionData, useFetcher, useLoaderData, useNavigation } from '@remix-run/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import getEventStore, { createConsumer, previewConsumerState } from '../../eventstore';
 import Json from '../components/json';
@@ -229,8 +229,7 @@ export default function Consumers() {
               >
                 {isPreviewing ? 'Previewing…' : 'Preview'}
               </button>
-              <previewFetcher.Form method="post" style={{ display: 'none' }} />
-              <form method="post" style={{ display: 'inline-block', marginLeft: 8 }}>
+              <Form method="post" style={{ display: 'inline-block', marginLeft: 8 }}>
                 <input type="hidden" name="intent" value="create" />
                 <input type="hidden" name="streamName" value={streamName} />
                 <input type="hidden" name="consumerName" value={consumerName} />
@@ -239,7 +238,7 @@ export default function Consumers() {
                 <button type="submit" className="btn btn-info" disabled={!canSubmit || isCreating}>
                   {isCreating ? 'Creating…' : 'Create Consumer'}
                 </button>
-              </form>
+              </Form>
             </div>
           </div>
           <div className="col-md-6">

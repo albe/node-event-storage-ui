@@ -205,17 +205,18 @@ export async function createConsumer(
 
   const normalizedStreamName = streamName.trim();
   const normalizedConsumerName = consumerName.trim();
+
+  await previewConsumerState(
+    { streamNames: [normalizedStreamName], consumerLogic, initialState },
+    storeNameOverride
+  );
+
   const { eventstore } = await getEventStore({ readOnly: false }, storeNameOverride);
 
   try {
     if (eventstore.getEventStream(normalizedStreamName) === false) {
       throw new Error(`Stream "${normalizedStreamName}" does not exist.`);
     }
-
-    await previewConsumerState(
-      { streamNames: [normalizedStreamName], consumerLogic, initialState },
-      storeNameOverride
-    );
 
     const consumer = eventstore.getConsumer(
       normalizedStreamName,
