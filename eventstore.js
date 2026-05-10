@@ -110,7 +110,12 @@ function executeConsumerLogic(consumerLogic, event, state, persistState) {
   let nextState = state;
   let calledSetState = false;
   const setState = (update) => {
-    const resolvedState = typeof update === 'function' ? update(nextState) : update;
+    let resolvedState;
+    try {
+      resolvedState = typeof update === 'function' ? update(nextState) : update;
+    } catch (err) {
+      throw new Error(err?.message || 'setState update failed.');
+    }
     nextState = resolvedState;
     calledSetState = true;
     if (persistState) {

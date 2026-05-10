@@ -122,10 +122,28 @@ export default function Consumers() {
   const createError = actionData?.intent === 'create' ? actionData?.error : null;
   const previewError = previewFetcher.data?.intent === 'preview' ? previewFetcher.data?.error : null;
   const previewState = previewFetcher.data?.intent === 'preview' ? previewFetcher.data?.previewState : null;
+  const initialStateValidation = useMemo(() => {
+    if (!initialState.trim()) {
+      return { isValid: true, error: null };
+    }
+    try {
+      const parsed = JSON.parse(initialState);
+      if (parsed === null || Array.isArray(parsed) || typeof parsed !== 'object') {
+        return { isValid: false, error: 'Initial state must be a JSON object.' };
+      }
+      return { isValid: true, error: null };
+    } catch {
+      return { isValid: false, error: 'Initial state must be valid JSON.' };
+    }
+  }, [initialState]);
 
   const canSubmit = useMemo(
-    () => !!streamName && !!consumerName.trim() && !!consumerLogic.trim(),
-    [streamName, consumerName, consumerLogic]
+    () =>
+      streamNames.includes(streamName) &&
+      !!consumerName.trim() &&
+      !!consumerLogic.trim() &&
+      initialStateValidation.isValid,
+    [streamNames, streamName, consumerName, consumerLogic, initialStateValidation.isValid]
   );
 
   const onPreview = useCallback(() => {
@@ -219,6 +237,9 @@ export default function Consumers() {
                 onChange={(e) => setInitialState(e.target.value)}
                 style={{ fontFamily: 'monospace', fontSize: 13 }}
               />
+              {!initialStateValidation.isValid && (
+                <small className="text-danger">{initialStateValidation.error}</small>
+              )}
             </div>
             <div style={{ marginTop: 16 }}>
               <button
