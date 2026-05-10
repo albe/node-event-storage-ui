@@ -1,14 +1,14 @@
-import { RemixServer } from '@remix-run/react';
+import { ServerRouter } from 'react-router';
 import { renderToString } from 'react-dom/server';
 
 export default function handleRequest(
   request,
   responseStatusCode,
   responseHeaders,
-  remixContext
+  routerContext
 ) {
   const markup = renderToString(
-    <RemixServer context={remixContext} url={request.url} />
+    <ServerRouter context={routerContext} url={request.url} />
   );
 
   responseHeaders.set('Content-Type', 'text/html');

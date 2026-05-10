@@ -1,4 +1,4 @@
-import { json } from '@remix-run/node';
+import { json } from 'react-router';
 import { listStores } from '../../eventstore';
 
 export async function loader() {

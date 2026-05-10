@@ -9,8 +9,8 @@ import {
   useLocation,
   useNavigate,
   useSearchParams
-} from '@remix-run/react';
-import { json } from '@remix-run/node';
+} from 'react-router';
+import { json } from 'react-router';
 import materialDashboardCss from 'material-dashboard-dark-edition/assets/css/material-dashboard.css?url';
 import materialIconsCss from '@fontsource/material-icons/index.css?url';
 import roboto300Css from '@fontsource/roboto/300.css?url';

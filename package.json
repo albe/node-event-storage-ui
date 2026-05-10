@@ -17,9 +17,9 @@
   "author": "Alexander Berl",
   "license": "MIT",
   "scripts": {
-    "dev": "remix vite:dev",
-    "build": "remix vite:build",
-    "start": "remix-serve ./build/server/index.js",
+    "dev": "react-router dev",
+    "build": "react-router build",
+    "start": "react-router-serve ./build/server/index.js",
     "cypress:run": "cypress run",
     "cypress:consumers": "cypress run --spec cypress/e2e/consumers.cy.js"
   },
@@ -27,9 +27,9 @@
     "@fontsource/material-icons": "^5.2.7",
     "@fontsource/roboto": "^5.2.10",
     "@fontsource/roboto-slab": "^5.2.8",
-    "@remix-run/node": "^2.17.4",
-    "@remix-run/react": "^2.17.4",
-    "@remix-run/serve": "^2.17.4",
+    "@react-router/fs-routes": "^7.15.0",
+    "@react-router/node": "^7.15.0",
+    "@react-router/serve": "^7.15.0",
     "chartist": "^0.10.1",
     "event-storage": "^1.0.0",
     "font-awesome": "^4.7.0",
@@ -38,10 +38,11 @@
     "react-chartist": "^0.14.4",
     "react-dom": "19.2.6",
     "react-json-view": "^1.21.3",
+    "react-router": "^7.15.0",
     "systeminformation": "^5.7.7"
   },
   "devDependencies": {
-    "@remix-run/dev": "^2.17.4",
+    "@react-router/dev": "^7.15.0",
     "cypress": "^13.17.0",
     "postcss": "^8.5.14",
     "vite": "^6.4.2"

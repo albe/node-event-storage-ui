@@ -24,9 +24,8 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        # Temporary workaround: @remix-run/react@2.17.x peers React ^18 while this repo pins React 19.2.6.
-        # TODO: Remove --legacy-peer-deps after aligning React/Remix peer versions.
-        # Use legacy peer resolution in CI until deps are aligned.
+        # react-chartist@0.14.4 declares peers react@^0.14-17, conflicting with react@19.
+        # --legacy-peer-deps can be removed once react-chartist is replaced or updated.
         run: npm ci --legacy-peer-deps
 
       - name: Build app

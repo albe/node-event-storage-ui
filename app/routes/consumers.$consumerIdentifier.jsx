@@ -1,5 +1,5 @@
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { json } from 'react-router';
+import { useLoaderData } from 'react-router';
 import getEventStore from '../../eventstore';
 import Json from '../components/json';
 

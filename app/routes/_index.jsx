@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { json } from 'react-router';
+import { useLoaderData } from 'react-router';
 import getEventStore from '../../eventstore';
 import { formatTimeAgo } from '../../helpers/format';
 import Chart from '../components/chart';

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
-import { json } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { json } from 'react-router';
+import { Link, useLoaderData } from 'react-router';
 import getEventStore from '../../eventstore';
 import DateFormat from '../components/date';
 import Json from '../components/json';

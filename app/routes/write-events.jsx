@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import { json } from '@remix-run/node';
-import { useLoaderData, useActionData, useNavigation, useSearchParams } from '@remix-run/react';
-import { Form } from '@remix-run/react';
+import { json } from 'react-router';
+import { useLoaderData, useActionData, useNavigation, useSearchParams } from 'react-router';
+import { Form } from 'react-router';
 import { getStoreLockStatus, commitToEventStore } from '../../eventstore';
 import Json from '../components/json';
 
