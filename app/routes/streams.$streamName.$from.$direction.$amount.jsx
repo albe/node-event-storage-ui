@@ -73,6 +73,8 @@ export async function loader({ params, request }) {
 export default function EventStreamPaged() {
   const { streamName, stream, direction, amount, next, prev, streamInfo } = useLoaderData();
   const [showInfo, setShowInfo] = useState(false);
+  const matcherIsFunctionExpression = typeof streamInfo.matcher === 'string';
+  const matcherIsJson = streamInfo.matcher !== null && typeof streamInfo.matcher === 'object';
 
   return (
     <div className="card">
@@ -95,9 +97,19 @@ export default function EventStreamPaged() {
           <div className="alert alert-dark">
             <div>
               <strong>Matcher</strong>
-              <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 12 }}>
-                {JSON.stringify(streamInfo.matcher, null, 2)}
-              </pre>
+              {matcherIsJson ? (
+                <Json data={streamInfo.matcher} />
+              ) : matcherIsFunctionExpression ? (
+                <textarea
+                  className="form-control"
+                  value={streamInfo.matcher}
+                  readOnly
+                  rows={4}
+                  style={{ marginTop: 8, marginBottom: 12 }}
+                />
+              ) : (
+                <div style={{ marginTop: 8, marginBottom: 12 }}>n/a</div>
+              )}
             </div>
             <div style={{ marginBottom: 12 }}>
               <strong>Write stream (partition):</strong> {streamInfo.isWriteStream ? 'Yes' : 'No'}
@@ -105,9 +117,7 @@ export default function EventStreamPaged() {
             {streamInfo.isWriteStream && (
               <div>
                 <strong>Partition metadata</strong>
-                <pre style={{ whiteSpace: 'pre-wrap', marginBottom: 0 }}>
-                  {JSON.stringify(streamInfo.partitionMetadata, null, 2)}
-                </pre>
+                <Json data={streamInfo.partitionMetadata} />
               </div>
             )}
           </div>
