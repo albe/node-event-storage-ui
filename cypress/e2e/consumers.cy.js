@@ -7,7 +7,8 @@
 
 describe('Consumers', () => {
   it('previews consumer state and captures a screenshot', () => {
-    const consumerName = `cypress-preview-${Date.now()}`;
+    const testConsumerName = `cypress-preview-${Date.now()}`;
+    const initialStateJson = '{"count":0}';
 
     cy.visit('/consumers');
     cy.contains('Add Consumer').should('be.visible');
@@ -16,16 +17,17 @@ describe('Consumers', () => {
       .first()
       .invoke('val')
       .then((streamValue) => {
+        expect(streamValue, 'at least one stream option value').to.not.be.empty;
         cy.get('#streamName').select(String(streamValue));
       });
-    cy.get('#consumerName').clear().type(consumerName);
+    cy.get('#consumerName').clear().type(testConsumerName);
     cy.get('#consumerLogic').clear().type(
       `(event, state, setState) => {
   setState({ ...state, count: (state.count || 0) + 1 });
 }`,
       { parseSpecialCharSequences: false }
     );
-    cy.get('#initialState').clear().type('{"count":0}', { parseSpecialCharSequences: false });
+    cy.get('#initialState').clear().type(initialStateJson, { parseSpecialCharSequences: false });
 
     cy.intercept('POST', '/consumers*').as('previewRequest');
     cy.contains('button', 'Preview').click();
