@@ -9,7 +9,9 @@ on:
 jobs:
   cypress:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
