@@ -144,7 +144,7 @@ function executeConsumerLogic(consumerLogic, event, state, persistState) {
     throw new Error('Consumer state must not become undefined.');
   }
 
-  return nextState;
+  return { nextState, calledSetState };
 }
 
 function readEventsForStreams(eventstore, streamNames) {
@@ -164,15 +164,14 @@ function readEventsForStreams(eventstore, streamNames) {
     return stream;
   }
 
-  return eventstore.fromStreams(`preview-${randomUUID()}`, streamNames);
+  return eventstore.fromStreams(`_internal_preview_${randomUUID()}`, streamNames);
 }
 
 function replayConsumer({ stream, consumerLogic, initialState }) {
   let state = Object.freeze(initialState ?? {});
   stream.forEach((payload, metadata, eventStream) => {
-    state = Object.freeze(
-      executeConsumerLogic(consumerLogic, { payload, metadata, stream: eventStream }, state)
-    );
+    const execution = executeConsumerLogic(consumerLogic, { payload, metadata, stream: eventStream }, state);
+    state = Object.freeze(execution.nextState);
   });
   return state;
 }
@@ -234,11 +233,11 @@ export async function createConsumer(
       consumer.on('error', reject);
       consumer.on('data', (event) => {
         try {
-          const nextState = executeConsumerLogic(consumerLogic, event, consumer.state, (resolvedState) =>
+          const execution = executeConsumerLogic(consumerLogic, event, consumer.state, (resolvedState) =>
             consumer.setState(resolvedState)
           );
-          if (nextState !== consumer.state) {
-            consumer.setState(nextState);
+          if (!execution.calledSetState && execution.nextState !== consumer.state) {
+            consumer.setState(execution.nextState);
           }
         } catch (err) {
           reject(err);

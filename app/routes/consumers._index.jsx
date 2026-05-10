@@ -110,7 +110,7 @@ export default function Consumers() {
   const [initialState, setInitialState] = useState('{}');
 
   useEffect(() => {
-    if (!streamName && streamNames.length > 0) {
+    if (streamName === '' && streamNames.length > 0) {
       setStreamName(streamNames[0]);
     }
   }, [streamName, streamNames]);
@@ -124,7 +124,7 @@ export default function Consumers() {
   const previewState = previewFetcher.data?.intent === 'preview' ? previewFetcher.data?.previewState : null;
 
   const canSubmit = useMemo(
-    () => !!streamName && !!consumerName?.trim() && !!consumerLogic.trim(),
+    () => !!streamName && !!consumerName.trim() && !!consumerLogic.trim(),
     [streamName, consumerName, consumerLogic]
   );
 
