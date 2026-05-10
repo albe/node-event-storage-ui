@@ -23,13 +23,14 @@ describe('Write Events', () => {
   it('shows live JSON preview when valid JSON is entered', () => {
     cy.visit('/write-events');
     cy.waitForReact();
-    cy.get('#streamName').reactType('orders');
-    cy.get('#events').reactType(
+    cy.get('#streamName').type('orders');
+    cy.get('#events').type(
       JSON.stringify(
         [{ type: 'OrderPlaced', orderId: 'abc-123', amount: 99.99, currency: 'USD' }],
         null,
         2
-      )
+      ),
+      { parseSpecialCharSequences: false }
     );
     // Wait for the JsonView to render
     cy.wait(1000);
@@ -41,8 +42,8 @@ describe('Write Events', () => {
   it('shows a syntax error when invalid JSON is entered', () => {
     cy.visit('/write-events');
     cy.waitForReact();
-    cy.get('#streamName').reactType('orders');
-    cy.get('#events').reactType('{ invalid json }');
+    cy.get('#streamName').type('orders');
+    cy.get('#events').type('{ invalid json }', { parseSpecialCharSequences: false });
     cy.contains('Syntax error').should('be.visible');
     cy.get('[type=submit]').should('be.disabled');
   });
@@ -50,13 +51,15 @@ describe('Write Events', () => {
   it('shows metadata section when expanded', () => {
     cy.visit('/write-events');
     cy.waitForReact();
-    cy.get('#events').reactType(
-      JSON.stringify([{ type: 'OrderPlaced', orderId: 'abc-123' }], null, 2)
+    cy.get('#events').type(
+      JSON.stringify([{ type: 'OrderPlaced', orderId: 'abc-123' }], null, 2),
+      { parseSpecialCharSequences: false }
     );
     cy.get('button[aria-expanded]').click();
     cy.get('#metadata').should('be.visible');
-    cy.get('#metadata').reactType(
-      JSON.stringify({ correlationId: 'req-456', source: 'admin-ui' }, null, 2)
+    cy.get('#metadata').type(
+      JSON.stringify({ correlationId: 'req-456', source: 'admin-ui' }, null, 2),
+      { parseSpecialCharSequences: false }
     );
     cy.wait(1000);
     cy.screenshot('write-events-with-metadata', { overwrite: true });
@@ -65,9 +68,10 @@ describe('Write Events', () => {
   it('commits events and shows success message', () => {
     cy.visit('/write-events');
     cy.waitForReact();
-    cy.get('#streamName').reactType('cypress-test-stream');
-    cy.get('#events').reactType(
-      JSON.stringify([{ type: 'CypressTestEvent', testId: Date.now() }], null, 2)
+    cy.get('#streamName').type('cypress-test-stream');
+    cy.get('#events').type(
+      JSON.stringify([{ type: 'CypressTestEvent', testId: Date.now() }], null, 2),
+      { parseSpecialCharSequences: false }
     );
     cy.get('[type=submit]').click();
     cy.contains('Events committed successfully').should('be.visible');

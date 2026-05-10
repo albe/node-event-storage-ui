@@ -22,7 +22,7 @@ describe('Core views', () => {
     cy.waitForReact();
     cy.contains('Consumers').should('be.visible');
     cy.get('#streamName option').its('length').should('be.greaterThan', 0);
-    cy.get('#consumerName').reactType(consumerName);
+    cy.get('#consumerName').type(consumerName);
     cy.contains('button', 'Create Consumer').click();
 
     cy.contains('created.').should('be.visible');
