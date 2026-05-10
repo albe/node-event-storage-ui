@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import vm from 'node:vm';
 import addStorageStats from './projections/StorageStats';
 
 function readConfig() {
@@ -63,6 +64,192 @@ export async function commitToEventStore(streamName, events, metadata, storeName
       }
     });
   });
+}
+
+function normalizeStreamNames(streamNamesInput) {
+  if (Array.isArray(streamNamesInput)) {
+    return Array.from(new Set(streamNamesInput.map((name) => String(name).trim()).filter(Boolean)));
+  }
+
+  return Array.from(
+    new Set(
+      String(streamNamesInput || '')
+        .split(',')
+        .map((name) => name.trim())
+        .filter(Boolean)
+    )
+  );
+}
+
+function validateConsumerLogicInput(consumerLogic) {
+  if (typeof consumerLogic !== 'string' || !consumerLogic.trim()) {
+    throw new Error('Consumer logic is required.');
+  }
+
+  if (consumerLogic.length > 10000) {
+    throw new Error('Consumer logic is too large.');
+  }
+
+  const unsafePatterns = [
+    /\b(?:import|export|require)\b/,
+    /\b(?:process|global|globalThis|module)\b/,
+    /\b(?:Function|eval)\b/,
+    /<\s*\/?\s*script\b/i
+  ];
+  if (unsafePatterns.some((pattern) => pattern.test(consumerLogic))) {
+    throw new Error('Consumer logic contains unsafe syntax.');
+  }
+}
+
+function executeConsumerLogic(consumerLogic, event, state, persistState) {
+  let nextState = state;
+  let calledSetState = false;
+  const setState = (update) => {
+    const resolvedState = typeof update === 'function' ? update(nextState) : update;
+    nextState = resolvedState;
+    calledSetState = true;
+    if (persistState) {
+      persistState(resolvedState);
+    }
+  };
+
+  const context = vm.createContext({
+    event,
+    state: nextState,
+    setState
+  });
+
+  const result = vm.runInContext(
+    `(() => {
+      const consumerHandler = (${consumerLogic});
+      if (typeof consumerHandler !== 'function') {
+        throw new Error('Consumer logic must evaluate to a function.');
+      }
+      return consumerHandler(event, state, setState);
+    })()`,
+    context,
+    { timeout: 200 }
+  );
+
+  if (!calledSetState && typeof result !== 'undefined') {
+    nextState = result;
+  }
+
+  if (typeof nextState === 'undefined') {
+    throw new Error('Consumer state must not become undefined.');
+  }
+
+  return nextState;
+}
+
+function readEventsForStreams(eventstore, streamNames) {
+  if (streamNames.length === 0) {
+    throw new Error('At least one stream name is required.');
+  }
+
+  if (streamNames.includes('_all')) {
+    return eventstore.getAllEvents();
+  }
+
+  if (streamNames.length === 1) {
+    const stream = eventstore.getEventStream(streamNames[0]);
+    if (stream === false) {
+      throw new Error(`Stream "${streamNames[0]}" does not exist.`);
+    }
+    return stream;
+  }
+
+  return eventstore.fromStreams(`preview-${Date.now()}`, streamNames);
+}
+
+function replayConsumer({ stream, consumerLogic, initialState }) {
+  let state = Object.freeze(initialState ?? {});
+  stream.forEach((payload, metadata, eventStream) => {
+    state = Object.freeze(
+      executeConsumerLogic(consumerLogic, { payload, metadata, stream: eventStream }, state)
+    );
+  });
+  return state;
+}
+
+export async function previewConsumerState(
+  { streamNames: streamNamesInput, consumerLogic, initialState = {} },
+  storeNameOverride
+) {
+  validateConsumerLogicInput(consumerLogic);
+  const streamNames = normalizeStreamNames(streamNamesInput);
+  const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
+
+  try {
+    const stream = readEventsForStreams(eventstore, streamNames);
+    const state = replayConsumer({ stream, consumerLogic, initialState });
+    return { state, streamNames };
+  } finally {
+    eventstore.close();
+  }
+}
+
+export async function createConsumer(
+  { streamName, consumerName, consumerLogic, initialState = {}, since = 0 },
+  storeNameOverride
+) {
+  validateConsumerLogicInput(consumerLogic);
+
+  if (typeof streamName !== 'string' || !streamName.trim()) {
+    throw new Error('Stream name is required.');
+  }
+
+  if (typeof consumerName !== 'string' || !consumerName.trim()) {
+    throw new Error('Consumer name is required.');
+  }
+
+  const normalizedStreamName = streamName.trim();
+  const normalizedConsumerName = consumerName.trim();
+  const { eventstore } = await getEventStore({ readOnly: false }, storeNameOverride);
+
+  try {
+    if (eventstore.getEventStream(normalizedStreamName) === false) {
+      throw new Error(`Stream "${normalizedStreamName}" does not exist.`);
+    }
+
+    await previewConsumerState(
+      { streamNames: [normalizedStreamName], consumerLogic, initialState },
+      storeNameOverride
+    );
+
+    const consumer = eventstore.getConsumer(
+      normalizedStreamName,
+      normalizedConsumerName,
+      initialState,
+      since
+    );
+
+    await new Promise((resolve, reject) => {
+      consumer.on('error', reject);
+      consumer.on('data', (event) => {
+        try {
+          const nextState = executeConsumerLogic(consumerLogic, event, consumer.state, (resolvedState) =>
+            consumer.setState(resolvedState)
+          );
+          if (nextState !== consumer.state) {
+            consumer.setState(nextState);
+          }
+        } catch (err) {
+          reject(err);
+        }
+      });
+      consumer.on('caught-up', () => resolve({ position: consumer.position, state: consumer.state }));
+      consumer.start();
+    });
+
+    return {
+      consumerIdentifier: `${normalizedStreamName}.${normalizedConsumerName}`,
+      streamName: normalizedStreamName,
+      consumerName: normalizedConsumerName
+    };
+  } finally {
+    eventstore.close();
+  }
 }
 
 export default async function getEventStore(options, storeNameOverride) {
