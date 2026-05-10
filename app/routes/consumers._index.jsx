@@ -1,7 +1,8 @@
 import { json } from '@remix-run/node';
 import { Form, Link, useActionData, useFetcher, useLoaderData, useNavigation } from '@remix-run/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import getEventStore, { createConsumer, previewConsumerState } from '../../eventstore';
+import getEventStore from '../../eventstore';
+import { createConsumer, previewConsumerState } from '../consumers.server';
 import Json from '../components/json';
 import usePagination from '../hooks/paginate';
 
