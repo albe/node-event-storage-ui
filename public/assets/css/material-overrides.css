@@ -76,7 +76,6 @@
 }
 
 .stream-info-panel__section {
-    height: 100%;
     padding: 18px 20px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 6px;
@@ -135,6 +134,7 @@
     border: 1px solid rgba(244, 67, 54, 0.35);
 }
 
+.stream-info-panel__json,
 .stream-info-panel__code,
 .stream-info-panel__empty {
     margin: 12px 0 0;
@@ -151,4 +151,18 @@
     word-break: normal;
     line-height: 1.5;
     font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.stream-info-panel__json {
+    overflow-x: auto;
+}
+
+.stream-info-panel__json .react-json-view {
+    min-width: max-content;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+}
+
+.stream-info-panel__json .react-json-view .variable-row {
+    margin: 0;
 }
