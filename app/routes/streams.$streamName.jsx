@@ -4,6 +4,7 @@ import { useState } from 'react';
 import getEventStore from '../../eventstore';
 import DateFormat from '../components/date';
 import Json from '../components/json';
+import StreamInfoPanel from '../components/stream-info-panel';
 
 export const meta = ({ params }) => [
   { title: `event-storage: EventStream ${params.streamName}` }
@@ -66,8 +67,6 @@ export async function loader({ params, request }) {
 export default function EventStream() {
   const { streamName, stream, direction, amount, next, prev, streamInfo } = useLoaderData();
   const [showInfo, setShowInfo] = useState(false);
-  const matcherIsFunctionExpression = typeof streamInfo.matcher === 'string';
-  const matcherIsJson = streamInfo.matcher !== null && typeof streamInfo.matcher === 'object';
 
   return (
     <div className="card">
@@ -86,35 +85,7 @@ export default function EventStream() {
         </div>
       </div>
       <div className="card-body">
-        {showInfo && (
-          <div className="alert alert-dark">
-            <div>
-              <strong>Matcher</strong>
-              {matcherIsJson ? (
-                <Json data={streamInfo.matcher} />
-              ) : matcherIsFunctionExpression ? (
-                <textarea
-                  className="form-control"
-                  value={streamInfo.matcher}
-                  readOnly
-                  rows={4}
-                  style={{ marginTop: 8, marginBottom: 12 }}
-                />
-              ) : (
-                <div style={{ marginTop: 8, marginBottom: 12 }}>n/a</div>
-              )}
-            </div>
-            <div style={{ marginBottom: 12 }}>
-              <strong>Write stream (partition):</strong> {streamInfo.isWriteStream ? 'Yes' : 'No'}
-            </div>
-            {streamInfo.isWriteStream && (
-              <div>
-                <strong>Partition metadata</strong>
-                <Json data={streamInfo.partitionMetadata} />
-              </div>
-            )}
-          </div>
-        )}
+        {showInfo && <StreamInfoPanel streamInfo={streamInfo} />}
         <table className="table table-hover">
           <thead>
             <tr>
