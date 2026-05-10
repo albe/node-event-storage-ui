@@ -19,9 +19,10 @@ describe('Core views', () => {
     const consumerName = Cypress._.uniqueId('cypress-core-');
 
     cy.visit('/consumers');
+    cy.waitForReact();
     cy.contains('Consumers').should('be.visible');
     cy.get('#streamName option').its('length').should('be.greaterThan', 0);
-    cy.get('#consumerName').clear().type(consumerName);
+    cy.get('#consumerName').reactType(consumerName);
     cy.contains('button', 'Create Consumer').click();
 
     cy.contains('created.').should('be.visible');

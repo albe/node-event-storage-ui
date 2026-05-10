@@ -14,6 +14,7 @@ describe('Consumers', () => {
 }`;
 
     cy.visit('/consumers');
+    cy.waitForReact();
     cy.contains('Add Consumer').should('be.visible');
     cy.get('#streamName option').its('length').should('be.greaterThan', 0);
     cy.get('#streamName option')
@@ -23,9 +24,9 @@ describe('Consumers', () => {
         expect(streamValue, 'at least one stream option value').to.not.be.empty;
         cy.get('#streamName').select(String(streamValue));
       });
-    cy.get('#consumerName').clear().type(testConsumerName);
-    cy.get('#consumerLogic').clear().type(consumerLogic, { parseSpecialCharSequences: false });
-    cy.get('#initialState').clear().type(initialStateJson, { parseSpecialCharSequences: false });
+    cy.get('#consumerName').reactType(testConsumerName);
+    cy.get('#consumerLogic').reactType(consumerLogic);
+    cy.get('#initialState').reactType(initialStateJson);
 
     cy.intercept('POST', '**/consumers*', (req) => {
       if (typeof req.body === 'string' && req.body.includes('intent=preview')) {

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Links,
   Meta,
@@ -59,6 +60,14 @@ export default function App() {
   const navigate = useNavigate();
   const currentStore = searchParams.get('store') || (stores.length > 0 ? stores[0] : '');
   const storeSearch = currentStore ? `?store=${currentStore}` : '';
+
+  // Signal to Cypress (and other test tools) that React has fully hydrated
+  // and event handlers are attached. Only runs on the client after hydration.
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.__reactHydrated = true;
+    }
+  }, []);
 
   function handleStoreChange(e) {
     const newParams = new URLSearchParams(searchParams);
