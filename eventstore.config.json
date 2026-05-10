@@ -1,4 +1,5 @@
 {
   "storeName": "eventstore",
+  "storesDirectory": null,
   "options": {}
 }
