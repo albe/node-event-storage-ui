@@ -1,4 +1,4 @@
-import { json } from 'react-router';
+import { data } from 'react-router';
 import { Form, Link, useActionData, useFetcher, useLoaderData, useNavigation } from 'react-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import getEventStore from '../../eventstore';
@@ -26,12 +26,12 @@ export async function loader({ request }) {
       });
     });
 
-    return json({
+    return {
       streamNames: Object.keys(eventstore.streams).sort(),
       consumers: consumers.map((consumerIdentifier) =>
         [consumerIdentifier].concat(consumerIdentifier.split('.', 2))
       )
-    });
+    };
   } finally {
     eventstore.close();
   }
@@ -74,7 +74,7 @@ export async function action({ request }) {
         { streamNames: [streamName], consumerLogic, initialState },
         storeNameOverride
       );
-      return json({ intent, previewState: result.state, streamNames: result.streamNames });
+      return { intent, previewState: result.state, streamNames: result.streamNames };
     }
 
     if (intent === 'create') {
@@ -82,12 +82,12 @@ export async function action({ request }) {
         { streamName, consumerName, consumerLogic, initialState },
         storeNameOverride
       );
-      return json({ intent, success: true, consumerIdentifier: result.consumerIdentifier });
+      return { intent, success: true, consumerIdentifier: result.consumerIdentifier };
     }
 
-    return json({ error: 'Unknown action.' }, { status: 400 });
+    return data({ error: 'Unknown action.' }, { status: 400 });
   } catch (err) {
-    return json(
+    return data(
       {
         intent,
         error: err?.message || 'Consumer operation failed.'

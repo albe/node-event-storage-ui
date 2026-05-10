@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import { json } from 'react-router';
 import { Link, useLoaderData } from 'react-router';
 import getEventStore from '../../eventstore';
 import DateFormat from '../components/date';
@@ -25,10 +24,10 @@ export async function loader({ request }) {
       };
     });
 
-    return json({
+    return {
       storeName: eventstore.storeName,
       streams
-    });
+    };
   } finally {
     eventstore.close();
   }

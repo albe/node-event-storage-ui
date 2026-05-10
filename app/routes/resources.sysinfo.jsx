@@ -1,4 +1,3 @@
-import { json } from 'react-router';
 import si from 'systeminformation';
 
 export async function loader() {
@@ -12,12 +11,12 @@ export async function loader() {
       si.networkStats()
     ]);
 
-  return json({
+  return {
     fsSize,
     fsStats,
     currentLoad,
     processLoad,
     mem,
     networkStats
-  });
+  };
 }

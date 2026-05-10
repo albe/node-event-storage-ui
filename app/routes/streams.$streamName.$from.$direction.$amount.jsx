@@ -1,4 +1,3 @@
-import { json } from 'react-router';
 import { Link, useLoaderData } from 'react-router';
 import { useState } from 'react';
 import getEventStore from '../../eventstore';
@@ -52,7 +51,7 @@ export async function loader({ params, request }) {
       next = 0;
     }
 
-    return json({
+    return {
       streamName,
       stream: events,
       direction,
@@ -65,7 +64,7 @@ export async function loader({ params, request }) {
         isWriteStream,
         partitionMetadata
       }
-    });
+    };
   } finally {
     eventstore.close();
   }

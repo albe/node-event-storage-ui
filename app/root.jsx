@@ -10,7 +10,6 @@ import {
   useNavigate,
   useSearchParams
 } from 'react-router';
-import { json } from 'react-router';
 import materialDashboardCss from 'material-dashboard-dark-edition/assets/css/material-dashboard.css?url';
 import materialIconsCss from '@fontsource/material-icons/index.css?url';
 import roboto300Css from '@fontsource/roboto/300.css?url';
@@ -41,7 +40,7 @@ export async function loader({ request }) {
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const stores = listStores();
   const storeLocked = getStoreLockStatus(storeNameOverride);
-  return json({ stores, storeLocked });
+  return { stores, storeLocked };
 }
 
 export const meta = () => [

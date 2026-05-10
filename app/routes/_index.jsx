@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { json } from 'react-router';
 import { useLoaderData } from 'react-router';
 import getEventStore from '../../eventstore';
 import { formatTimeAgo } from '../../helpers/format';
@@ -24,14 +23,14 @@ export async function loader({ request }) {
       });
     });
 
-    return json({
+    return {
       storeName: eventstore.storeName,
       storageDirectory: eventstore.storageDirectory,
       streamsCount: Object.keys(eventstore.streams).length,
       eventsCount: eventstore.length,
       consumersCount: consumers.length,
       stats: storageStats ?? {}
-    });
+    };
   } finally {
     eventstore.close();
   }
