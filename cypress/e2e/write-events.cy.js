@@ -22,6 +22,7 @@ describe('Write Events', () => {
 
   it('shows live JSON preview when valid JSON is entered', () => {
     cy.visit('/write-events');
+    cy.waitForReact('[type=submit]');
     cy.get('#streamName').type('orders');
     cy.get('#events').type(
       JSON.stringify(
@@ -40,6 +41,7 @@ describe('Write Events', () => {
 
   it('shows a syntax error when invalid JSON is entered', () => {
     cy.visit('/write-events');
+    cy.waitForReact('[type=submit]');
     cy.get('#streamName').type('orders');
     cy.get('#events').type('{ invalid json }', { parseSpecialCharSequences: false });
     cy.contains('Syntax error').should('be.visible');
@@ -48,6 +50,7 @@ describe('Write Events', () => {
 
   it('shows metadata section when expanded', () => {
     cy.visit('/write-events');
+    cy.waitForReact('[type=submit]');
     cy.get('#events').type(
       JSON.stringify([{ type: 'OrderPlaced', orderId: 'abc-123' }], null, 2),
       { parseSpecialCharSequences: false }
@@ -64,6 +67,7 @@ describe('Write Events', () => {
 
   it('commits events and shows success message', () => {
     cy.visit('/write-events');
+    cy.waitForReact('[type=submit]');
     cy.get('#streamName').type('cypress-test-stream');
     cy.get('#events').type(
       JSON.stringify([{ type: 'CypressTestEvent', testId: Date.now() }], null, 2),
