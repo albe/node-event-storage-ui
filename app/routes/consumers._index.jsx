@@ -124,7 +124,7 @@ export default function Consumers() {
   const previewState = previewFetcher.data?.intent === 'preview' ? previewFetcher.data?.previewState : null;
 
   const canSubmit = useMemo(
-    () => !!streamName && !!consumerName.trim() && !!consumerLogic.trim(),
+    () => !!streamName && !!consumerName?.trim() && !!consumerLogic.trim(),
     [streamName, consumerName, consumerLogic]
   );
 
@@ -254,7 +254,7 @@ export default function Consumers() {
               }}
             >
               {!previewError && previewState === null && (
-                <span className="text-muted">Run preview to evaluate consumer state.</span>
+                <span style={{ color: '#bdbdbd' }}>Run preview to evaluate consumer state.</span>
               )}
               {previewError && <span className="text-danger">❌ {previewError}</span>}
               {!previewError && previewState !== null && <Json data={previewState} collapsed={false} />}

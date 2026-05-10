@@ -96,6 +96,7 @@ function validateConsumerLogicInput(consumerLogic) {
 
   const unsafePatterns = [
     /\b(?:import|export|require)\b/,
+    /import\s*\(/,
     /\b(?:process|global|globalThis|module)\b/,
     /\b(?:Function|eval)\b/,
     /<\s*\/?\s*script\b/i
