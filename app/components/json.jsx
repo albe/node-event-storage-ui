@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function Json({ data }) {
+export default function Json({ data, collapsed = true }) {
   const [ReactJson, setReactJson] = useState(null);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function Json({ data }) {
   return (
     <ReactJson
       src={data}
-      collapsed={true}
+      collapsed={collapsed}
       name={null}
       displayDataTypes={false}
       style={{ background: 'transparent' }}

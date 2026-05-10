@@ -13,20 +13,26 @@ import {
 import { json } from '@remix-run/node';
 import materialDashboardCss from 'material-dashboard-dark-edition/assets/css/material-dashboard.css?url';
 import materialIconsCss from '@fontsource/material-icons/index.css?url';
+import roboto300Css from '@fontsource/roboto/300.css?url';
+import roboto400Css from '@fontsource/roboto/400.css?url';
+import roboto500Css from '@fontsource/roboto/500.css?url';
+import roboto700Css from '@fontsource/roboto/700.css?url';
+import robotoSlab400Css from '@fontsource/roboto-slab/400.css?url';
+import robotoSlab700Css from '@fontsource/roboto-slab/700.css?url';
+import fontAwesomeCss from 'font-awesome/css/font-awesome.min.css?url';
 import { listStores, getStoreLockStatus } from '../eventstore';
 
 export const links = () => [
   { rel: 'stylesheet', href: materialDashboardCss },
   { rel: 'stylesheet', href: materialIconsCss },
+  { rel: 'stylesheet', href: roboto300Css },
+  { rel: 'stylesheet', href: roboto400Css },
+  { rel: 'stylesheet', href: roboto500Css },
+  { rel: 'stylesheet', href: roboto700Css },
+  { rel: 'stylesheet', href: robotoSlab400Css },
+  { rel: 'stylesheet', href: robotoSlab700Css },
+  { rel: 'stylesheet', href: fontAwesomeCss },
   { rel: 'stylesheet', href: '/assets/css/material-overrides.css' },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700'
-  },
-  {
-    rel: 'stylesheet',
-    href: 'https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css'
-  },
   { rel: 'icon', href: '/favicon.ico' }
 ];
 

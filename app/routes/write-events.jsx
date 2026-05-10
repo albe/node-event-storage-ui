@@ -185,7 +185,7 @@ export default function WriteEvents() {
                   <span className="text-danger">Syntax error: {eventsResult.error}</span>
                 )}
                 {shouldShowPreview(eventsResult) && (
-                  <Json data={eventsResult.value} />
+                  <Json data={eventsResult.value} collapsed={false} />
                 )}
               </div>
             </div>
@@ -246,7 +246,7 @@ export default function WriteEvents() {
                     <span className="text-danger">Syntax error: {metadataResult.error}</span>
                   )}
                   {shouldShowPreview(metadataResult) && (
-                    <Json data={metadataResult.value} />
+                    <Json data={metadataResult.value} collapsed={false} />
                   )}
                 </div>
               </div>
