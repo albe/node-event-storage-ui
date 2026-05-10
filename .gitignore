@@ -30,3 +30,6 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 /data/
+
+# cypress
+/cypress/videos
