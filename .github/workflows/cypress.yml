@@ -25,6 +25,7 @@ jobs:
 
       - name: Install dependencies
         # Temporary workaround: @remix-run/react@2.17.x peers React ^18 while this repo pins React 19.2.6.
+        # TODO: Remove --legacy-peer-deps after aligning React/Remix peer versions.
         # Use legacy peer resolution in CI until deps are aligned.
         run: npm ci --legacy-peer-deps
 
