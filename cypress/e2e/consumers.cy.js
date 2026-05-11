@@ -23,9 +23,9 @@ describe('Consumers', () => {
         expect(streamValue, 'at least one stream option value').to.not.be.empty;
         cy.get('#streamName').select(String(streamValue));
       });
-    cy.get('#consumerName').type(testConsumerName);
-    cy.get('#consumerLogic').type(consumerLogic, { parseSpecialCharSequences: false });
-    cy.get('#initialState').type(initialStateJson, { parseSpecialCharSequences: false });
+    cy.get('#consumerName').invoke('val', testConsumerName).trigger('input');
+    cy.get('#consumerLogic').invoke('val', consumerLogic).trigger('input');
+    cy.get('#initialState').invoke('val', initialStateJson).trigger('input');
 
     cy.intercept('POST', '**/consumers*', (req) => {
       if (typeof req.body === 'string' && req.body.includes('intent=preview')) {

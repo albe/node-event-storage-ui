@@ -137,6 +137,7 @@ export default function WriteEvents() {
               type="text"
               className="form-control"
               placeholder="e.g. users or orders-2024"
+              value={streamName}
               onChange={handleStreamNameChange}
               required
             />
@@ -157,6 +158,7 @@ export default function WriteEvents() {
                   className="form-control"
                   rows={10}
                   placeholder={'[\n  { "type": "MyEvent", "data": "value" }\n]'}
+                  value={eventsText}
                   onChange={handleEventsChange}
                   style={{ fontFamily: 'monospace', fontSize: 13 }}
                 />
@@ -217,6 +219,7 @@ export default function WriteEvents() {
                     className="form-control"
                     rows={6}
                     placeholder={'{\n  "correlationId": "abc123"\n}'}
+                    value={metadataText}
                     onChange={handleMetadataChange}
                     style={{ fontFamily: 'monospace', fontSize: 13 }}
                   />
