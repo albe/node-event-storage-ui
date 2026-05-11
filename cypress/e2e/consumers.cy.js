@@ -14,7 +14,6 @@ describe('Consumers', () => {
 }`;
 
     cy.visit('/consumers');
-    cy.waitForReact();
     cy.contains('Add Consumer').should('be.visible');
     cy.get('#streamName option').its('length').should('be.greaterThan', 0);
     cy.get('#streamName option')
