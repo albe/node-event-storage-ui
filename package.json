@@ -2,6 +2,7 @@
   "name": "event-storage-ui",
   "version": "0.1.0",
   "description": "A simple UI for node event-storage",
+  "type": "module",
   "main": "index.js",
   "keywords": [
     "event-storage",
