@@ -11,12 +11,12 @@ export async function loader() {
       si.networkStats()
     ]);
 
-  return {
+  return Response.json({
     fsSize,
     fsStats,
     currentLoad,
     processLoad,
     mem,
     networkStats
-  };
+  });
 }
