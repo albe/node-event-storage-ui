@@ -6,4 +6,5 @@ Cypress.on('uncaught:exception', (err) => {
   if (err.message.includes('#418')) {
     return false;
   }
+  return true;
 });
