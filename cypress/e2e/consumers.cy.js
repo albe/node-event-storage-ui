@@ -32,8 +32,8 @@ describe('Consumers', () => {
     // option is already selected — no explicit cy.select() needed.
     cy.get('#streamName option').its('length').should('be.greaterThan', 0);
     cy.get('#consumerName').type(testConsumerName);
-    cy.get('#consumerLogic').clear().type(consumerLogic, { parseSpecialCharSequences: false });
-    cy.get('#initialState').clear().type(initialStateJson, { parseSpecialCharSequences: false });
+    cy.get('#consumerLogic').type('{selectAll}{backspace}').type(consumerLogic, { parseSpecialCharSequences: false });
+    cy.get('#initialState').type('{selectAll}{backspace}').type(initialStateJson, { parseSpecialCharSequences: false });
 
     cy.intercept('POST', '**/consumers*').as('previewRequest');
     cy.contains('button', 'Preview').click();
