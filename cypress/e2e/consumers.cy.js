@@ -24,14 +24,10 @@ describe('Consumers', () => {
         cy.get('#streamName').select(String(streamValue));
       });
     cy.get('#consumerName').type(testConsumerName);
-    cy.get('#consumerLogic').type(consumerLogic, { parseSpecialCharSequences: false });
-    cy.get('#initialState').type(initialStateJson, { parseSpecialCharSequences: false });
+    cy.get('#consumerLogic').clear().type(consumerLogic, { parseSpecialCharSequences: false });
+    cy.get('#initialState').clear().type(initialStateJson, { parseSpecialCharSequences: false });
 
-    cy.intercept('POST', '**/consumers*', (req) => {
-      if (typeof req.body === 'string' && req.body.includes('intent=preview')) {
-        req.alias = 'previewRequest';
-      }
-    });
+    cy.intercept('POST', '**/consumers*').as('previewRequest');
     cy.contains('button', 'Preview').click();
     cy.wait('@previewRequest');
     cy.contains('Run preview to evaluate consumer state.').should('not.exist');

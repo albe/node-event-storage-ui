@@ -8,7 +8,8 @@ describe('Core views', () => {
       .first()
       .then(($streamLink) => {
         const streamName = $streamLink.text().trim();
-        cy.wrap($streamLink).click();
+        const href = $streamLink.attr('href');
+        cy.visit(href);
         cy.contains(`EventStream '${streamName}'`).should('be.visible');
       });
 
@@ -24,6 +25,7 @@ describe('Core views', () => {
     cy.get('#consumerName').type(consumerName);
     cy.contains('button', 'Create Consumer').click();
 
+    cy.get('.alert-success').scrollIntoView();
     cy.contains('created.').should('be.visible');
     cy.contains('table tbody tr td a', consumerName).should('be.visible').click();
     cy.contains(`Consumer '${consumerName}@`).should('be.visible');
