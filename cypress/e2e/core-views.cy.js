@@ -27,7 +27,7 @@ describe('Core views', () => {
 
     cy.get('.alert-success').scrollIntoView();
     cy.contains('created.').should('be.visible');
-    cy.contains('table tbody tr td a', consumerName).should('be.visible').click();
+    cy.contains('table tbody tr td a', consumerName).scrollIntoView().should('be.visible').click();
     cy.contains(`Consumer '${consumerName}@`).should('be.visible');
     cy.contains('Position').should('be.visible');
     cy.contains('State').should('be.visible');
