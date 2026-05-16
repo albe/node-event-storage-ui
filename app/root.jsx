@@ -68,75 +68,57 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <div className="app-shell">
-          <aside className="sidebar">
-            <div className="sidebar-inner">
-              <div className="sidebar-logo">
-                <a className="sidebar-link text-decoration-none" href={storeSearch || '/'}>
-                  <div className="logo">
-                    <img src="/logo_color.png" alt="event-storage" />
-                  </div>
-                  <span className="logo-text">event-storage-ui</span>
-                </a>
+        <div className="shell">
+          <aside className="d-sidebar">
+            <div className="brand brand--text-only">
+              <div className="brand-text">
+                <div className="brand-name">event-storage-ui</div>
+                <div className="brand-tag">node-event-storage</div>
               </div>
-              <ul className="sidebar-menu">
-                <li className="nav-item">
-                  <NavLink
-                    to={`/${storeSearch}`}
-                    className={({ isActive }) => `sidebar-link${isActive ? ' is-active' : ''}`}
-                    end
-                  >
-                    <span className="icon-holder">
-                      <i className="material-icons">dashboard</i>
-                    </span>
-                    <span className="title">Dashboard</span>
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink
-                    to={`/streams${storeSearch}`}
-                    className={({ isActive }) => `sidebar-link${isActive ? ' is-active' : ''}`}
-                  >
-                    <span className="icon-holder">
-                      <i className="material-icons">table_rows</i>
-                    </span>
-                    <span className="title">Stream Browser</span>
-                  </NavLink>
-                </li>
-                <li className="nav-item">
-                  <NavLink
-                    to={`/consumers${storeSearch}`}
-                    className={({ isActive }) => `sidebar-link${isActive ? ' is-active' : ''}`}
-                  >
-                    <span className="icon-holder">
-                      <i className="material-icons">restore_page</i>
-                    </span>
-                    <span className="title">Consumers</span>
-                  </NavLink>
-                </li>
-                {!storeLocked && (
-                  <li className="nav-item">
-                    <NavLink
-                      to={`/write-events${storeSearch}`}
-                      className={({ isActive }) => `sidebar-link${isActive ? ' is-active' : ''}`}
-                    >
-                      <span className="icon-holder">
-                        <i className="material-icons">edit</i>
-                      </span>
-                      <span className="title">Write Events</span>
-                    </NavLink>
-                  </li>
-                )}
-              </ul>
             </div>
+
+            <nav className="nav-section">
+              <div className="nav-label">Workspace</div>
+              <NavLink
+                to={`/${storeSearch}`}
+                className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+                end
+              >
+                <i className="material-icons">dashboard</i>
+                <span>Dashboard</span>
+              </NavLink>
+              <NavLink
+                to={`/streams${storeSearch}`}
+                className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+              >
+                <i className="material-icons">table_rows</i>
+                <span>Stream Browser</span>
+              </NavLink>
+              <NavLink
+                to={`/consumers${storeSearch}`}
+                className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+              >
+                <i className="material-icons">restore_page</i>
+                <span>Consumers</span>
+              </NavLink>
+              {!storeLocked && (
+                <NavLink
+                  to={`/write-events${storeSearch}`}
+                  className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+                >
+                  <i className="material-icons">edit</i>
+                  <span>Write Events</span>
+                </NavLink>
+              )}
+            </nav>
           </aside>
 
-          <div className="page-container">
-            <header className="header navbar">
-              <div className="header-container">
-                <div className="nav-left">
-                  <img src="/logo_white.png" className="topbar-logo" alt="* event-storage" />
-                </div>
+          <div className="main">
+            <header className="d-topbar">
+              <div className="crumbs">
+                <img src="/logo_white.png" className="topbar-logo" alt="* event-storage" />
+              </div>
+              <div className="topbar-actions">
                 <ul className="nav-right">
                   {stores.length > 1 && (
                     <li>
@@ -168,14 +150,14 @@ export default function App() {
               </div>
             </header>
 
-            <main className="main-content">
+            <main className="content">
               <div className="container-fluid">
                 <Outlet />
-              </div>
+                </div>
             </main>
 
-            <footer className="footer">
-              <div className="container-fluid">
+            <footer className="d-footer">
+              <div>
                 <div className="copyright float-right">
                   &copy;{new Date().getFullYear()}, built with{' '}
                   <i className="material-icons">favorite</i> for node-event-storage
