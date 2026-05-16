@@ -38,48 +38,80 @@ export default function StreamsIndex() {
   const [start, end, nextPage, prevPage, hasNext, hasPrev] = usePagination(streams.length);
 
   return (
-    <div className="card">
-      <h2 className="card-header card-header-info">Stream browser ({storeName})</h2>
-      <div className="card-body">
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th style={{ width: '30%' }}>Stream name</th>
-              <th style={{ width: '15%' }}>Created at</th>
-              <th style={{ width: '10%' }}>Events</th>
-              <th>Metadata</th>
-            </tr>
-          </thead>
-          <tbody>
-            {streams.slice(start, end).map((stream) => (
-              <tr key={stream.name}>
-                <td>
-                  <Link to={`/streams/${encodeURIComponent(stream.name)}`}>{stream.name}</Link>
-                </td>
-                <td>
-                  <DateFormat value={stream.crtime} />
-                </td>
-                <td>{stream.length}</td>
-                <td>
-                  <Json data={stream.metadata} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={3}>
-                <button disabled={!hasPrev} className="btn btn-info" onClick={prevPage}>
-                  Prev
-                </button>
-                <button disabled={!hasNext} className="btn btn-info" onClick={nextPage}>
-                  Next
-                </button>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+    <div className="page-stack">
+      <section className="page-hero">
+        <div>
+          <div className="page-eyebrow">Explorer</div>
+          <h2 className="page-title">Stream browser ({storeName})</h2>
+          <p className="page-subtitle">
+            Inspect streams, creation dates, event counts, and index metadata in a cleaner table layout.
+          </p>
+        </div>
+        <div className="page-actions">
+          <span className="page-pill">
+            <i className="material-icons">table_rows</i>
+            {streams.length} total streams
+          </span>
+          <span className="page-pill">
+            <i className="material-icons">layers</i>
+            {start + 1}-{Math.min(end, streams.length)} visible
+          </span>
+        </div>
+      </section>
+
+      <section className="admin-panel">
+        <div className="admin-panel__header">
+          <div>
+            <div className="panel-eyebrow">Catalog</div>
+            <h3 className="panel-title">Available streams</h3>
+          </div>
+          <div className="progress-note">Open a stream to inspect committed events and metadata.</div>
+        </div>
+        <div className="admin-panel__body admin-panel__body--compact">
+          <div className="admin-table-wrap">
+            <table className="table table-hover admin-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '30%' }}>Stream name</th>
+                  <th style={{ width: '15%' }}>Created at</th>
+                  <th style={{ width: '10%' }}>Events</th>
+                  <th>Metadata</th>
+                </tr>
+              </thead>
+              <tbody>
+                {streams.slice(start, end).map((stream) => (
+                  <tr key={stream.name}>
+                    <td>
+                      <Link to={`/streams/${encodeURIComponent(stream.name)}`}>{stream.name}</Link>
+                    </td>
+                    <td>
+                      <DateFormat value={stream.crtime} />
+                    </td>
+                    <td>{stream.length}</td>
+                    <td>
+                      <Json data={stream.metadata} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan={4}>
+                    <div className="button-row">
+                      <button disabled={!hasPrev} className="btn btn-info" onClick={prevPage}>
+                        Prev
+                      </button>
+                      <button disabled={!hasNext} className="btn btn-info" onClick={nextPage}>
+                        Next
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

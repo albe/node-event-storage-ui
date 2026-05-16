@@ -5,9 +5,7 @@ import DateFormat from '../components/date';
 import Json from '../components/json';
 import StreamInfoPanel from '../components/stream-info-panel';
 
-export const meta = ({ params }) => [
-  { title: `event-storage: EventStream ${params.streamName}` }
-];
+export const meta = ({ params }) => [{ title: `event-storage: EventStream ${params.streamName}` }];
 
 export async function loader({ params, request }) {
   const { streamName } = params;
@@ -68,88 +66,121 @@ export default function EventStream() {
   const [showInfo, setShowInfo] = useState(false);
 
   return (
-    <div className="card">
-      <div className="card-header card-header-info">
-        <div className="d-flex align-items-center justify-content-between">
-          <h2 className="mb-0">EventStream '{streamName}'</h2>
+    <div className="page-stack">
+      <section className="page-hero">
+        <div>
+          <div className="page-eyebrow">Explorer</div>
+          <h2 className="page-title">EventStream '{streamName}'</h2>
+          <p className="page-subtitle">
+            Review committed events, payloads, metadata, and paging controls for this stream.
+          </p>
+        </div>
+        <div className="page-actions">
           <button
             type="button"
-            className="btn btn-link btn-sm text-white mb-0"
+            className="btn btn-default"
             aria-label="Toggle stream info"
             aria-expanded={showInfo}
             onClick={() => setShowInfo((open) => !open)}
           >
-            <i className="material-icons">info</i>
+            <i className="material-icons">info</i> {showInfo ? 'Hide' : 'Show'} Stream Info
           </button>
+          <span className="page-pill">
+            <i className="material-icons">receipt_long</i>
+            {stream.length} events loaded
+          </span>
         </div>
-      </div>
-      <div className="card-body">
-        {showInfo && <StreamInfoPanel streamInfo={streamInfo} />}
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th width="5%">StreamVersion</th>
-              <th width="10%">Stream</th>
-              <th width="15%">Commit Date</th>
-              <th width="30%">Payload</th>
-              <th width="30%">Metadata</th>
-              <th width="5%">CommitId</th>
-              <th width="5%">CommitVersion</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stream.map((event) => (
-              <tr key={`${event.stream}@${event.metadata.streamVersion}`}>
-                <td>{event.metadata.streamVersion}</td>
-                <td>{event.stream}</td>
-                <td>
-                  <DateFormat value={event.metadata.committedAt} />
-                </td>
-                <td>
-                  <Json data={event.payload} />
-                </td>
-                <td>
-                  <Json data={event.metadata} />
-                </td>
-                <td className="text-right">{event.metadata.commitId}</td>
-                <td className="text-right">
-                  {event.metadata.commitVersion + 1}/{event.metadata.commitSize}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={5}>
-                {prev <= 0 ? (
-                  <span className="btn btn-info disabled">Prev</span>
-                ) : (
-                  <Link
-                    to={`/streams/${encodeURIComponent(
-                      streamName
-                    )}/${prev}/${direction}/${amount}`}
-                    className="btn btn-info"
-                  >
-                    Prev
-                  </Link>
-                )}
-                {next <= 0 ? (
-                  <span className="btn btn-info disabled">Next</span>
-                ) : (
-                  <Link
-                    to={`/streams/${encodeURIComponent(
-                      streamName
-                    )}/${next}/${direction}/${amount}`}
-                    className="btn btn-info"
-                  >
-                    Next
-                  </Link>
-                )}
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+      </section>
+
+      {showInfo && (
+        <section className="admin-panel">
+          <div className="admin-panel__header">
+            <div>
+              <div className="panel-eyebrow">Metadata</div>
+              <h3 className="panel-title">Stream Info</h3>
+            </div>
+          </div>
+          <div className="admin-panel__body">
+            <StreamInfoPanel streamInfo={streamInfo} />
+          </div>
+        </section>
+      )}
+
+      <section className="admin-panel">
+        <div className="admin-panel__header">
+          <div>
+            <div className="panel-eyebrow">Events</div>
+            <h3 className="panel-title">Committed events</h3>
+          </div>
+          <div className="progress-note">Latest page from the beginning of the stream.</div>
+        </div>
+        <div className="admin-panel__body admin-panel__body--compact">
+          <div className="admin-table-wrap">
+            <table className="table table-hover admin-table">
+              <thead>
+                <tr>
+                  <th width="5%">StreamVersion</th>
+                  <th width="10%">Stream</th>
+                  <th width="15%">Commit Date</th>
+                  <th width="30%">Payload</th>
+                  <th width="30%">Metadata</th>
+                  <th width="5%">CommitId</th>
+                  <th width="5%">CommitVersion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stream.map((event) => (
+                  <tr key={`${event.stream}@${event.metadata.streamVersion}`}>
+                    <td>{event.metadata.streamVersion}</td>
+                    <td>{event.stream}</td>
+                    <td>
+                      <DateFormat value={event.metadata.committedAt} />
+                    </td>
+                    <td>
+                      <Json data={event.payload} />
+                    </td>
+                    <td>
+                      <Json data={event.metadata} />
+                    </td>
+                    <td className="text-right">{event.metadata.commitId}</td>
+                    <td className="text-right">
+                      {event.metadata.commitVersion + 1}/{event.metadata.commitSize}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan={7}>
+                    <div className="button-row">
+                      {prev <= 0 ? (
+                        <span className="btn btn-info disabled">Prev</span>
+                      ) : (
+                        <Link
+                          to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
+                          className="btn btn-info"
+                        >
+                          Prev
+                        </Link>
+                      )}
+                      {next <= 0 ? (
+                        <span className="btn btn-info disabled">Next</span>
+                      ) : (
+                        <Link
+                          to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
+                          className="btn btn-info"
+                        >
+                          Next
+                        </Link>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
