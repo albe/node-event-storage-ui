@@ -6,7 +6,7 @@
  */
 
 describe('Consumers', () => {
-  it('captures initial consumer page view screenshot', () => {
+  it('previews consumer state and captures a screenshot', () => {
     cy.visit('/consumers');
     cy.contains('Add Consumer').should('be.visible');
     cy.screenshot('consumers-preview-executed', { overwrite: true });
