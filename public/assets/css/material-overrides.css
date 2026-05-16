@@ -2,6 +2,14 @@
 [data-theme="dark"] {
   --nes-logo-primary: #00bcd4;
   --c-primary: var(--nes-logo-primary);
+  --c-success: #32d48e;
+  --c-danger: #ff6b6b;
+  --c-bkg-body: #181a1f;
+  --c-bkg-card: #20232a;
+  --c-bkg-sidebar: #20232a;
+  --c-text-base: #e8eaed;
+  --c-text-muted: #9ca3af;
+  --c-border: #2b2f36;
 }
 
 html,

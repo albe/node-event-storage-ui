@@ -10,8 +10,6 @@ import {
   useNavigate,
   useSearchParams
 } from 'react-router';
-import bootstrapCss from 'bootstrap/dist/css/bootstrap.min.css?url';
-import adminatorThemeCss from 'adminator-admin-dashboard/src/assets/styles/utils/theme.css?url';
 import materialIconsCss from '@fontsource/material-icons/index.css?url';
 import roboto300Css from '@fontsource/roboto/300.css?url';
 import roboto400Css from '@fontsource/roboto/400.css?url';
@@ -21,8 +19,6 @@ import fontAwesomeCss from 'font-awesome/css/font-awesome.min.css?url';
 import { listStores, getStoreLockStatus } from '../eventstore';
 
 export const links = () => [
-  { rel: 'stylesheet', href: bootstrapCss },
-  { rel: 'stylesheet', href: adminatorThemeCss },
   { rel: 'stylesheet', href: materialIconsCss },
   { rel: 'stylesheet', href: roboto300Css },
   { rel: 'stylesheet', href: roboto400Css },
@@ -76,7 +72,7 @@ export default function App() {
           <aside className="sidebar">
             <div className="sidebar-inner">
               <div className="sidebar-logo">
-                <a className="sidebar-link td-n" href={storeSearch || '/'}>
+                <a className="sidebar-link text-decoration-none" href={storeSearch || '/'}>
                   <div className="logo">
                     <img src="/logo_color.png" alt="event-storage" />
                   </div>
