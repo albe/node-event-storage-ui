@@ -1,0 +1,41 @@
+name: Cypress
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        # react-chartist@0.14.4 declares peers react@^0.14-17, conflicting with react@19.
+        # --legacy-peer-deps can be removed once react-chartist is replaced or updated.
+        run: npm ci --legacy-peer-deps
+
+      - name: Build app
+        run: npm run build
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          start: npm start
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          command: npm run cypress:run

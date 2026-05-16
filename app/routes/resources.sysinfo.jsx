@@ -1,4 +1,3 @@
-import { json } from '@remix-run/node';
 import si from 'systeminformation';
 
 export async function loader() {
@@ -12,7 +11,7 @@ export async function loader() {
       si.networkStats()
     ]);
 
-  return json({
+  return Response.json({
     fsSize,
     fsStats,
     currentLoad,

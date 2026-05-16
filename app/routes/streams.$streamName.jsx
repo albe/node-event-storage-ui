@@ -1,5 +1,4 @@
-import { json } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { Link, useLoaderData } from 'react-router';
 import { useState } from 'react';
 import getEventStore from '../../eventstore';
 import DateFormat from '../components/date';
@@ -45,7 +44,7 @@ export async function loader({ params, request }) {
       });
     }
 
-    return json({
+    return {
       streamName,
       stream: events,
       direction,
@@ -58,7 +57,7 @@ export async function loader({ params, request }) {
         isWriteStream,
         partitionMetadata
       }
-    });
+    };
   } finally {
     eventstore.close();
   }

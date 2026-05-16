@@ -31,8 +31,6 @@ describe('Write Events', () => {
       ),
       { parseSpecialCharSequences: false }
     );
-    // Wait for the JsonView to render
-    cy.wait(1000);
     cy.contains('OrderPlaced').should('be.visible');
     cy.get('[type=submit]').should('not.be.disabled');
     cy.screenshot('write-events-filled', { overwrite: true });
@@ -41,14 +39,13 @@ describe('Write Events', () => {
   it('shows a syntax error when invalid JSON is entered', () => {
     cy.visit('/write-events');
     cy.get('#streamName').type('orders');
-    cy.get('#events').type('{ invalid json }');
+    cy.get('#events').type('{ invalid json }', { parseSpecialCharSequences: false });
     cy.contains('Syntax error').should('be.visible');
     cy.get('[type=submit]').should('be.disabled');
   });
 
   it('shows metadata section when expanded', () => {
     cy.visit('/write-events');
-    cy.get('#streamName').type('orders');
     cy.get('#events').type(
       JSON.stringify([{ type: 'OrderPlaced', orderId: 'abc-123' }], null, 2),
       { parseSpecialCharSequences: false }
@@ -59,7 +56,6 @@ describe('Write Events', () => {
       JSON.stringify({ correlationId: 'req-456', source: 'admin-ui' }, null, 2),
       { parseSpecialCharSequences: false }
     );
-    cy.wait(1000);
     cy.screenshot('write-events-with-metadata', { overwrite: true });
   });
 

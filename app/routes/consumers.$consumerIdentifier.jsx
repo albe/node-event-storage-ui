@@ -1,5 +1,4 @@
-import { json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
+import { useLoaderData } from 'react-router';
 import getEventStore from '../../eventstore';
 import Json from '../components/json';
 
@@ -20,13 +19,13 @@ export async function loader({ params, request }) {
     const consumerState = consumer.state;
     const indexLength = consumer.index.length;
 
-    return json({
+    return {
       indexName,
       indexLength,
       consumerName,
       consumerPosition,
       consumerState
-    });
+    };
   } finally {
     eventstore.close();
   }

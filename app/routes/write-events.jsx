@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import { json } from '@remix-run/node';
-import { useLoaderData, useActionData, useNavigation, useSearchParams } from '@remix-run/react';
-import { Form } from '@remix-run/react';
+import { data } from 'react-router';
+import { useLoaderData, useActionData, useNavigation, useSearchParams } from 'react-router';
+import { Form } from 'react-router';
 import { getStoreLockStatus, commitToEventStore } from '../../eventstore';
 import Json from '../components/json';
 
@@ -11,7 +11,7 @@ export async function loader({ request }) {
   const url = new URL(request.url);
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const storeLocked = getStoreLockStatus(storeNameOverride);
-  return json({ storeLocked, storeNameOverride: storeNameOverride || null });
+  return { storeLocked, storeNameOverride: storeNameOverride || null };
 }
 
 export async function action({ request }) {
@@ -24,14 +24,14 @@ export async function action({ request }) {
   const metadataJson = formData.get('metadata')?.trim();
 
   if (!streamName) {
-    return json({ error: 'Stream name is required.' }, { status: 400 });
+    return data({ error: 'Stream name is required.' }, { status: 400 });
   }
 
   let events;
   try {
     events = JSON.parse(eventsJson);
   } catch {
-    return json({ error: 'Events field contains invalid JSON.' }, { status: 400 });
+    return data({ error: 'Events field contains invalid JSON.' }, { status: 400 });
   }
 
   let metadata = undefined;
@@ -39,15 +39,15 @@ export async function action({ request }) {
     try {
       metadata = JSON.parse(metadataJson);
     } catch {
-      return json({ error: 'Metadata field contains invalid JSON.' }, { status: 400 });
+      return data({ error: 'Metadata field contains invalid JSON.' }, { status: 400 });
     }
   }
 
   try {
     await commitToEventStore(streamName, events, metadata, storeNameOverride);
-    return json({ success: true, streamName });
+    return { success: true, streamName };
   } catch (err) {
-    return json(
+    return data(
       { error: err?.message || 'Failed to commit events. The store may be locked.' },
       { status: 500 }
     );
