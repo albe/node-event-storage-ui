@@ -9,6 +9,10 @@ describe('Consumers', () => {
   it('previews consumer state and captures a screenshot', () => {
     cy.visit('/consumers');
     cy.contains('Add Consumer').should('be.visible');
+    cy.contains('h2', 'Consumers').should('be.visible');
+    cy.contains('a', 'Dashboard').should('be.visible');
+    cy.contains('a', 'Stream Browser').should('be.visible');
+    cy.contains('a', 'Write Events').should('be.visible');
     cy.screenshot('consumers-preview-executed', { overwrite: true });
   });
 });

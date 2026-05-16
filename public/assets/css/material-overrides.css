@@ -205,14 +205,14 @@ body {
   border-radius: 0;
   margin: 0;
   box-shadow: none;
-  color: #fff;
+  color: var(--c-text-base);
 }
 
 .card-header-info,
 .btn-info {
   background: var(--c-primary) !important;
   border-color: var(--c-primary) !important;
-  color: #fff !important;
+  color: var(--c-text-base) !important;
 }
 
 .card-header-success {
@@ -400,13 +400,13 @@ a:hover {
 }
 
 .stream-info-panel__status-badge--active {
-  color: #ffffff;
+  color: var(--c-text-base);
   background: color-mix(in srgb, var(--c-success) 25%, transparent);
   border: 1px solid color-mix(in srgb, var(--c-success) 45%, transparent);
 }
 
 .stream-info-panel__status-badge--inactive {
-  color: #ffffff;
+  color: var(--c-text-base);
   background: color-mix(in srgb, var(--c-danger) 20%, transparent);
   border: 1px solid color-mix(in srgb, var(--c-danger) 35%, transparent);
 }
