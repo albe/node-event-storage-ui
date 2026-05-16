@@ -12,7 +12,6 @@ import {
 } from 'react-router';
 import bootstrapCss from 'bootstrap/dist/css/bootstrap.min.css?url';
 import adminatorThemeCss from 'adminator-admin-dashboard/src/assets/styles/utils/theme.css?url';
-import adminatorIconsCss from 'adminator-admin-dashboard/src/assets/styles/vendor/themify-icons.css?url';
 import materialIconsCss from '@fontsource/material-icons/index.css?url';
 import roboto300Css from '@fontsource/roboto/300.css?url';
 import roboto400Css from '@fontsource/roboto/400.css?url';
@@ -24,7 +23,6 @@ import { listStores, getStoreLockStatus } from '../eventstore';
 export const links = () => [
   { rel: 'stylesheet', href: bootstrapCss },
   { rel: 'stylesheet', href: adminatorThemeCss },
-  { rel: 'stylesheet', href: adminatorIconsCss },
   { rel: 'stylesheet', href: materialIconsCss },
   { rel: 'stylesheet', href: roboto300Css },
   { rel: 'stylesheet', href: roboto400Css },
@@ -93,7 +91,7 @@ export default function App() {
                     end
                   >
                     <span className="icon-holder">
-                      <i className="ti-home" />
+                      <i className="material-icons">dashboard</i>
                     </span>
                     <span className="title">Dashboard</span>
                   </NavLink>
@@ -104,7 +102,7 @@ export default function App() {
                     className={({ isActive }) => `sidebar-link${isActive ? ' is-active' : ''}`}
                   >
                     <span className="icon-holder">
-                      <i className="ti-layout-list-thumb" />
+                      <i className="material-icons">table_rows</i>
                     </span>
                     <span className="title">Stream Browser</span>
                   </NavLink>
@@ -115,7 +113,7 @@ export default function App() {
                     className={({ isActive }) => `sidebar-link${isActive ? ' is-active' : ''}`}
                   >
                     <span className="icon-holder">
-                      <i className="ti-reload" />
+                      <i className="material-icons">restore_page</i>
                     </span>
                     <span className="title">Consumers</span>
                   </NavLink>
@@ -127,7 +125,7 @@ export default function App() {
                       className={({ isActive }) => `sidebar-link${isActive ? ' is-active' : ''}`}
                     >
                       <span className="icon-holder">
-                        <i className="ti-pencil-alt" />
+                        <i className="material-icons">edit</i>
                       </span>
                       <span className="title">Write Events</span>
                     </NavLink>
