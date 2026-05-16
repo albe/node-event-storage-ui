@@ -10,6 +10,7 @@
   --c-text-base: #e8eaed;
   --c-text-muted: #9ca3af;
   --c-border: #2b2f36;
+  --c-bkg-code: #121821;
 }
 
 html,
@@ -416,7 +417,7 @@ a:hover {
   margin: 12px 0 0;
   padding: 12px 14px;
   border-radius: 6px;
-  background: #121821;
+  background: var(--c-bkg-code);
   color: #d7dee9;
   font-size: 0.8125rem;
 }
