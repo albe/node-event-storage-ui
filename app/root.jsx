@@ -153,7 +153,7 @@ export default function App() {
             <main className="content">
               <div className="container-fluid">
                 <Outlet />
-                </div>
+              </div>
             </main>
 
             <footer className="d-footer">

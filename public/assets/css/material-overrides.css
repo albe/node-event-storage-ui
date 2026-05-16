@@ -11,6 +11,8 @@
   --c-text-muted: #9ca3af;
   --c-border: #2b2f36;
   --c-bkg-code: #121821;
+  --font-size-nav-label: 0.63rem;
+  --topbar-logo-height: 36px;
 }
 
 html,
@@ -73,7 +75,7 @@ body {
 }
 
 .nav-label {
-  font-size: 0.63rem;
+  font-size: var(--font-size-nav-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--c-text-muted);
@@ -143,7 +145,7 @@ body {
 }
 
 .topbar-logo {
-  height: 36px;
+  height: var(--topbar-logo-height);
   width: auto;
 }
 
