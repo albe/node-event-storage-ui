@@ -327,7 +327,7 @@ export default function Dashboard() {
         <MetricCard
           label="Storage path"
           icon={<i className="material-icons">folder_open</i>}
-          value={<span className="text-mono" style={{ fontSize: '1.1rem' }}>{storageDirectory}</span>}
+          value={<span className="text-mono text-mono--sm">{storageDirectory}</span>}
           meta="Resolved storage directory for the active store."
         />
       </section>

@@ -34,7 +34,8 @@ export async function loader({ params, request }) {
 export default function Consumer() {
   const { indexName, indexLength, consumerName, consumerPosition, consumerState } =
     useLoaderData();
-  const progress = indexLength > 0 ? `${((consumerPosition / indexLength) * 100).toFixed(2)}%` : 'N/A';
+  const progressDisplay =
+    indexLength > 0 ? `${((consumerPosition / indexLength) * 100).toFixed(2)}%` : 'N/A';
 
   return (
     <div className="page-stack">
@@ -51,7 +52,7 @@ export default function Consumer() {
         <div className="page-actions">
           <span className="page-pill">
             <i className="material-icons">timeline</i>
-            {progress}% progress
+            {progressDisplay === 'N/A' ? 'Progress unavailable' : `${progressDisplay} progress`}
           </span>
         </div>
       </section>
@@ -67,7 +68,7 @@ export default function Consumer() {
         </article>
         <article className="detail-card">
           <div className="meta-list__label">Progress</div>
-          <div className="detail-card__value">{progress}</div>
+          <div className="detail-card__value">{progressDisplay}</div>
         </article>
       </section>
 

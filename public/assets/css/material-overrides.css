@@ -774,6 +774,15 @@ a:hover {
   font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+.text-mono--sm {
+  font-size: 1.1rem;
+}
+
+.button-icon-inline {
+  font-size: 16px;
+  vertical-align: middle;
+}
+
 @media (max-width: 991px) {
   .shell {
     grid-template-columns: 1fr;

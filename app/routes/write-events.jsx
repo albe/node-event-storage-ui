@@ -226,17 +226,17 @@ export default function WriteEvents() {
               <h3 className="panel-title">Event Metadata</h3>
             </div>
             <div className="admin-panel__toolbar">
-              <button
-                type="button"
-                className="btn btn-default btn-sm"
-                onClick={() => setMetadataExpanded((v) => !v)}
-                aria-expanded={metadataExpanded}
-              >
-                <i className="material-icons" style={{ fontSize: 16, verticalAlign: 'middle' }}>
-                  {metadataExpanded ? 'expand_less' : 'expand_more'}
-                </i>{' '}
-                {metadataExpanded ? 'Hide' : 'Show'} Event Metadata (optional)
-              </button>
+                <button
+                  type="button"
+                  className="btn btn-default btn-sm"
+                  onClick={() => setMetadataExpanded((v) => !v)}
+                  aria-expanded={metadataExpanded}
+                >
+                  <i className="material-icons button-icon-inline">
+                    {metadataExpanded ? 'expand_less' : 'expand_more'}
+                  </i>{' '}
+                  {metadataExpanded ? 'Hide' : 'Show'} Event Metadata (optional)
+                </button>
             </div>
           </div>
           {metadataExpanded && (
@@ -288,14 +288,14 @@ export default function WriteEvents() {
             >
               {isSubmitting ? (
                 <>
-                  <i className="material-icons" style={{ fontSize: 16, verticalAlign: 'middle' }}>
+                  <i className="material-icons button-icon-inline">
                     hourglass_empty
                   </i>{' '}
                   Committing…
                 </>
               ) : (
                 <>
-                  <i className="material-icons" style={{ fontSize: 16, verticalAlign: 'middle' }}>
+                  <i className="material-icons button-icon-inline">
                     save
                   </i>{' '}
                   Commit
