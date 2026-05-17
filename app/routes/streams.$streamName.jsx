@@ -143,10 +143,10 @@ export default function EventStream() {
                       </span>
                     </td>
                     <td className="cell-json">
-                      <Json data={event.payload} />
+                      <Json data={event.payload} collapsed={false} />
                     </td>
                     <td className="cell-json">
-                      <Json data={event.metadata} collapsed={false} />
+                      <Json data={event.metadata} collapsed={true} />
                     </td>
                     <td className="text-right cell-mono">{event.metadata.commitId}</td>
                     <td className="text-right">
