@@ -142,12 +142,12 @@ export default function WriteEvents() {
         <section className="admin-panel card">
           <div className="admin-panel__body card-body card-body--panel">
             {actionData?.success && (
-              <div className="alert alert-success" role="alert">
+              <div className="alert success" role="alert">
                 ✅ Events committed successfully to stream &quot;{actionData.streamName}&quot;.
               </div>
             )}
             {actionData?.error && (
-              <div className="alert alert-danger" role="alert">
+              <div className="alert danger" role="alert">
                 ❌ {actionData.error}
               </div>
             )}
@@ -174,7 +174,7 @@ export default function WriteEvents() {
                     id="streamName"
                     name="streamName"
                     type="text"
-                    className="form-control input"
+                    className="input"
                     placeholder="e.g. users or orders-2024"
                     value={streamName}
                     onChange={handleStreamNameChange}
@@ -188,7 +188,7 @@ export default function WriteEvents() {
                   <textarea
                     id="events"
                     name="events"
-                    className="form-control textarea text-mono"
+                    className="textarea text-mono"
                     rows={14}
                     placeholder={'[\n  { "type": "MyEvent", "data": "value" }\n]'}
                     value={eventsText}
@@ -248,7 +248,7 @@ export default function WriteEvents() {
                   <textarea
                     id="metadata"
                     name="metadata"
-                    className="form-control textarea text-mono"
+                    className="textarea text-mono"
                     rows={8}
                     placeholder={'{\n  "correlationId": "abc123"\n}'}
                     value={metadataText}

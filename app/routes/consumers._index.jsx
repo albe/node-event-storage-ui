@@ -180,12 +180,12 @@ export default function Consumers() {
         <section className="admin-panel card">
           <div className="admin-panel__body card-body card-body--panel">
             {isCreateSuccess && (
-              <div className="alert alert-success" role="alert">
+              <div className="alert success" role="alert">
                 ✅ Consumer &quot;{actionData.consumerIdentifier}&quot; created.
               </div>
             )}
             {createError && (
-              <div className="alert alert-danger" role="alert">
+              <div className="alert danger" role="alert">
                 ❌ {createError}
               </div>
             )}
@@ -210,7 +210,7 @@ export default function Consumers() {
                 <select
                   id="streamName"
                   name="streamName"
-                  className="form-control select"
+                  className="select"
                   value={streamName}
                   onChange={(e) => setStreamName(e.target.value)}
                 >
@@ -229,7 +229,7 @@ export default function Consumers() {
                   id="consumerName"
                   name="consumerName"
                   type="text"
-                  className="form-control input"
+                  className="input"
                   value={consumerName}
                   onChange={(e) => setConsumerName(e.target.value)}
                   placeholder="e.g. myConsumer"
@@ -243,7 +243,7 @@ export default function Consumers() {
                 <textarea
                   id="consumerLogic"
                   name="consumerLogic"
-                  className="form-control textarea text-mono"
+                  className="textarea text-mono"
                   rows={10}
                   value={consumerLogic}
                   onChange={(e) => setConsumerLogic(e.target.value)}
@@ -256,7 +256,7 @@ export default function Consumers() {
                 <textarea
                   id="initialState"
                   name="initialState"
-                  className="form-control textarea text-mono"
+                  className="textarea text-mono"
                   rows={4}
                   value={initialState}
                   onChange={(e) => setInitialState(e.target.value)}

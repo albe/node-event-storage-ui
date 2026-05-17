@@ -125,7 +125,7 @@ export default function App() {
                   {stores.length > 1 && (
                     <li>
                       <select
-                        className="form-control"
+                        className="select topbar-store-select"
                         value={currentStore}
                         onChange={handleStoreChange}
                         aria-label="Select store"

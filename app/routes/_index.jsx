@@ -92,7 +92,7 @@ function EventsChart({ datas }) {
           </label>
           <select
             id="streamSelect"
-            className="form-control"
+            className="select"
             value={currentStream}
             onChange={(e) => setStream(e.target.value)}
           >
