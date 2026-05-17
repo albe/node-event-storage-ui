@@ -146,7 +146,7 @@ export default function EventStream() {
                       <Json data={event.payload} />
                     </td>
                     <td className="cell-json">
-                      <Json data={event.metadata} />
+                      <Json data={event.metadata} collapsed={false} />
                     </td>
                     <td className="text-right cell-mono">{event.metadata.commitId}</td>
                     <td className="text-right">
@@ -166,25 +166,25 @@ export default function EventStream() {
                       </span>
                       <div className="button-row">
                         {prev <= 0 ? (
-                          <button type="button" className="btn btn--ghost" disabled>
+                          <button type="button" className="btn btn--primary-soft" disabled>
                             Prev
                           </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
-                            className="btn btn--ghost"
+                            className="btn btn--primary-soft"
                           >
                             Prev
                           </Link>
                         )}
                         {next <= 0 ? (
-                          <button type="button" className="btn btn--ghost" disabled>
+                          <button type="button" className="btn btn--primary-soft" disabled>
                             Next
                           </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
-                            className="btn btn--ghost"
+                            className="btn btn--primary-soft"
                           >
                             Next
                           </Link>

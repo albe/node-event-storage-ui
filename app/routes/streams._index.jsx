@@ -93,7 +93,7 @@ export default function StreamsIndex() {
                       <span className="tag t-info">{stream.length} events</span>
                     </td>
                     <td className="cell-json">
-                      <Json data={stream.metadata} />
+                      <Json data={stream.metadata} collapsed={true} />
                     </td>
                   </tr>
                 ))}
@@ -107,10 +107,10 @@ export default function StreamsIndex() {
                         streams
                       </span>
                       <div className="button-row">
-                      <button disabled={!hasPrev} className="btn btn--ghost" onClick={prevPage}>
+                      <button disabled={!hasPrev} className="btn btn--primary-soft" onClick={prevPage}>
                         Prev
                       </button>
-                      <button disabled={!hasNext} className="btn btn--ghost" onClick={nextPage}>
+                      <button disabled={!hasNext} className="btn btn--primary-soft" onClick={nextPage}>
                         Next
                       </button>
                       </div>

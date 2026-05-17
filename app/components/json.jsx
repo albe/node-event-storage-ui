@@ -1,19 +1,11 @@
-import { useEffect, useState } from 'react';
+import JsonViewModule from 'react18-json-view';
 import 'react18-json-view/src/style.css';
 import 'react18-json-view/src/dark.css';
 
+const JsonView = JsonViewModule.default ?? JsonViewModule;
+
 export default function Json({ data, collapsed = true, style = undefined, className = '' }) {
-  const [JsonView, setJsonView] = useState(null);
-
-  useEffect(() => {
-    import('react18-json-view').then((module) => setJsonView(() => module.default));
-  }, []);
-
-  if (!JsonView) {
-    return null;
-  }
-
-  const normalizedCollapsed = collapsed === true ? 1 : collapsed === false ? false : collapsed;
+  const normalizedCollapsed = collapsed === false ? 1 : collapsed === true ? true : collapsed;
 
   return (
     <JsonView
