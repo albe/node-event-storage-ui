@@ -395,13 +395,33 @@
   line-height: 1.1;
 }
 
-.metric-card--primary { --metric-accent: var(--c-primary); }
-.metric-card--success { --metric-accent: var(--c-success); }
-.metric-card--warning { --metric-accent: var(--c-warning); }
-.metric-card--purple { --metric-accent: var(--c-purple); }
-.metric-card--orange { --metric-accent: var(--c-orange); }
-.metric-card--pink { --metric-accent: var(--c-pink); }
-.metric-card--info { --metric-accent: var(--c-info); }
+.metric-card--primary {
+  --metric-accent: var(--c-primary);
+}
+
+.metric-card--success {
+  --metric-accent: var(--c-success);
+}
+
+.metric-card--warning {
+  --metric-accent: var(--c-warning);
+}
+
+.metric-card--purple {
+  --metric-accent: var(--c-purple);
+}
+
+.metric-card--orange {
+  --metric-accent: var(--c-orange);
+}
+
+.metric-card--pink {
+  --metric-accent: var(--c-pink);
+}
+
+.metric-card--info {
+  --metric-accent: var(--c-info);
+}
 
 .metric-card__meta {
   color: var(--c-text-muted);
