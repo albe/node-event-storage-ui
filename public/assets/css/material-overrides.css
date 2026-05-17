@@ -65,6 +65,7 @@
 }
 
 .topbar-actions {
+  /* Balance the centered logo against the right-side store controls. */
   flex: 1;
   justify-content: flex-end;
 }
@@ -488,7 +489,7 @@
 }
 
 .cell-mono {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 0.78rem;
   color: var(--c-text-muted);
   letter-spacing: 0.04em;
@@ -531,18 +532,18 @@
   word-break: break-word;
 }
 
-.detail-card__value {
-  margin-top: 8px;
-  color: var(--c-text-base);
-  font-size: 1.4rem;
-  font-weight: 700;
-}
-
 .detail-card {
   padding: 14px 16px;
   border: 1px solid var(--c-border);
   border-radius: 12px;
   background: color-mix(in srgb, var(--c-bkg-body) 45%, var(--c-bkg-card));
+}
+
+.detail-card__value {
+  margin-top: 8px;
+  color: var(--c-text-base);
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 .editor-surface,
