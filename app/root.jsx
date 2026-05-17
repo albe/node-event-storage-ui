@@ -16,6 +16,7 @@ import roboto400Css from '@fontsource/roboto/400.css?url';
 import roboto500Css from '@fontsource/roboto/500.css?url';
 import roboto700Css from '@fontsource/roboto/700.css?url';
 import fontAwesomeCss from 'font-awesome/css/font-awesome.min.css?url';
+import adminatorCss from 'adminator-admin-dashboard/src/assets/styles/2026/index.scss?url';
 import { listStores, getStoreLockStatus } from '../eventstore';
 
 export const links = () => [
@@ -25,6 +26,7 @@ export const links = () => [
   { rel: 'stylesheet', href: roboto500Css },
   { rel: 'stylesheet', href: roboto700Css },
   { rel: 'stylesheet', href: fontAwesomeCss },
+  { rel: 'stylesheet', href: adminatorCss },
   { rel: 'stylesheet', href: '/assets/css/material-overrides.css' },
   { rel: 'icon', href: '/favicon.ico' }
 ];
