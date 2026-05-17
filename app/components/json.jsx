@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import 'react18-json-view/src/style.css';
 import 'react18-json-view/src/dark.css';
 
-export default function Json({ data, collapsed = true, style = undefined }) {
+export default function Json({ data, collapsed = true, style = undefined, className = '' }) {
   const [JsonView, setJsonView] = useState(null);
 
   useEffect(() => {
@@ -18,6 +18,8 @@ export default function Json({ data, collapsed = true, style = undefined }) {
       src={data}
       collapsed={collapsed === true ? 1 : collapsed === false ? false : collapsed}
       dark={true}
+      theme="default"
+      className={`json-theme-adminator ${className}`.trim()}
       style={{ background: 'transparent', ...style }}
     />
   );

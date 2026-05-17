@@ -9,6 +9,7 @@
  */
 
 const STORE_PATH = Cypress.env('STORE_PATH') || 'eventstore';
+const DASHBOARD_SCREENSHOT_DELAY_MS = 30000;
 
 describe('Write Events', () => {
   it('shows the empty write-events form', () => {
@@ -91,6 +92,7 @@ describe('Write Events - Locked Store', () => {
   it('shows ❗ icon in the navbar', () => {
     cy.visit('/');
     cy.get('[title*="locked"]').should('be.visible');
+    cy.wait(DASHBOARD_SCREENSHOT_DELAY_MS);
     cy.screenshot('dashboard-locked', { overwrite: true });
   });
 

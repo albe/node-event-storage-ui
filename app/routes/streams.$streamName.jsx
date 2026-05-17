@@ -67,15 +67,15 @@ export default function EventStream() {
 
   return (
     <div className="page-stack">
-      <section className="page-hero">
-        <div>
-          <div className="page-eyebrow">Explorer</div>
-          <h2 className="page-title">EventStream '{streamName}'</h2>
-          <p className="page-subtitle">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Explorer</div>
+          <h2 className="page-title hero-title">EventStream '{streamName}'</h2>
+          <p className="page-subtitle hero-sub">
             Review committed events, payloads, metadata, and paging controls for this stream.
           </p>
         </div>
-        <div className="page-actions">
+        <div className="page-actions hero-actions">
           <button
             type="button"
             className="btn btn-default"
@@ -93,30 +93,30 @@ export default function EventStream() {
       </section>
 
       {showInfo && (
-        <section className="admin-panel">
-          <div className="admin-panel__header">
-            <div>
-              <div className="panel-eyebrow">Metadata</div>
-              <h3 className="panel-title">Stream Info</h3>
+        <section className="admin-panel card">
+          <div className="admin-panel__header card-head">
+            <div className="card-title-wrap">
+              <div className="panel-eyebrow eyebrow">Metadata</div>
+              <h3 className="panel-title card-title">Stream Info</h3>
             </div>
           </div>
-          <div className="admin-panel__body">
+          <div className="admin-panel__body card-body card-body--panel">
             <StreamInfoPanel streamInfo={streamInfo} />
           </div>
         </section>
       )}
 
-      <section className="admin-panel">
-        <div className="admin-panel__header">
-          <div>
-            <div className="panel-eyebrow">Events</div>
-            <h3 className="panel-title">Committed events</h3>
+      <section className="admin-panel card">
+        <div className="admin-panel__header card-head">
+          <div className="card-title-wrap">
+            <div className="panel-eyebrow eyebrow">Events</div>
+            <h3 className="panel-title card-title">Committed events</h3>
           </div>
-          <div className="progress-note">Latest page from the beginning of the stream.</div>
+          <span className="badge primary">{stream.length} loaded</span>
         </div>
         <div className="admin-panel__body admin-panel__body--compact">
-          <div className="admin-table-wrap">
-            <table className="table table-hover admin-table">
+          <div className="admin-table-wrap table-scroll">
+            <table className="table table-hover admin-table data-table">
               <thead>
                 <tr>
                   <th width="5%">StreamVersion</th>
@@ -131,20 +131,28 @@ export default function EventStream() {
               <tbody>
                 {stream.map((event) => (
                   <tr key={`${event.stream}@${event.metadata.streamVersion}`}>
-                    <td>{event.metadata.streamVersion}</td>
-                    <td>{event.stream}</td>
                     <td>
-                      <DateFormat value={event.metadata.committedAt} />
+                      <span className="tag t-primary">{event.metadata.streamVersion}</span>
                     </td>
                     <td>
+                      <span className="tag t-info">{event.stream}</span>
+                    </td>
+                    <td>
+                      <span className="cell-date">
+                        <DateFormat value={event.metadata.committedAt} />
+                      </span>
+                    </td>
+                    <td className="cell-json">
                       <Json data={event.payload} />
                     </td>
-                    <td>
+                    <td className="cell-json">
                       <Json data={event.metadata} />
                     </td>
-                    <td className="text-right">{event.metadata.commitId}</td>
+                    <td className="text-right cell-mono">{event.metadata.commitId}</td>
                     <td className="text-right">
-                      {event.metadata.commitVersion + 1}/{event.metadata.commitSize}
+                      <span className="tag t-purple">
+                        {event.metadata.commitVersion + 1}/{event.metadata.commitSize}
+                      </span>
                     </td>
                   </tr>
                 ))}
@@ -152,27 +160,32 @@ export default function EventStream() {
               <tfoot>
                 <tr>
                   <td colSpan={7}>
-                    <div className="button-row">
-                      {prev <= 0 ? (
-                        <span className="btn btn-info disabled">Prev</span>
-                      ) : (
-                        <Link
-                          to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
-                          className="btn btn-info"
-                        >
-                          Prev
-                        </Link>
-                      )}
-                      {next <= 0 ? (
-                        <span className="btn btn-info disabled">Next</span>
-                      ) : (
-                        <Link
-                          to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
-                          className="btn btn-info"
-                        >
-                          Next
-                        </Link>
-                      )}
+                    <div className="data-foot">
+                      <span>
+                        Showing <strong>{stream.length}</strong> committed events from the first page
+                      </span>
+                      <div className="button-row">
+                        {prev <= 0 ? (
+                          <span className="btn btn-info disabled">Prev</span>
+                        ) : (
+                          <Link
+                            to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
+                            className="btn btn-info"
+                          >
+                            Prev
+                          </Link>
+                        )}
+                        {next <= 0 ? (
+                          <span className="btn btn-info disabled">Next</span>
+                        ) : (
+                          <Link
+                            to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
+                            className="btn btn-info"
+                          >
+                            Next
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>

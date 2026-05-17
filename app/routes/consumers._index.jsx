@@ -161,15 +161,15 @@ export default function Consumers() {
 
   return (
     <div className="page-stack">
-      <section className="page-hero">
-        <div>
-          <div className="page-eyebrow">Consumers</div>
-          <h2 className="page-title">Consumers</h2>
-          <p className="page-subtitle">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Consumers</div>
+          <h2 className="page-title hero-title">Consumers</h2>
+          <p className="page-subtitle hero-sub">
             Create projection consumers, preview derived state, and inspect registered consumer indexes.
           </p>
         </div>
-        <div className="page-actions">
+        <div className="page-actions hero-actions">
           <span className="page-pill">
             <i className="material-icons">sync_alt</i>
             {consumers.length} registered
@@ -182,8 +182,8 @@ export default function Consumers() {
       </section>
 
       {(isCreateSuccess || createError) && (
-        <section className="admin-panel">
-          <div className="admin-panel__body">
+        <section className="admin-panel card">
+          <div className="admin-panel__body card-body card-body--panel">
             {isCreateSuccess && (
               <div className="alert alert-success" role="alert">
                 ✅ Consumer &quot;{actionData.consumerIdentifier}&quot; created.
@@ -199,23 +199,23 @@ export default function Consumers() {
       )}
 
       <section className="panel-grid panel-grid--halves">
-        <section className="admin-panel">
-          <div className="admin-panel__header">
-            <div>
-              <div className="panel-eyebrow">Create</div>
-              <h3 className="panel-title">Add Consumer</h3>
+        <section className="admin-panel card">
+          <div className="admin-panel__header card-head">
+            <div className="card-title-wrap">
+              <div className="panel-eyebrow eyebrow">Create</div>
+              <h3 className="panel-title card-title">Add Consumer</h3>
             </div>
           </div>
-          <div className="admin-panel__body">
+          <div className="admin-panel__body card-body card-body--panel">
             <div className="form-stack">
-              <div className="form-group">
-                <label htmlFor="streamName">
-                  <strong>Stream Name</strong>
+              <div className="form-group field">
+                <label htmlFor="streamName" className="field-label">
+                  Stream Name
                 </label>
                 <select
                   id="streamName"
                   name="streamName"
-                  className="form-control"
+                  className="form-control select"
                   value={streamName}
                   onChange={(e) => setStreamName(e.target.value)}
                 >
@@ -226,50 +226,50 @@ export default function Consumers() {
                   ))}
                 </select>
               </div>
-              <div className="form-group">
-                <label htmlFor="consumerName">
-                  <strong>Consumer Name</strong>
+              <div className="form-group field">
+                <label htmlFor="consumerName" className="field-label">
+                  Consumer Name
                 </label>
                 <input
                   id="consumerName"
                   name="consumerName"
                   type="text"
-                  className="form-control"
+                  className="form-control input"
                   value={consumerName}
                   onChange={(e) => setConsumerName(e.target.value)}
                   placeholder="e.g. myConsumer"
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="consumerLogic">
-                  <strong>Consumer Logic (JavaScript function)</strong>
+              <div className="form-group field">
+                <label htmlFor="consumerLogic" className="field-label">
+                  Consumer Logic (JavaScript function)
                 </label>
                 <textarea
                   id="consumerLogic"
                   name="consumerLogic"
-                  className="form-control text-mono"
+                  className="form-control textarea text-mono"
                   rows={10}
                   value={consumerLogic}
                   onChange={(e) => setConsumerLogic(e.target.value)}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="initialState">
-                  <strong>Initial State (JSON object)</strong>
+              <div className="form-group field">
+                <label htmlFor="initialState" className="field-label">
+                  Initial State (JSON object)
                 </label>
                 <textarea
                   id="initialState"
                   name="initialState"
-                  className="form-control text-mono"
+                  className="form-control textarea text-mono"
                   rows={4}
                   value={initialState}
                   onChange={(e) => setInitialState(e.target.value)}
                 />
                 {!initialStateValidation.isValid && (
-                  <small className="text-danger">{initialStateValidation.error}</small>
+                  <small className="field-error">{initialStateValidation.error}</small>
                 )}
               </div>
-              <div className="button-row">
+              <div className="form-actions">
                 <button
                   type="button"
                   className="btn btn-default"
@@ -278,6 +278,7 @@ export default function Consumers() {
                 >
                   {isPreviewing ? 'Previewing…' : 'Preview'}
                 </button>
+                <span className="spacer" />
                 <Form method="post">
                   <input type="hidden" name="intent" value="create" />
                   <input type="hidden" name="streamName" value={streamName} />
@@ -293,14 +294,14 @@ export default function Consumers() {
           </div>
         </section>
 
-        <section className="admin-panel">
-          <div className="admin-panel__header">
-            <div>
-              <div className="panel-eyebrow">Preview</div>
-              <h3 className="panel-title">Preview State</h3>
+        <section className="admin-panel card">
+          <div className="admin-panel__header card-head">
+            <div className="card-title-wrap">
+              <div className="panel-eyebrow eyebrow">Preview</div>
+              <h3 className="panel-title card-title">Preview State</h3>
             </div>
           </div>
-          <div className="admin-panel__body">
+          <div className="admin-panel__body card-body card-body--panel">
             <div className="json-surface">
               {!previewError && previewState === null && (
                 <span className="text-muted">Run preview to evaluate consumer state.</span>
@@ -312,19 +313,17 @@ export default function Consumers() {
         </section>
       </section>
 
-      <section className="admin-panel">
-        <div className="admin-panel__header">
-          <div>
-            <div className="panel-eyebrow">Registry</div>
-            <h3 className="panel-title">Registered consumers</h3>
+      <section className="admin-panel card">
+        <div className="admin-panel__header card-head">
+          <div className="card-title-wrap">
+            <div className="panel-eyebrow eyebrow">Registry</div>
+            <h3 className="panel-title card-title">Registered consumers</h3>
           </div>
-          <div className="progress-note">
-            Showing {start + 1}-{Math.min(end, consumers.length)} of {consumers.length}
-          </div>
+          <span className="badge primary">{consumers.length} registered</span>
         </div>
         <div className="admin-panel__body admin-panel__body--compact">
-          <div className="admin-table-wrap">
-            <table className="table table-hover admin-table">
+          <div className="admin-table-wrap table-scroll">
+            <table className="table table-hover admin-table data-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -334,13 +333,16 @@ export default function Consumers() {
               <tbody>
                 {consumers.slice(start, end).map(([consumerIdentifier, streamName, consumerName]) => (
                   <tr key={consumerIdentifier}>
-                    <td>
+                    <td className="cell-name">
                       <Link to={`/consumers/${encodeURIComponent(consumerIdentifier)}`}>
                         {consumerName}
                       </Link>
                     </td>
                     <td>
-                      <Link to={`/consumers/${encodeURIComponent(consumerIdentifier)}`}>
+                      <Link
+                        to={`/consumers/${encodeURIComponent(consumerIdentifier)}`}
+                        className="tag t-info"
+                      >
                         {streamName}
                       </Link>
                     </td>
@@ -350,13 +352,19 @@ export default function Consumers() {
               <tfoot>
                 <tr>
                   <td colSpan={2}>
-                    <div className="button-row">
-                      <button disabled={!hasPrev} className="btn btn-info" onClick={prevPage}>
-                        Prev
-                      </button>
-                      <button disabled={!hasNext} className="btn btn-info" onClick={nextPage}>
-                        Next
-                      </button>
+                    <div className="data-foot">
+                      <span>
+                        Showing <strong>{start + 1}-{Math.min(end, consumers.length)}</strong> of{' '}
+                        {consumers.length}
+                      </span>
+                      <div className="button-row">
+                        <button disabled={!hasPrev} className="btn btn-info" onClick={prevPage}>
+                          Prev
+                        </button>
+                        <button disabled={!hasNext} className="btn btn-info" onClick={nextPage}>
+                          Next
+                        </button>
+                      </div>
                     </div>
                   </td>
                 </tr>

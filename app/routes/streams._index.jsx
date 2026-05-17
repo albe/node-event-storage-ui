@@ -39,15 +39,15 @@ export default function StreamsIndex() {
 
   return (
     <div className="page-stack">
-      <section className="page-hero">
-        <div>
-          <div className="page-eyebrow">Explorer</div>
-          <h2 className="page-title">Stream browser ({storeName})</h2>
-          <p className="page-subtitle">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Explorer</div>
+          <h2 className="page-title hero-title">Stream browser ({storeName})</h2>
+          <p className="page-subtitle hero-sub">
             Inspect streams, creation dates, event counts, and index metadata in a cleaner table layout.
           </p>
         </div>
-        <div className="page-actions">
+        <div className="page-actions hero-actions">
           <span className="page-pill">
             <i className="material-icons">table_rows</i>
             {streams.length} total streams
@@ -59,17 +59,17 @@ export default function StreamsIndex() {
         </div>
       </section>
 
-      <section className="admin-panel">
-        <div className="admin-panel__header">
-          <div>
-            <div className="panel-eyebrow">Catalog</div>
-            <h3 className="panel-title">Available streams</h3>
+      <section className="admin-panel card">
+        <div className="admin-panel__header card-head">
+          <div className="card-title-wrap">
+            <div className="panel-eyebrow eyebrow">Catalog</div>
+            <h3 className="panel-title card-title">Available streams</h3>
           </div>
-          <div className="progress-note">Open a stream to inspect committed events and metadata.</div>
+          <span className="badge primary">{streams.length} records</span>
         </div>
         <div className="admin-panel__body admin-panel__body--compact">
-          <div className="admin-table-wrap">
-            <table className="table table-hover admin-table">
+          <div className="admin-table-wrap table-scroll">
+            <table className="table table-hover admin-table data-table">
               <thead>
                 <tr>
                   <th style={{ width: '30%' }}>Stream name</th>
@@ -81,14 +81,18 @@ export default function StreamsIndex() {
               <tbody>
                 {streams.slice(start, end).map((stream) => (
                   <tr key={stream.name}>
-                    <td>
+                    <td className="cell-name">
                       <Link to={`/streams/${encodeURIComponent(stream.name)}`}>{stream.name}</Link>
                     </td>
                     <td>
-                      <DateFormat value={stream.crtime} />
+                      <span className="cell-date">
+                        <DateFormat value={stream.crtime} />
+                      </span>
                     </td>
-                    <td>{stream.length}</td>
                     <td>
+                      <span className="tag t-info">{stream.length} events</span>
+                    </td>
+                    <td className="cell-json">
                       <Json data={stream.metadata} />
                     </td>
                   </tr>
@@ -97,13 +101,19 @@ export default function StreamsIndex() {
               <tfoot>
                 <tr>
                   <td colSpan={4}>
-                    <div className="button-row">
+                    <div className="data-foot">
+                      <span>
+                        Showing <strong>{start + 1}-{Math.min(end, streams.length)}</strong> of {streams.length}{' '}
+                        streams
+                      </span>
+                      <div className="button-row">
                       <button disabled={!hasPrev} className="btn btn-info" onClick={prevPage}>
                         Prev
                       </button>
                       <button disabled={!hasNext} className="btn btn-info" onClick={nextPage}>
                         Next
                       </button>
+                      </div>
                     </div>
                   </td>
                 </tr>

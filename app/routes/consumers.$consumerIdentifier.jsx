@@ -39,17 +39,17 @@ export default function Consumer() {
 
   return (
     <div className="page-stack">
-      <section className="page-hero">
-        <div>
-          <div className="page-eyebrow">Consumers</div>
-          <h2 className="page-title">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Consumers</div>
+          <h2 className="page-title hero-title">
             Consumer '{consumerName}@{indexName}'
           </h2>
-          <p className="page-subtitle">
+          <p className="page-subtitle hero-sub">
             Review current consumer position, progress through the source index, and persisted state.
           </p>
         </div>
-        <div className="page-actions">
+        <div className="page-actions hero-actions">
           <span className="page-pill">
             <i className="material-icons">timeline</i>
             {progressDisplay === 'N/A' ? 'Progress unavailable' : `${progressDisplay} progress`}
@@ -72,14 +72,14 @@ export default function Consumer() {
         </article>
       </section>
 
-      <section className="admin-panel">
-        <div className="admin-panel__header">
-          <div>
-            <div className="panel-eyebrow">State</div>
-            <h3 className="panel-title">Consumer details</h3>
+      <section className="admin-panel card">
+        <div className="admin-panel__header card-head">
+          <div className="card-title-wrap">
+            <div className="panel-eyebrow eyebrow">State</div>
+            <h3 className="panel-title card-title">Consumer details</h3>
           </div>
         </div>
-        <div className="admin-panel__body">
+        <div className="admin-panel__body card-body card-body--panel">
           <div className="meta-list">
             <div className="meta-list__item">
               <div className="meta-list__label">Index size</div>

@@ -76,12 +76,12 @@ function EventsChart({ datas }) {
   const lastCommitAgo = lastCommit > 0 ? (Date.now() - lastCommit) / 1000 : -1;
 
   return (
-    <section className="admin-panel">
-      <div className="admin-panel__header">
-        <div>
-          <div className="panel-eyebrow">Events</div>
-          <h3 className="panel-title">Stream Events</h3>
-          <p className="panel-subtitle">Review recent event throughput for the selected stream.</p>
+    <section className="admin-panel card">
+      <div className="admin-panel__header card-head">
+        <div className="card-title-wrap">
+          <div className="panel-eyebrow eyebrow">Events</div>
+          <h3 className="panel-title card-title">Stream Events</h3>
+          <p className="panel-subtitle hero-sub">Review recent event throughput for the selected stream.</p>
         </div>
         <div className="admin-panel__toolbar">
           <label htmlFor="streamSelect" className="sr-only">
@@ -103,7 +103,7 @@ function EventsChart({ datas }) {
           </select>
         </div>
       </div>
-      <div className="admin-panel__body">
+      <div className="admin-panel__body card-body card-body--panel">
         <div className="admin-chart-surface">
           <Chart
             type="Line"
@@ -160,16 +160,16 @@ function MemUsageChart({ usage }) {
   };
 
   return (
-    <section className="admin-panel">
-      <div className="admin-panel__header">
-        <div>
-          <div className="panel-eyebrow">System</div>
-          <h3 className="panel-title">MEM Usage</h3>
-          <p className="panel-subtitle">Used versus available memory over recent samples.</p>
+    <section className="admin-panel card">
+      <div className="admin-panel__header card-head">
+        <div className="card-title-wrap">
+          <div className="panel-eyebrow eyebrow">System</div>
+          <h3 className="panel-title card-title">MEM Usage</h3>
+          <p className="panel-subtitle hero-sub">Used versus available memory over recent samples.</p>
         </div>
         <span className="page-pill">used / available</span>
       </div>
-      <div className="admin-panel__body">
+      <div className="admin-panel__body card-body card-body--panel">
         <div className="admin-chart-surface">
           <Chart type="Bar" options={optionsBarChart} data={memChartData(usage)} />
         </div>
@@ -229,16 +229,18 @@ function CpuUsageChart({ usage }) {
   };
 
   return (
-    <section className="admin-panel">
-      <div className="admin-panel__header">
-        <div>
-          <div className="panel-eyebrow">System</div>
-          <h3 className="panel-title">CPU Load</h3>
-          <p className="panel-subtitle">Current CPU load broken down by user, system, and irq.</p>
+    <section className="admin-panel card">
+      <div className="admin-panel__header card-head">
+        <div className="card-title-wrap">
+          <div className="panel-eyebrow eyebrow">System</div>
+          <h3 className="panel-title card-title">CPU Load</h3>
+          <p className="panel-subtitle hero-sub">
+            Current CPU load broken down by user, system, and irq.
+          </p>
         </div>
         <span className="page-pill">user / system / irq</span>
       </div>
-      <div className="admin-panel__body">
+      <div className="admin-panel__body card-body card-body--panel">
         <div className="admin-chart-surface">
           <Chart type="Line" options={optionsAreaChart} data={loadChartData(usage)} />
         </div>
@@ -253,9 +255,9 @@ function CpuUsageChart({ usage }) {
   );
 }
 
-function MetricCard({ label, icon, value, meta, children }) {
+function MetricCard({ label, icon, value, meta, children, className = '' }) {
   return (
-    <article className="metric-card">
+    <article className={`metric-card ${className}`.trim()}>
       <div className="metric-card__header">
         <div className="metric-card__label">{label}</div>
         <span className="metric-card__icon">{icon}</span>
@@ -280,16 +282,16 @@ export default function Dashboard() {
 
   return (
     <div className="page-stack">
-      <section className="page-hero">
-        <div>
-          <div className="page-eyebrow">Workspace</div>
-          <h2 className="page-title">Dashboard ({storeName})</h2>
-          <p className="page-subtitle">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Workspace</div>
+          <h2 className="page-title hero-title">Dashboard ({storeName})</h2>
+          <p className="page-subtitle hero-sub">
             Monitor stream volume, system utilization, and storage health for{' '}
             <span className="text-mono">{storageDirectory}</span>.
           </p>
         </div>
-        <div className="page-actions">
+        <div className="page-actions hero-actions">
           <span className="page-pill">
             <i className="material-icons">view_stream</i>
             {streamsCount} streams
@@ -311,24 +313,28 @@ export default function Dashboard() {
           icon={<i className="material-icons">view_stream</i>}
           value={streamsCount}
           meta="Indexed event streams available in this store."
+          className="metric-card--primary"
         />
         <MetricCard
           label="Events"
           icon={<i className="material-icons">bolt</i>}
           value={eventsCount}
           meta="Committed events currently persisted on disk."
+          className="metric-card--warning"
         />
         <MetricCard
           label="Consumers"
           icon={<i className="material-icons">sync_alt</i>}
           value={consumersCount}
           meta="Projection consumers scanning stream activity."
+          className="metric-card--purple"
         />
         <MetricCard
           label="Storage path"
           icon={<i className="material-icons">folder_open</i>}
           value={<span className="text-mono text-mono--sm">{storageDirectory}</span>}
           meta="Resolved storage directory for the active store."
+          className="metric-card--orange"
         />
       </section>
 
@@ -348,6 +354,7 @@ export default function Dashboard() {
               : '—'
           }
           meta={sysinfo.fsSize ? `${sysinfo.fsSize.mount} (${sysinfo.fsSize.use}%)` : 'Waiting for fs stats'}
+          className="metric-card--info"
         />
         <MetricCard
           label="Used Memory"
@@ -364,6 +371,7 @@ export default function Dashboard() {
                 ).toFixed(1)} GiB`
               : 'Waiting for memory stats'
           }
+          className="metric-card--success"
         >
           {swapUsage > 0.95 && <div className="metric-card__meta text-danger">Swap usage is high.</div>}
         </MetricCard>
@@ -378,6 +386,7 @@ export default function Dashboard() {
                 : `${sysinfo.currentLoad.currentLoadNice.toFixed(2)}% nice`
               : 'Waiting for CPU stats'
           }
+          className="metric-card--warning"
         />
         <MetricCard
           label="NodeJS"
@@ -390,6 +399,7 @@ export default function Dashboard() {
           meta={
             sysinfo.processLoad && sysinfo.processLoad[0].cpu > 50 ? 'cpu/mem · high load' : 'cpu/mem'
           }
+          className="metric-card--pink"
         />
       </section>
     </div>

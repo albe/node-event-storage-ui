@@ -6,7 +6,9 @@ module.exports = defineConfig({
   e2e: {
     baseUrl: 'http://localhost:3000',
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx}',
-    screenshotsFolder: 'public/screenshots',
+    screenshotsFolder: 'public/screenshots/generated',
+    viewportWidth: 1440,
+    viewportHeight: 1200,
     video: false,
     setupNodeEvents(on) {
       on('task', {

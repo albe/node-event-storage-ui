@@ -95,15 +95,15 @@ export default function WriteEvents() {
   if (storeLocked) {
     return (
       <div className="page-stack">
-        <section className="page-hero">
-          <div>
-            <div className="page-eyebrow">Writer</div>
-            <h2 className="page-title">Write Events ({storeName})</h2>
-            <p className="page-subtitle">
+        <section className="page-hero hero">
+          <div className="hero-text">
+            <div className="page-eyebrow eyebrow">Writer</div>
+            <h2 className="page-title hero-title">Write Events ({storeName})</h2>
+            <p className="page-subtitle hero-sub">
               Writing is disabled while this store is locked by an external process.
             </p>
           </div>
-          <div className="page-actions">
+          <div className="page-actions hero-actions">
             <span className="page-pill">
               <i className="material-icons">lock</i>
               Locked
@@ -111,8 +111,8 @@ export default function WriteEvents() {
           </div>
         </section>
 
-        <section className="admin-panel">
-          <div className="admin-panel__body">
+        <section className="admin-panel card">
+          <div className="admin-panel__body card-body card-body--panel">
             <div className="status-banner" role="alert">
               <span className="status-banner__icon">❗</span>
               <div className="status-banner__text">
@@ -128,19 +128,19 @@ export default function WriteEvents() {
 
   return (
     <div className="page-stack">
-      <section className="page-hero">
-        <div>
-          <div className="page-eyebrow">Writer</div>
-          <h2 className="page-title">Write Events ({storeName})</h2>
-          <p className="page-subtitle">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Writer</div>
+          <h2 className="page-title hero-title">Write Events ({storeName})</h2>
+          <p className="page-subtitle hero-sub">
             Compose new event payloads, preview parsed JSON, and optionally attach metadata before committing.
           </p>
         </div>
       </section>
 
       {(actionData?.success || actionData?.error) && (
-        <section className="admin-panel">
-          <div className="admin-panel__body">
+        <section className="admin-panel card">
+          <div className="admin-panel__body card-body card-body--panel">
             {actionData?.success && (
               <div className="alert alert-success" role="alert">
                 ✅ Events committed successfully to stream &quot;{actionData.streamName}&quot;.
@@ -157,39 +157,38 @@ export default function WriteEvents() {
 
       <Form method="post" className="page-stack">
         <section className="panel-grid panel-grid--halves">
-          <section className="admin-panel">
-            <div className="admin-panel__header">
-              <div>
-                <div className="panel-eyebrow">Compose</div>
-                <h3 className="panel-title">Event payload</h3>
+          <section className="admin-panel card">
+            <div className="admin-panel__header card-head">
+              <div className="card-title-wrap">
+                <div className="panel-eyebrow eyebrow">Compose</div>
+                <h3 className="panel-title card-title">Event payload</h3>
               </div>
             </div>
-            <div className="admin-panel__body">
+            <div className="admin-panel__body card-body card-body--panel">
               <div className="form-stack">
-                <div className="form-group">
-                  <label htmlFor="streamName">
-                    <strong>Stream Name</strong>
+                <div className="form-group field">
+                  <label htmlFor="streamName" className="field-label">
+                    Stream Name
                   </label>
                   <input
                     id="streamName"
                     name="streamName"
                     type="text"
-                    className="form-control"
+                    className="form-control input"
                     placeholder="e.g. users or orders-2024"
                     value={streamName}
                     onChange={handleStreamNameChange}
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label htmlFor="events">
-                    <strong>Events</strong>{' '}
-                    <small className="text-muted">(JSON object or array of objects)</small>
+                <div className="form-group field">
+                  <label htmlFor="events" className="field-label">
+                    Events <small className="text-muted">(JSON object or array of objects)</small>
                   </label>
                   <textarea
                     id="events"
                     name="events"
-                    className="form-control text-mono"
+                    className="form-control textarea text-mono"
                     rows={14}
                     placeholder={'[\n  { "type": "MyEvent", "data": "value" }\n]'}
                     value={eventsText}
@@ -200,14 +199,14 @@ export default function WriteEvents() {
             </div>
           </section>
 
-          <section className="admin-panel">
-            <div className="admin-panel__header">
-              <div>
-                <div className="panel-eyebrow">Preview</div>
-                <h3 className="panel-title">Parsed events</h3>
+          <section className="admin-panel card">
+            <div className="admin-panel__header card-head">
+              <div className="card-title-wrap">
+                <div className="panel-eyebrow eyebrow">Preview</div>
+                <h3 className="panel-title card-title">Parsed events</h3>
               </div>
             </div>
-            <div className="admin-panel__body">
+            <div className="admin-panel__body card-body card-body--panel">
               <div className="json-surface">
                 {eventsResult.empty && <span className="text-muted">Enter JSON above to see a preview.</span>}
                 {!eventsResult.empty && eventsResult.error && (
@@ -219,47 +218,46 @@ export default function WriteEvents() {
           </section>
         </section>
 
-        <section className="admin-panel">
-          <div className="admin-panel__header">
-            <div>
-              <div className="panel-eyebrow">Optional</div>
-              <h3 className="panel-title">Event Metadata</h3>
+        <section className="admin-panel card">
+          <div className="admin-panel__header card-head">
+            <div className="card-title-wrap">
+              <div className="panel-eyebrow eyebrow">Optional</div>
+              <h3 className="panel-title card-title">Event Metadata</h3>
             </div>
             <div className="admin-panel__toolbar">
-                <button
-                  type="button"
-                  className="btn btn-default btn-sm"
-                  onClick={() => setMetadataExpanded((v) => !v)}
-                  aria-expanded={metadataExpanded}
-                >
-                  <i className="material-icons button-icon-inline">
-                    {metadataExpanded ? 'expand_less' : 'expand_more'}
-                  </i>{' '}
-                  {metadataExpanded ? 'Hide' : 'Show'} Event Metadata (optional)
-                </button>
+              <button
+                type="button"
+                className="btn btn-default btn-sm"
+                onClick={() => setMetadataExpanded((v) => !v)}
+                aria-expanded={metadataExpanded}
+              >
+                <i className="material-icons button-icon-inline">
+                  {metadataExpanded ? 'expand_less' : 'expand_more'}
+                </i>{' '}
+                {metadataExpanded ? 'Hide' : 'Show'} Event Metadata (optional)
+              </button>
             </div>
           </div>
           {metadataExpanded && (
-            <div className="admin-panel__body">
+            <div className="admin-panel__body card-body card-body--panel">
               <div className="panel-grid panel-grid--halves">
-                <div className="form-group">
-                  <label htmlFor="metadata">
-                    <strong>Metadata</strong>{' '}
-                    <small className="text-muted">(JSON object, optional)</small>
+                <div className="form-group field">
+                  <label htmlFor="metadata" className="field-label">
+                    Metadata <small className="text-muted">(JSON object, optional)</small>
                   </label>
                   <textarea
                     id="metadata"
                     name="metadata"
-                    className="form-control text-mono"
+                    className="form-control textarea text-mono"
                     rows={8}
                     placeholder={'{\n  "correlationId": "abc123"\n}'}
                     value={metadataText}
                     onChange={handleMetadataChange}
                   />
                 </div>
-                <div>
-                  <label>
-                    <strong>Metadata Preview</strong>
+                <div className="field">
+                  <label className="field-label">
+                    Metadata Preview
                   </label>
                   <div className="json-surface json-surface--short">
                     {metadataResult.empty && (
@@ -278,7 +276,7 @@ export default function WriteEvents() {
           )}
         </section>
 
-        <section className="admin-panel">
+        <section className="admin-panel card">
           <div className="admin-panel__footer">
             <div className="progress-note">Validate the JSON preview before committing new events.</div>
             <button
