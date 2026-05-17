@@ -1,29 +1,34 @@
 import { useEffect, useState } from 'react';
 
-export default function Chart(props) {
-  const [ChartistGraph, setChartistGraph] = useState(null);
-  const [Interpolation, setInterpolation] = useState(null);
+let registered = false;
+
+async function ensureChartJsRegistered() {
+  if (registered) return;
+  const { Chart, LineElement, BarElement, PointElement, LineController, BarController,
+    CategoryScale, LinearScale, Filler, Tooltip, Legend } = await import('chart.js');
+  Chart.register(LineElement, BarElement, PointElement, LineController, BarController,
+    CategoryScale, LinearScale, Filler, Tooltip, Legend);
+  registered = true;
+}
+
+export default function Chart({ type, data, options, className }) {
+  const [ChartComponent, setChartComponent] = useState(null);
 
   useEffect(() => {
-    import('react-chartist').then((module) => {
-      const Component = typeof module.default === 'function' ? module.default : module.default?.default;
-      setChartistGraph(() => Component);
+    Promise.all([
+      import('react-chartjs-2'),
+      ensureChartJsRegistered()
+    ]).then(([mod]) => {
+      const Components = { Line: mod.Line, Bar: mod.Bar };
+      setChartComponent(() => Components[type]);
     });
-    import('chartist').then((module) => {
-      const lib = module.default || module;
-      setInterpolation(() => lib.Interpolation);
-    });
-  }, []);
+  }, [type]);
 
-  if (!ChartistGraph || !Interpolation || !['Bar', 'Line', 'Pie'].includes(props.type)) {
-    return null;
-  }
+  if (!ChartComponent) return null;
 
-  const options = props.options ? { ...props.options } : undefined;
-  if (options?.lineSmooth?.type) {
-    const { type, values } = options.lineSmooth;
-    options.lineSmooth = type in Interpolation ? Interpolation[type](values) : undefined;
-  }
-
-  return <ChartistGraph {...props} options={options} />;
+  return (
+    <div className={className}>
+      <ChartComponent data={data} options={options} />
+    </div>
+  );
 }

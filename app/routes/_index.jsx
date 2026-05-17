@@ -36,43 +36,34 @@ export async function loader({ request }) {
   }
 }
 
+const COLORS = { primary: '#00bcd4', success: '#32d48e', warning: '#f59e0b' };
+
 function eventsChartData({ times, amounts }) {
   return {
     labels: (times || []).map((timestamp) => new Date(timestamp).toLocaleTimeString()),
-    series: [amounts || []]
+    datasets: [{
+      data: amounts || [],
+      borderColor: COLORS.primary,
+      backgroundColor: COLORS.primary + '2e',
+      borderWidth: 3,
+      fill: true,
+      tension: 0.35,
+      pointRadius: 0
+    }]
   };
 }
 
+const eventsChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+  scales: {
+    y: { beginAtZero: true, ticks: { color: '#9e9e9e', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)', drawBorder: false } },
+    x: { ticks: { color: '#9e9e9e', font: { size: 11 } }, grid: { display: false } }
+  }
+};
+
 function EventsChart({ datas }) {
-  const optionsLineChart = {
-    lineSmooth: {
-      type: 'cardinal',
-      values: {
-        tension: 0.35
-      }
-    },
-    fullWidth: true,
-    showArea: true,
-    showPoint: false,
-    low: 0,
-    chartPadding: {
-      top: 10,
-      right: 10,
-      bottom: 0,
-      left: 0
-    },
-    axisY: {
-      labelOffset: {
-        y: 10
-      }
-    },
-    axisX: {
-      showGrid: false,
-      labelOffset: {
-        x: -12
-      }
-    }
-  };
   const [currentStream, setStream] = useState('_all');
   const commitTimes = datas[currentStream]?.times || [];
   const lastCommit = commitTimes.length > 0 ? commitTimes[commitTimes.length - 1] : 0;
@@ -111,7 +102,7 @@ function EventsChart({ datas }) {
           <Chart
             className="admin-chart admin-chart--events"
             type="Line"
-            options={optionsLineChart}
+            options={eventsChartOptions}
             data={eventsChartData(currentStream in datas ? datas[currentStream] : {})}
           />
         </div>
@@ -131,39 +122,36 @@ function memChartData(datas) {
     labels: datas.map((_, index) =>
       index === 0 ? 'now' : index === datas.length - 2 ? `${index * 10}s` : ''
     ),
-    series: [
-      datas.map((data) => (data.used / data.total) * 100).reverse(),
-      datas.map((data) => (data.free / data.total) * 100).reverse()
+    datasets: [
+      {
+        label: 'Used',
+        data: datas.map((data) => (data.used / data.total) * 100).reverse(),
+        backgroundColor: COLORS.primary,
+        borderRadius: 8,
+        barPercentage: 0.6
+      },
+      {
+        label: 'Free',
+        data: datas.map((data) => (data.free / data.total) * 100).reverse(),
+        backgroundColor: COLORS.success,
+        borderRadius: 8,
+        barPercentage: 0.6
+      }
     ]
   };
 }
 
-function MemUsageChart({ usage }) {
-  const optionsBarChart = {
-    low: 0,
-    high: 100,
-    fullWidth: true,
-    stackBars: true,
-    seriesBarDistance: 18,
-    chartPadding: {
-      top: 10,
-      right: 5,
-      bottom: 0,
-      left: 0
-    },
-    axisY: {
-      labelOffset: {
-        y: 10
-      }
-    },
-    axisX: {
-      showGrid: false,
-      labelOffset: {
-        x: -10
-      }
-    }
-  };
+const memChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+  scales: {
+    y: { beginAtZero: true, max: 100, stacked: true, ticks: { color: '#9e9e9e', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)', drawBorder: false } },
+    x: { stacked: true, ticks: { color: '#9e9e9e', font: { size: 11 } }, grid: { display: false } }
+  }
+};
 
+function MemUsageChart({ usage }) {
   return (
     <section className="admin-panel card">
       <div className="admin-panel__header card-head">
@@ -176,7 +164,7 @@ function MemUsageChart({ usage }) {
       </div>
       <div className="admin-panel__body card-body card-body--panel">
         <div className="admin-chart-surface">
-          <Chart className="admin-chart admin-chart--memory" type="Bar" options={optionsBarChart} data={memChartData(usage)} />
+          <Chart className="admin-chart admin-chart--memory" type="Bar" options={memChartOptions} data={memChartData(usage)} />
         </div>
       </div>
       <div className="admin-panel__footer">
@@ -194,45 +182,52 @@ function loadChartData(datas) {
     labels: datas.map((_, index) =>
       index === 0 ? 'now' : index === datas.length - 2 ? `${index * 10}s` : ''
     ),
-    series: [
-      datas.map((data) => data.loadIrq + data.loadSystem + data.loadUser).reverse(),
-      datas.map((data) => data.loadIrq + data.loadSystem).reverse(),
-      datas.map((data) => data.loadIrq).reverse()
+    datasets: [
+      {
+        label: 'User + System + IRQ',
+        data: datas.map((data) => data.loadIrq + data.loadSystem + data.loadUser).reverse(),
+        borderColor: COLORS.primary,
+        backgroundColor: COLORS.primary + '2e',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0
+      },
+      {
+        label: 'System + IRQ',
+        data: datas.map((data) => data.loadIrq + data.loadSystem).reverse(),
+        borderColor: COLORS.success,
+        backgroundColor: COLORS.success + '28',
+        borderWidth: 2.6,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0
+      },
+      {
+        label: 'IRQ',
+        data: datas.map((data) => data.loadIrq).reverse(),
+        borderColor: COLORS.warning,
+        backgroundColor: COLORS.warning + '24',
+        borderWidth: 2.4,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0
+      }
     ]
   };
 }
 
-function CpuUsageChart({ usage }) {
-  const optionsAreaChart = {
-    lineSmooth: {
-      type: 'cardinal',
-      values: {
-        tension: 1
-      }
-    },
-    low: 0,
-    fullWidth: true,
-    showPoint: false,
-    showArea: true,
-    chartPadding: {
-      top: 10,
-      right: 5,
-      bottom: 0,
-      left: 0
-    },
-    axisY: {
-      labelOffset: {
-        y: 10
-      }
-    },
-    axisX: {
-      showGrid: false,
-      labelOffset: {
-        x: -20
-      }
-    }
-  };
+const loadChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+  scales: {
+    y: { beginAtZero: true, ticks: { color: '#9e9e9e', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.06)', drawBorder: false } },
+    x: { ticks: { color: '#9e9e9e', font: { size: 11 } }, grid: { display: false } }
+  }
+};
 
+function CpuUsageChart({ usage }) {
   return (
     <section className="admin-panel card">
       <div className="admin-panel__header card-head">
@@ -247,7 +242,7 @@ function CpuUsageChart({ usage }) {
       </div>
       <div className="admin-panel__body card-body card-body--panel">
         <div className="admin-chart-surface">
-          <Chart className="admin-chart admin-chart--load" type="Line" options={optionsAreaChart} data={loadChartData(usage)} />
+          <Chart className="admin-chart admin-chart--load" type="Line" options={loadChartOptions} data={loadChartData(usage)} />
         </div>
       </div>
       <div className="admin-panel__footer">
