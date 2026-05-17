@@ -1,11 +1,5 @@
-const DASHBOARD_SCREENSHOT_DELAY_MS = 30000;
-
 describe('Dashboard screenshots', () => {
-  it('captures dashboard and stream screenshots after charts have data', () => {
-    cy.visit('/');
-    cy.wait(DASHBOARD_SCREENSHOT_DELAY_MS);
-    cy.screenshot('dashboard', { overwrite: true });
-
+  it('captures stream screenshots', () => {
     cy.visit('/streams');
     cy.contains('Stream browser').should('be.visible');
     cy.screenshot('stream-browser-react-json-view', { overwrite: true });

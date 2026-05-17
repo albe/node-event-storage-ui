@@ -48,14 +48,16 @@ function EventsChart({ datas }) {
     lineSmooth: {
       type: 'cardinal',
       values: {
-        tension: 0
+        tension: 0.35
       }
     },
     fullWidth: true,
+    showArea: true,
+    showPoint: false,
     low: 0,
     chartPadding: {
       top: 10,
-      right: 25,
+      right: 10,
       bottom: 0,
       left: 0
     },
@@ -65,8 +67,9 @@ function EventsChart({ datas }) {
       }
     },
     axisX: {
+      showGrid: false,
       labelOffset: {
-        x: -30
+        x: -12
       }
     }
   };
@@ -106,6 +109,7 @@ function EventsChart({ datas }) {
       <div className="admin-panel__body card-body card-body--panel">
         <div className="admin-chart-surface">
           <Chart
+            className="admin-chart admin-chart--events"
             type="Line"
             options={optionsLineChart}
             data={eventsChartData(currentStream in datas ? datas[currentStream] : {})}
@@ -140,6 +144,7 @@ function MemUsageChart({ usage }) {
     high: 100,
     fullWidth: true,
     stackBars: true,
+    seriesBarDistance: 18,
     chartPadding: {
       top: 10,
       right: 5,
@@ -171,7 +176,7 @@ function MemUsageChart({ usage }) {
       </div>
       <div className="admin-panel__body card-body card-body--panel">
         <div className="admin-chart-surface">
-          <Chart type="Bar" options={optionsBarChart} data={memChartData(usage)} />
+          <Chart className="admin-chart admin-chart--memory" type="Bar" options={optionsBarChart} data={memChartData(usage)} />
         </div>
       </div>
       <div className="admin-panel__footer">
@@ -242,7 +247,7 @@ function CpuUsageChart({ usage }) {
       </div>
       <div className="admin-panel__body card-body card-body--panel">
         <div className="admin-chart-surface">
-          <Chart type="Line" options={optionsAreaChart} data={loadChartData(usage)} />
+          <Chart className="admin-chart admin-chart--load" type="Line" options={optionsAreaChart} data={loadChartData(usage)} />
         </div>
       </div>
       <div className="admin-panel__footer">
