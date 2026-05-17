@@ -1,6 +1,6 @@
 import { data } from 'react-router';
 import { Form, Link, useActionData, useFetcher, useLoaderData, useNavigation } from 'react-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import getEventStore from '../../eventstore';
 import { createConsumer, previewConsumerState } from '../consumers.server';
 import Json from '../components/json';
@@ -119,9 +119,14 @@ export default function Consumers() {
   const isPreviewing = previewFetcher.state !== 'idle';
   const isCreateSuccess = actionData?.intent === 'create' && actionData?.success;
   const createError = actionData?.intent === 'create' ? actionData?.error : null;
-  const previewError = previewFetcher.data?.intent === 'preview' ? previewFetcher.data?.error : null;
-  const previewState =
-    previewFetcher.data?.intent === 'preview' ? previewFetcher.data?.previewState : null;
+  const previewResponse =
+    previewFetcher.data?.intent === 'preview'
+      ? previewFetcher.data
+      : actionData?.intent === 'preview'
+        ? actionData
+        : null;
+  const previewError = previewResponse?.error || null;
+  const previewState = previewResponse?.previewState ?? null;
   const initialStateValidation = useMemo(() => {
     if (!initialState.trim()) {
       return { isValid: true, error: null };
@@ -137,27 +142,17 @@ export default function Consumers() {
     }
   }, [initialState]);
 
-  const canSubmit = useMemo(
+  const canPreview = useMemo(
     () =>
       streamNames.includes(streamName) &&
-      !!consumerName.trim() &&
       !!consumerLogic.trim() &&
       initialStateValidation.isValid,
-    [streamNames, streamName, consumerName, consumerLogic, initialStateValidation.isValid]
+    [streamNames, streamName, consumerLogic, initialStateValidation.isValid]
   );
-
-  const onPreview = useCallback(() => {
-    previewFetcher.submit(
-      {
-        intent: 'preview',
-        streamName,
-        consumerName,
-        consumerLogic,
-        initialState
-      },
-      { method: 'post' }
-    );
-  }, [previewFetcher, streamName, consumerName, consumerLogic, initialState]);
+  const canCreate = useMemo(
+    () => canPreview && !!consumerName.trim(),
+    [canPreview, consumerName]
+  );
 
   return (
     <div className="page-stack">
@@ -239,6 +234,7 @@ export default function Consumers() {
                   onChange={(e) => setConsumerName(e.target.value)}
                   placeholder="e.g. myConsumer"
                 />
+                <small className="field-help">Optional for preview. Required to create a consumer.</small>
               </div>
               <div className="form-group field">
                 <label htmlFor="consumerLogic" className="field-label">
@@ -270,14 +266,20 @@ export default function Consumers() {
                 )}
               </div>
               <div className="form-actions">
-                <button
-                  type="button"
-                  className="btn btn-default"
-                  disabled={!canSubmit || isPreviewing}
-                  onClick={onPreview}
-                >
-                  {isPreviewing ? 'Previewing…' : 'Preview'}
-                </button>
+                <previewFetcher.Form method="post">
+                  <input type="hidden" name="intent" value="preview" />
+                  <input type="hidden" name="streamName" value={streamName} />
+                  <input
+                    type="hidden"
+                    name="consumerName"
+                    value={consumerName.trim() || 'preview-state'}
+                  />
+                  <input type="hidden" name="consumerLogic" value={consumerLogic} />
+                  <input type="hidden" name="initialState" value={initialState} />
+                  <button type="submit" className="btn btn--ghost" disabled={!canPreview || isPreviewing}>
+                    {isPreviewing ? 'Previewing…' : 'Preview'}
+                  </button>
+                </previewFetcher.Form>
                 <span className="spacer" />
                 <Form method="post">
                   <input type="hidden" name="intent" value="create" />
@@ -285,7 +287,7 @@ export default function Consumers() {
                   <input type="hidden" name="consumerName" value={consumerName} />
                   <input type="hidden" name="consumerLogic" value={consumerLogic} />
                   <input type="hidden" name="initialState" value={initialState} />
-                  <button type="submit" className="btn btn-info" disabled={!canSubmit || isCreating}>
+                  <button type="submit" className="btn btn--primary" disabled={!canCreate || isCreating}>
                     {isCreating ? 'Creating…' : 'Create Consumer'}
                   </button>
                 </Form>
@@ -319,7 +321,7 @@ export default function Consumers() {
             <div className="panel-eyebrow eyebrow">Registry</div>
             <h3 className="panel-title card-title">Registered consumers</h3>
           </div>
-          <span className="badge primary">{consumers.length} registered</span>
+          <span className="tag t-primary">{consumers.length} registered</span>
         </div>
         <div className="admin-panel__body admin-panel__body--compact">
           <div className="admin-table-wrap table-scroll">
@@ -358,10 +360,10 @@ export default function Consumers() {
                         {consumers.length}
                       </span>
                       <div className="button-row">
-                        <button disabled={!hasPrev} className="btn btn-info" onClick={prevPage}>
+                        <button disabled={!hasPrev} className="btn btn--ghost" onClick={prevPage}>
                           Prev
                         </button>
-                        <button disabled={!hasNext} className="btn btn-info" onClick={nextPage}>
+                        <button disabled={!hasNext} className="btn btn--ghost" onClick={nextPage}>
                           Next
                         </button>
                       </div>

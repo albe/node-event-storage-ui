@@ -65,7 +65,7 @@ export default function StreamsIndex() {
             <div className="panel-eyebrow eyebrow">Catalog</div>
             <h3 className="panel-title card-title">Available streams</h3>
           </div>
-          <span className="badge primary">{streams.length} records</span>
+          <span className="tag t-primary">{streams.length} records</span>
         </div>
         <div className="admin-panel__body admin-panel__body--compact">
           <div className="admin-table-wrap table-scroll">
@@ -107,10 +107,10 @@ export default function StreamsIndex() {
                         streams
                       </span>
                       <div className="button-row">
-                      <button disabled={!hasPrev} className="btn btn-info" onClick={prevPage}>
+                      <button disabled={!hasPrev} className="btn btn--ghost" onClick={prevPage}>
                         Prev
                       </button>
-                      <button disabled={!hasNext} className="btn btn-info" onClick={nextPage}>
+                      <button disabled={!hasNext} className="btn btn--ghost" onClick={nextPage}>
                         Next
                       </button>
                       </div>

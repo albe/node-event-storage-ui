@@ -227,7 +227,7 @@ export default function WriteEvents() {
             <div className="admin-panel__toolbar">
               <button
                 type="button"
-                className="btn btn-default btn-sm"
+                className="btn btn--ghost btn--sm"
                 onClick={() => setMetadataExpanded((v) => !v)}
                 aria-expanded={metadataExpanded}
               >
@@ -279,11 +279,11 @@ export default function WriteEvents() {
         <section className="admin-panel card">
           <div className="admin-panel__footer">
             <div className="progress-note">Validate the JSON preview before committing new events.</div>
-            <button
-              type="submit"
-              className="btn btn-info"
-              disabled={isSubmitting || !isFormValid(streamName, eventsResult)}
-            >
+              <button
+                type="submit"
+                className="btn btn--primary"
+                disabled={isSubmitting || !isFormValid(streamName, eventsResult)}
+              >
               {isSubmitting ? (
                 <>
                   <i className="material-icons button-icon-inline">

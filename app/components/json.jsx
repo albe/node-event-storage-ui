@@ -13,10 +13,13 @@ export default function Json({ data, collapsed = true, style = undefined, classN
     return null;
   }
 
+  const normalizedCollapsed = collapsed === true ? 1 : collapsed === false ? false : collapsed;
+
   return (
     <JsonView
       src={data}
-      collapsed={collapsed === true ? 1 : collapsed === false ? false : collapsed}
+      collapsed={normalizedCollapsed}
+      displaySize={normalizedCollapsed === false ? false : 'collapsed'}
       dark={true}
       theme="default"
       className={`json-theme-adminator ${className}`.trim()}

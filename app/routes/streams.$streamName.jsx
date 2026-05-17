@@ -78,7 +78,7 @@ export default function EventStream() {
         <div className="page-actions hero-actions">
           <button
             type="button"
-            className="btn btn-default"
+            className="btn btn--ghost"
             aria-label="Toggle stream info"
             aria-expanded={showInfo}
             onClick={() => setShowInfo((open) => !open)}
@@ -112,7 +112,7 @@ export default function EventStream() {
             <div className="panel-eyebrow eyebrow">Events</div>
             <h3 className="panel-title card-title">Committed events</h3>
           </div>
-          <span className="badge primary">{stream.length} loaded</span>
+          <span className="tag t-primary">{stream.length} loaded</span>
         </div>
         <div className="admin-panel__body admin-panel__body--compact">
           <div className="admin-table-wrap table-scroll">
@@ -150,7 +150,7 @@ export default function EventStream() {
                     </td>
                     <td className="text-right cell-mono">{event.metadata.commitId}</td>
                     <td className="text-right">
-                      <span className="tag t-purple">
+                      <span className="tag t-new">
                         {event.metadata.commitVersion + 1}/{event.metadata.commitSize}
                       </span>
                     </td>
@@ -166,21 +166,25 @@ export default function EventStream() {
                       </span>
                       <div className="button-row">
                         {prev <= 0 ? (
-                          <span className="btn btn-info disabled">Prev</span>
+                          <button type="button" className="btn btn--ghost" disabled>
+                            Prev
+                          </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
-                            className="btn btn-info"
+                            className="btn btn--ghost"
                           >
                             Prev
                           </Link>
                         )}
                         {next <= 0 ? (
-                          <span className="btn btn-info disabled">Next</span>
+                          <button type="button" className="btn btn--ghost" disabled>
+                            Next
+                          </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
-                            className="btn btn-info"
+                            className="btn btn--ghost"
                           >
                             Next
                           </Link>
