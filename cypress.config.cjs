@@ -11,6 +11,19 @@ module.exports = defineConfig({
     viewportHeight: 1200,
     video: false,
     setupNodeEvents(on) {
+      on('before:browser:launch', (browser = {}, launchOptions) => {
+        if (browser.family === 'chromium' && browser.name !== 'electron' && browser.isHeadless) {
+          launchOptions.args.push('--window-size=1440,1200');
+        }
+
+        if (browser.name === 'electron') {
+          launchOptions.preferences.width = 1440;
+          launchOptions.preferences.height = 1200;
+        }
+
+        return launchOptions;
+      });
+
       on('task', {
         /**
          * Creates a .lock directory inside the store path to simulate an external writer lock.
