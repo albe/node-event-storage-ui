@@ -45,7 +45,7 @@ function isAuthorized(request, credentials) {
 
   let decoded = '';
   try {
-    decoded = Buffer.from(authorization.slice(6).trim(), 'base64').toString('latin1');
+    decoded = Buffer.from(authorization.slice(6).trim(), 'base64').toString('utf8');
   } catch {
     return false;
   }
