@@ -1,21 +1,27 @@
 import { PassThrough } from 'node:stream';
 import { timingSafeEqual } from 'node:crypto';
 import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createReadableStreamFromReadable } from '@react-router/node';
 import { ServerRouter } from 'react-router';
 import { isbot } from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
 
 const streamTimeout = 5_000;
+const configPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../eventstore.config.json'
+);
 let cachedConfig;
 
 function readConfig() {
   if (cachedConfig) return cachedConfig;
 
   try {
-    cachedConfig = JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
+    cachedConfig = JSON.parse(fs.readFileSync(configPath).toString());
   } catch (error) {
-    console.error('Failed to load eventstore.config.json, using defaults.', error);
+    console.error('Failed to load eventstore.config.json, using empty configuration.', error);
     cachedConfig = {};
   }
 
