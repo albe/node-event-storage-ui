@@ -5,7 +5,7 @@ export default function Radial({ value, max, label, caption, className }) {
 		<div className="sv-radial-chart">
 			<svg viewBox="0 0 80 80">
 				<circle className="radial-track" cx="40" cy="40" r="32"></circle>
-				<circle className={"radial-fill " + (pct >= 95 ? "danger" : className ?? "info")} cx="40" cy="40" r="32" pathLength="100" stroke-dasharray={pct + ' 100'}></circle>
+				<circle className={"radial-fill " + (pct >= 95 ? "danger" : className ?? "info")} cx="40" cy="40" r="32" pathLength="100" strokeDasharray={pct + ' 100'}></circle>
 			</svg>
 			<span className="pct">{pct.toFixed(0)}%</span></div>
 		<div className="sv-radial-text">
