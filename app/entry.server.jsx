@@ -14,7 +14,8 @@ function readConfig() {
 
   try {
     cachedConfig = JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
-  } catch {
+  } catch (error) {
+    console.error('Failed to load eventstore.config.json, using defaults.', error);
     cachedConfig = {};
   }
 
@@ -30,7 +31,7 @@ function safeCompare(a, b) {
 
 function getBasicAuthCredentials() {
   const basicAuth = readConfig().basicAuth;
-  if (!basicAuth || typeof basicAuth !== 'object') return null;
+  if (!basicAuth || typeof basicAuth !== 'object' || Array.isArray(basicAuth)) return null;
 
   const username = typeof basicAuth.username === 'string' ? basicAuth.username : '';
   const password = typeof basicAuth.password === 'string' ? basicAuth.password : '';
