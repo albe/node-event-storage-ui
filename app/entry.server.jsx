@@ -1,10 +1,88 @@
 import { PassThrough } from 'node:stream';
+import { timingSafeEqual } from 'node:crypto';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createReadableStreamFromReadable } from '@react-router/node';
 import { ServerRouter } from 'react-router';
 import { isbot } from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
 
 const streamTimeout = 5_000;
+const configPath = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '../eventstore.config.json'
+);
+let cachedConfig;
+
+function readConfig() {
+  if (cachedConfig) return cachedConfig;
+
+  try {
+    const rawConfig = fs.readFileSync(configPath).toString();
+    cachedConfig = JSON.parse(rawConfig);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      console.error('Invalid JSON in eventstore.config.json, using empty configuration.', error);
+    } else {
+      console.error('Failed to load eventstore.config.json, using empty configuration.', error);
+    }
+    cachedConfig = {};
+  }
+
+  return cachedConfig;
+}
+
+function safeCompare(a, b) {
+  const aBuffer = Buffer.from(a);
+  const bBuffer = Buffer.from(b);
+  if (aBuffer.length !== bBuffer.length) return false;
+  return timingSafeEqual(aBuffer, bBuffer);
+}
+
+function getBasicAuthCredentials() {
+  const basicAuth = readConfig().basicAuth;
+  if (!basicAuth || typeof basicAuth !== 'object' || Array.isArray(basicAuth)) return null;
+
+  const username = typeof basicAuth.username === 'string' ? basicAuth.username : '';
+  const password = typeof basicAuth.password === 'string' ? basicAuth.password : '';
+  if (!username || !password) return null;
+
+  return { username, password };
+}
+
+function isAuthorized(request, credentials) {
+  const authorization = request.headers.get('authorization');
+  if (!authorization?.startsWith('Basic ')) return false;
+
+  let decoded = '';
+  try {
+    decoded = Buffer.from(authorization.slice(6).trim(), 'base64').toString('utf8');
+  } catch {
+    return false;
+  }
+
+  const separatorIndex = decoded.indexOf(':');
+  if (separatorIndex < 0) return false;
+
+  const username = decoded.slice(0, separatorIndex);
+  const password = decoded.slice(separatorIndex + 1);
+
+  return (
+    safeCompare(username, credentials.username) &&
+    safeCompare(password, credentials.password)
+  );
+}
+
+function unauthorizedResponse() {
+  return new Response('Authentication required', {
+    status: 401,
+    headers: new Headers({
+      'WWW-Authenticate': 'Basic realm="event-storage-ui"',
+      'Content-Type': 'text/plain; charset=utf-8',
+    }),
+  });
+}
 
 export default function handleRequest(
   request,
@@ -12,6 +90,11 @@ export default function handleRequest(
   responseHeaders,
   routerContext
 ) {
+  const basicAuthCredentials = getBasicAuthCredentials();
+  if (basicAuthCredentials && !isAuthorized(request, basicAuthCredentials)) {
+    return unauthorizedResponse();
+  }
+
   if (request.method.toUpperCase() === 'HEAD') {
     return new Response(null, {
       status: responseStatusCode,
