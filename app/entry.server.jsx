@@ -19,9 +19,14 @@ function readConfig() {
   if (cachedConfig) return cachedConfig;
 
   try {
-    cachedConfig = JSON.parse(fs.readFileSync(configPath).toString());
+    const rawConfig = fs.readFileSync(configPath).toString();
+    cachedConfig = JSON.parse(rawConfig);
   } catch (error) {
-    console.error('Failed to load eventstore.config.json, using empty configuration.', error);
+    if (error instanceof SyntaxError) {
+      console.error('Invalid JSON in eventstore.config.json, using empty configuration.', error);
+    } else {
+      console.error('Failed to load eventstore.config.json, using empty configuration.', error);
+    }
     cachedConfig = {};
   }
 
