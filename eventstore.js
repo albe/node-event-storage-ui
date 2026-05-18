@@ -65,7 +65,12 @@ export async function commitToEventStore(streamName, events, metadata, storeName
   });
 }
 
+const eventStoreCache = {};
 export default async function getEventStore(options, storeNameOverride) {
+  if (eventStoreCache['store'] && eventStoreCache['name'] === storeNameOverride && eventStoreCache['options'] === JSON.stringify(options)) {
+    console.debug('Store cache-hit');
+    return eventStoreCache['store'];
+  }
   const eventStoreModule = await import('event-storage');
   const EventStore = eventStoreModule.default || eventStoreModule;
   const config = readConfig();
@@ -85,6 +90,11 @@ export default async function getEventStore(options, storeNameOverride) {
         resolve({ eventstore });
       }
     });
+  }).then(store => {
+    eventStoreCache['store'] = store;
+    eventStoreCache['name'] = storeNameOverride;
+    eventStoreCache['options'] = JSON.stringify(options);
+    return store;
   });
 }
 
