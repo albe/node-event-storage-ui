@@ -1,5 +1,9 @@
 {
   "storeName": "eventstore",
   "storesDirectory": null,
-  "options": {}
+  "options": {},
+  "basicAuth": {
+    "username": "",
+    "password": ""
+  }
 }
