@@ -29,6 +29,7 @@ for creating a production build and running it. Make sure the webserver is not r
 To adjust the path to your local node-event-storage edit the `eventstore.config.json` file and adjust the `storeName` and `options.storageDirectory` JSON properties.
 
 You can also protect the UI with HTTP Basic Auth by setting `basicAuth.username` and `basicAuth.password`. If either value is empty, Basic Auth is disabled.
+When enabled, use HTTPS (or a trusted private network) so credentials are not exposed over plain HTTP.
 
 ```json
 {
