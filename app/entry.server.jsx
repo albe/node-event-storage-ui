@@ -7,13 +7,18 @@ import { isbot } from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
 
 const streamTimeout = 5_000;
+let cachedConfig;
 
 function readConfig() {
+  if (cachedConfig) return cachedConfig;
+
   try {
-    return JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
+    cachedConfig = JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
   } catch {
-    return {};
+    cachedConfig = {};
   }
+
+  return cachedConfig;
 }
 
 function safeCompare(a, b) {
@@ -40,7 +45,7 @@ function isAuthorized(request, credentials) {
 
   let decoded = '';
   try {
-    decoded = Buffer.from(authorization.slice(6).trim(), 'base64').toString('utf8');
+    decoded = Buffer.from(authorization.slice(6).trim(), 'base64').toString('latin1');
   } catch {
     return false;
   }
