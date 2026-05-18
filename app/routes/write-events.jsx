@@ -94,181 +94,206 @@ export default function WriteEvents() {
 
   if (storeLocked) {
     return (
-      <div className="card">
-        <div className="card-header card-header-danger">
-          <h2>Write Events ({storeName})</h2>
-        </div>
-        <div className="card-body">
-          <div className="alert alert-danger" role="alert">
-            <span style={{ fontSize: 20, marginRight: 8 }}>❗</span>
-            This Eventstore is currently locked by an external process. Writing is not possible
-            while the store is locked.
+      <div className="page-stack">
+        <section className="page-hero hero">
+          <div className="hero-text">
+            <div className="page-eyebrow eyebrow">Writer</div>
+            <h2 className="page-title hero-title">Write Events ({storeName})</h2>
+            <p className="page-subtitle hero-sub">
+              Writing is disabled while this store is locked by an external process.
+            </p>
           </div>
-        </div>
+          <div className="page-actions hero-actions">
+            <span className="page-pill">
+              <i className="material-icons">lock</i>
+              Locked
+            </span>
+          </div>
+        </section>
+
+        <section className="admin-panel card">
+          <div className="admin-panel__body card-body card-body--panel">
+            <div className="status-banner" role="alert">
+              <span className="status-banner__icon">❗</span>
+              <div className="status-banner__text">
+                This Eventstore is currently locked by an external process. Writing is not possible while the
+                store is locked.
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     );
   }
 
   return (
-    <div className="card">
-      <div className="card-header card-header-info">
-        <h2>Write Events ({storeName})</h2>
-      </div>
-      <div className="card-body">
-        {actionData?.success && (
-          <div className="alert alert-success" role="alert">
-            ✅ Events committed successfully to stream &quot;{actionData.streamName}&quot;.
-          </div>
-        )}
-        {actionData?.error && (
-          <div className="alert alert-danger" role="alert">
-            ❌ {actionData.error}
-          </div>
-        )}
+    <div className="page-stack">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Writer</div>
+          <h2 className="page-title hero-title">Write Events ({storeName})</h2>
+          <p className="page-subtitle hero-sub">
+            Compose new event payloads, preview parsed JSON, and optionally attach metadata before committing.
+          </p>
+        </div>
+      </section>
 
-        <Form method="post">
-          <div className="form-group">
-            <label htmlFor="streamName">
-              <strong>Stream Name</strong>
-            </label>
-            <input
-              id="streamName"
-              name="streamName"
-              type="text"
-              className="form-control"
-              placeholder="e.g. users or orders-2024"
-              value={streamName}
-              onChange={handleStreamNameChange}
-              required
-            />
+      {(actionData?.success || actionData?.error) && (
+        <section className="admin-panel card">
+          <div className="admin-panel__body card-body card-body--panel">
+            {actionData?.success && (
+              <div className="alert success" role="alert">
+                ✅ Events committed successfully to stream &quot;{actionData.streamName}&quot;.
+              </div>
+            )}
+            {actionData?.error && (
+              <div className="alert danger" role="alert">
+                ❌ {actionData.error}
+              </div>
+            )}
           </div>
+        </section>
+      )}
 
-          <div className="row" style={{ marginTop: 16 }}>
-            <div className="col-md-6">
-              <div className="form-group">
-                <label htmlFor="events">
-                  <strong>Events</strong>{' '}
-                  <small className="text-muted">
-                    (JSON object or array of objects)
-                  </small>
-                </label>
-                <textarea
-                  id="events"
-                  name="events"
-                  className="form-control"
-                  rows={10}
-                  placeholder={'[\n  { "type": "MyEvent", "data": "value" }\n]'}
-                  value={eventsText}
-                  onChange={handleEventsChange}
-                  style={{ fontFamily: 'monospace', fontSize: 13 }}
-                />
+      <Form method="post" className="page-stack">
+        <section className="panel-grid panel-grid--halves">
+          <section className="admin-panel card">
+            <div className="admin-panel__header card-head">
+              <div className="card-title-wrap">
+                <div className="panel-eyebrow eyebrow">Compose</div>
+                <h3 className="panel-title card-title">Event payload</h3>
               </div>
             </div>
-            <div className="col-md-6">
-              <label>
-                <strong>Preview</strong>
-              </label>
-              <div
-                style={{
-                  minHeight: 120,
-                  padding: 12,
-                  background: '#272822',
-                  borderRadius: 4,
-                  color: '#f8f8f2',
-                  fontSize: 13
-                }}
-              >
-                {eventsResult.empty && (
-                  <span className="text-muted">Enter JSON above to see a preview.</span>
-                )}
+            <div className="admin-panel__body card-body card-body--panel">
+              <div className="form-stack">
+                <div className="form-group field">
+                  <label htmlFor="streamName" className="field-label">
+                    Stream Name
+                  </label>
+                  <input
+                    id="streamName"
+                    name="streamName"
+                    type="text"
+                    className="input"
+                    placeholder="e.g. users or orders-2024"
+                    value={streamName}
+                    onChange={handleStreamNameChange}
+                    required
+                  />
+                </div>
+                <div className="form-group field">
+                  <label htmlFor="events" className="field-label">
+                    Events <small className="text-muted">(JSON object or array of objects)</small>
+                  </label>
+                  <textarea
+                    id="events"
+                    name="events"
+                    className="textarea text-mono"
+                    rows={14}
+                    placeholder={'[\n  { "type": "MyEvent", "data": "value" }\n]'}
+                    value={eventsText}
+                    onChange={handleEventsChange}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="admin-panel card">
+            <div className="admin-panel__header card-head">
+              <div className="card-title-wrap">
+                <div className="panel-eyebrow eyebrow">Preview</div>
+                <h3 className="panel-title card-title">Parsed events</h3>
+              </div>
+            </div>
+            <div className="admin-panel__body card-body card-body--panel">
+              <div className="json-surface">
+                {eventsResult.empty && <span className="text-muted">Enter JSON above to see a preview.</span>}
                 {!eventsResult.empty && eventsResult.error && (
                   <span className="text-danger">Syntax error: {eventsResult.error}</span>
                 )}
-                {shouldShowPreview(eventsResult) && (
-                  <Json data={eventsResult.value} collapsed={false} />
-                )}
+                {shouldShowPreview(eventsResult) && <Json data={eventsResult.value} collapsed={false} />}
               </div>
             </div>
-          </div>
+          </section>
+        </section>
 
-          <div style={{ marginTop: 16 }}>
-            <button
-              type="button"
-              className="btn btn-default btn-sm"
-              onClick={() => setMetadataExpanded((v) => !v)}
-              aria-expanded={metadataExpanded}
-            >
-              <i className="material-icons" style={{ fontSize: 16, verticalAlign: 'middle' }}>
-                {metadataExpanded ? 'expand_less' : 'expand_more'}
-              </i>{' '}
-              {metadataExpanded ? 'Hide' : 'Show'} Event Metadata (optional)
-            </button>
+        <section className="admin-panel card">
+          <div className="admin-panel__header card-head">
+            <div className="card-title-wrap">
+              <div className="panel-eyebrow eyebrow">Optional</div>
+              <h3 className="panel-title card-title">Event Metadata</h3>
+            </div>
+            <div className="admin-panel__toolbar">
+              <button
+                type="button"
+                className="btn btn--ghost btn--sm"
+                onClick={() => setMetadataExpanded((v) => !v)}
+                aria-expanded={metadataExpanded}
+              >
+                <i className="material-icons button-icon-inline">
+                  {metadataExpanded ? 'expand_less' : 'expand_more'}
+                </i>{' '}
+                {metadataExpanded ? 'Hide' : 'Show'} Event Metadata (optional)
+              </button>
+            </div>
           </div>
-
           {metadataExpanded && (
-            <div className="row" style={{ marginTop: 12 }}>
-              <div className="col-md-6">
-                <div className="form-group">
-                  <label htmlFor="metadata">
-                    <strong>Metadata</strong>{' '}
-                    <small className="text-muted">(JSON object, optional)</small>
+            <div className="admin-panel__body card-body card-body--panel">
+              <div className="panel-grid panel-grid--halves">
+                <div className="form-group field">
+                  <label htmlFor="metadata" className="field-label">
+                    Metadata <small className="text-muted">(JSON object, optional)</small>
                   </label>
                   <textarea
                     id="metadata"
                     name="metadata"
-                    className="form-control"
-                    rows={6}
+                    className="textarea text-mono"
+                    rows={8}
                     placeholder={'{\n  "correlationId": "abc123"\n}'}
                     value={metadataText}
                     onChange={handleMetadataChange}
-                    style={{ fontFamily: 'monospace', fontSize: 13 }}
                   />
                 </div>
-              </div>
-              <div className="col-md-6">
-                <label>
-                  <strong>Metadata Preview</strong>
-                </label>
-                <div
-                  style={{
-                    minHeight: 80,
-                    padding: 12,
-                    background: '#272822',
-                    borderRadius: 4,
-                    color: '#f8f8f2',
-                    fontSize: 13
-                  }}
-                >
-                  {metadataResult.empty && (
-                    <span className="text-muted">Enter JSON above to see a preview.</span>
-                  )}
-                  {!metadataResult.empty && metadataResult.error && (
-                    <span className="text-danger">Syntax error: {metadataResult.error}</span>
-                  )}
-                  {shouldShowPreview(metadataResult) && (
-                    <Json data={metadataResult.value} collapsed={false} />
-                  )}
+                <div className="field">
+                  <label className="field-label">
+                    Metadata Preview
+                  </label>
+                  <div className="json-surface json-surface--short">
+                    {metadataResult.empty && (
+                      <span className="text-muted">Enter JSON above to see a preview.</span>
+                    )}
+                    {!metadataResult.empty && metadataResult.error && (
+                      <span className="text-danger">Syntax error: {metadataResult.error}</span>
+                    )}
+                    {shouldShowPreview(metadataResult) && (
+                      <Json data={metadataResult.value} collapsed={false} />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           )}
+        </section>
 
-          <div style={{ marginTop: 24 }}>
-            <button
-              type="submit"
-              className="btn btn-info"
-              disabled={isSubmitting || !isFormValid(streamName, eventsResult)}
-            >
+        <section className="admin-panel card">
+          <div className="admin-panel__footer">
+            <div className="progress-note">Validate the JSON preview before committing new events.</div>
+              <button
+                type="submit"
+                className="btn btn--primary"
+                disabled={isSubmitting || !isFormValid(streamName, eventsResult)}
+              >
               {isSubmitting ? (
                 <>
-                  <i className="material-icons" style={{ fontSize: 16, verticalAlign: 'middle' }}>
+                  <i className="material-icons button-icon-inline">
                     hourglass_empty
                   </i>{' '}
                   Committing…
                 </>
               ) : (
                 <>
-                  <i className="material-icons" style={{ fontSize: 16, verticalAlign: 'middle' }}>
+                  <i className="material-icons button-icon-inline">
                     save
                   </i>{' '}
                   Commit
@@ -276,8 +301,8 @@ export default function WriteEvents() {
               )}
             </button>
           </div>
-        </Form>
-      </div>
+        </section>
+      </Form>
     </div>
   );
 }

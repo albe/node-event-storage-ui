@@ -1,6 +1,6 @@
 import { data } from 'react-router';
 import { Form, Link, useActionData, useFetcher, useLoaderData, useNavigation } from 'react-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import getEventStore from '../../eventstore';
 import { createConsumer, previewConsumerState } from '../consumers.server';
 import Json from '../components/json';
@@ -102,9 +102,7 @@ export default function Consumers() {
   const actionData = useActionData();
   const previewFetcher = useFetcher();
   const navigation = useNavigation();
-  const [start, end, nextPage, prevPage, hasNext, hasPrev] = usePagination(
-    consumers.length
-  );
+  const [start, end, nextPage, prevPage, hasNext, hasPrev] = usePagination(consumers.length);
   const [streamName, setStreamName] = useState(streamNames[0] || '');
   const [consumerName, setConsumerName] = useState('');
   const [consumerLogic, setConsumerLogic] = useState(DEFAULT_CONSUMER_LOGIC);
@@ -121,8 +119,14 @@ export default function Consumers() {
   const isPreviewing = previewFetcher.state !== 'idle';
   const isCreateSuccess = actionData?.intent === 'create' && actionData?.success;
   const createError = actionData?.intent === 'create' ? actionData?.error : null;
-  const previewError = previewFetcher.data?.intent === 'preview' ? previewFetcher.data?.error : null;
-  const previewState = previewFetcher.data?.intent === 'preview' ? previewFetcher.data?.previewState : null;
+  const previewResponse =
+    previewFetcher.data?.intent === 'preview'
+      ? previewFetcher.data
+      : actionData?.intent === 'preview'
+        ? actionData
+        : null;
+  const previewError = previewResponse?.error || null;
+  const previewState = previewResponse?.previewState ?? null;
   const initialStateValidation = useMemo(() => {
     if (!initialState.trim()) {
       return { isValid: true, error: null };
@@ -138,189 +142,239 @@ export default function Consumers() {
     }
   }, [initialState]);
 
-  const canSubmit = useMemo(
+  const canPreview = useMemo(
     () =>
       streamNames.includes(streamName) &&
-      !!consumerName.trim() &&
       !!consumerLogic.trim() &&
       initialStateValidation.isValid,
-    [streamNames, streamName, consumerName, consumerLogic, initialStateValidation.isValid]
+    [streamNames, streamName, consumerLogic, initialStateValidation.isValid]
+  );
+  const canCreate = useMemo(
+    () => canPreview && !!consumerName.trim(),
+    [canPreview, consumerName]
   );
 
-  const onPreview = useCallback(() => {
-    previewFetcher.submit(
-      {
-        intent: 'preview',
-        streamName,
-        consumerName,
-        consumerLogic,
-        initialState
-      },
-      { method: 'post' }
-    );
-  }, [previewFetcher, streamName, consumerName, consumerLogic, initialState]);
-
   return (
-    <div className="card">
-      <div className="card-header card-header-info">
-        <h2>Consumers</h2>
-      </div>
-      <div className="card-body">
-        {isCreateSuccess && (
-          <div className="alert alert-success" role="alert">
-            ✅ Consumer &quot;{actionData.consumerIdentifier}&quot; created.
+    <div className="page-stack">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Consumers</div>
+          <h2 className="page-title hero-title">Consumers</h2>
+          <p className="page-subtitle hero-sub">
+            Create projection consumers, preview derived state, and inspect registered consumer indexes.
+          </p>
+        </div>
+        <div className="page-actions hero-actions">
+          <span className="page-pill">
+            <i className="material-icons">sync_alt</i>
+            {consumers.length} registered
+          </span>
+          <span className="page-pill">
+            <i className="material-icons">view_stream</i>
+            {streamNames.length} streams available
+          </span>
+        </div>
+      </section>
+
+      {(isCreateSuccess || createError) && (
+        <section className="admin-panel card">
+          <div className="admin-panel__body card-body card-body--panel">
+            {isCreateSuccess && (
+              <div className="alert success" role="alert">
+                ✅ Consumer &quot;{actionData.consumerIdentifier}&quot; created.
+              </div>
+            )}
+            {createError && (
+              <div className="alert danger" role="alert">
+                ❌ {createError}
+              </div>
+            )}
           </div>
-        )}
-        {createError && (
-          <div className="alert alert-danger" role="alert">
-            ❌ {createError}
-          </div>
-        )}
-        <div className="row">
-          <div className="col-md-6">
-            <h4>Add Consumer</h4>
-            <div className="form-group">
-              <label htmlFor="streamName">
-                <strong>Stream Name</strong>
-              </label>
-              <select
-                id="streamName"
-                name="streamName"
-                className="form-control"
-                value={streamName}
-                onChange={(e) => setStreamName(e.target.value)}
-              >
-                {streamNames.map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="consumerName">
-                <strong>Consumer Name</strong>
-              </label>
-              <input
-                id="consumerName"
-                name="consumerName"
-                type="text"
-                className="form-control"
-                value={consumerName}
-                onChange={(e) => setConsumerName(e.target.value)}
-                placeholder="e.g. myConsumer"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="consumerLogic">
-                <strong>Consumer Logic (JavaScript function)</strong>
-              </label>
-              <textarea
-                id="consumerLogic"
-                name="consumerLogic"
-                className="form-control"
-                rows={10}
-                value={consumerLogic}
-                onChange={(e) => setConsumerLogic(e.target.value)}
-                style={{ fontFamily: 'monospace', fontSize: 13 }}
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="initialState">
-                <strong>Initial State (JSON object)</strong>
-              </label>
-              <textarea
-                id="initialState"
-                name="initialState"
-                className="form-control"
-                rows={4}
-                value={initialState}
-                onChange={(e) => setInitialState(e.target.value)}
-                style={{ fontFamily: 'monospace', fontSize: 13 }}
-              />
-              {!initialStateValidation.isValid && (
-                <small className="text-danger">{initialStateValidation.error}</small>
-              )}
-            </div>
-            <div style={{ marginTop: 16 }}>
-              <button
-                type="button"
-                className="btn btn-default"
-                disabled={!canSubmit || isPreviewing}
-                onClick={onPreview}
-              >
-                {isPreviewing ? 'Previewing…' : 'Preview'}
-              </button>
-              <Form method="post" style={{ display: 'inline-block', marginLeft: 8 }}>
-                <input type="hidden" name="intent" value="create" />
-                <input type="hidden" name="streamName" value={streamName} />
-                <input type="hidden" name="consumerName" value={consumerName} />
-                <input type="hidden" name="consumerLogic" value={consumerLogic} />
-                <input type="hidden" name="initialState" value={initialState} />
-                <button type="submit" className="btn btn-info" disabled={!canSubmit || isCreating}>
-                  {isCreating ? 'Creating…' : 'Create Consumer'}
-                </button>
-              </Form>
+        </section>
+      )}
+
+      <section className="panel-grid panel-grid--halves">
+        <section className="admin-panel card">
+          <div className="admin-panel__header card-head">
+            <div className="card-title-wrap">
+              <div className="panel-eyebrow eyebrow">Create</div>
+              <h3 className="panel-title card-title">Add Consumer</h3>
             </div>
           </div>
-          <div className="col-md-6">
-            <h4>Preview State</h4>
-            <div
-              style={{
-                minHeight: 200,
-                padding: 12,
-                background: '#272822',
-                borderRadius: 4,
-                color: '#f8f8f2',
-                fontSize: 13
-              }}
-            >
+          <div className="admin-panel__body card-body card-body--panel">
+            <div className="form-stack">
+              <div className="form-group field">
+                <label htmlFor="streamName" className="field-label">
+                  Stream Name
+                </label>
+                <select
+                  id="streamName"
+                  name="streamName"
+                  className="select"
+                  value={streamName}
+                  onChange={(e) => setStreamName(e.target.value)}
+                >
+                  {streamNames.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group field">
+                <label htmlFor="consumerName" className="field-label">
+                  Consumer Name
+                </label>
+                <input
+                  id="consumerName"
+                  name="consumerName"
+                  type="text"
+                  className="input"
+                  value={consumerName}
+                  onChange={(e) => setConsumerName(e.target.value)}
+                  placeholder="e.g. myConsumer"
+                />
+                <small className="field-help">Optional for preview. Required to create a consumer.</small>
+              </div>
+              <div className="form-group field">
+                <label htmlFor="consumerLogic" className="field-label">
+                  Consumer Logic (JavaScript function)
+                </label>
+                <textarea
+                  id="consumerLogic"
+                  name="consumerLogic"
+                  className="textarea text-mono"
+                  rows={10}
+                  value={consumerLogic}
+                  onChange={(e) => setConsumerLogic(e.target.value)}
+                />
+              </div>
+              <div className="form-group field">
+                <label htmlFor="initialState" className="field-label">
+                  Initial State (JSON object)
+                </label>
+                <textarea
+                  id="initialState"
+                  name="initialState"
+                  className="textarea text-mono"
+                  rows={4}
+                  value={initialState}
+                  onChange={(e) => setInitialState(e.target.value)}
+                />
+                {!initialStateValidation.isValid && (
+                  <small className="field-error">{initialStateValidation.error}</small>
+                )}
+              </div>
+              <div className="form-actions">
+                <previewFetcher.Form method="post">
+                  <input type="hidden" name="intent" value="preview" />
+                  <input type="hidden" name="streamName" value={streamName} />
+                  <input
+                    type="hidden"
+                    name="consumerName"
+                    value={consumerName.trim() || 'preview-state'}
+                  />
+                  <input type="hidden" name="consumerLogic" value={consumerLogic} />
+                  <input type="hidden" name="initialState" value={initialState} />
+                  <button type="submit" className="btn btn--ghost" disabled={!canPreview || isPreviewing}>
+                    {isPreviewing ? 'Previewing…' : 'Preview'}
+                  </button>
+                </previewFetcher.Form>
+                <span className="spacer" />
+                <Form method="post">
+                  <input type="hidden" name="intent" value="create" />
+                  <input type="hidden" name="streamName" value={streamName} />
+                  <input type="hidden" name="consumerName" value={consumerName} />
+                  <input type="hidden" name="consumerLogic" value={consumerLogic} />
+                  <input type="hidden" name="initialState" value={initialState} />
+                  <button type="submit" className="btn btn--primary" disabled={!canCreate || isCreating}>
+                    {isCreating ? 'Creating…' : 'Create Consumer'}
+                  </button>
+                </Form>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="admin-panel card">
+          <div className="admin-panel__header card-head">
+            <div className="card-title-wrap">
+              <div className="panel-eyebrow eyebrow">Preview</div>
+              <h3 className="panel-title card-title">Preview State</h3>
+            </div>
+          </div>
+          <div className="admin-panel__body card-body card-body--panel">
+            <div className="json-surface">
               {!previewError && previewState === null && (
-                <span style={{ color: '#bdbdbd' }}>Run preview to evaluate consumer state.</span>
+                <span className="text-muted">Run preview to evaluate consumer state.</span>
               )}
               {previewError && <span className="text-danger">❌ {previewError}</span>}
               {!previewError && previewState !== null && <Json data={previewState} collapsed={false} />}
             </div>
           </div>
+        </section>
+      </section>
+
+      <section className="admin-panel card">
+        <div className="admin-panel__header card-head">
+          <div className="card-title-wrap">
+            <div className="panel-eyebrow eyebrow">Registry</div>
+            <h3 className="panel-title card-title">Registered consumers</h3>
+          </div>
+          <span className="tag t-primary">{consumers.length} registered</span>
         </div>
-        <hr />
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Stream</th>
-            </tr>
-          </thead>
-          <tbody>
-            {consumers.slice(start, end).map(([consumerIdentifier, streamName, consumerName]) => (
-              <tr key={consumerIdentifier}>
-                <td>
-                  <Link to={`/consumers/${encodeURIComponent(consumerIdentifier)}`}>
-                    {consumerName}
-                  </Link>
-                </td>
-                <td>
-                  <Link to={`/consumers/${encodeURIComponent(consumerIdentifier)}`}>
-                    {streamName}
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td colSpan={2}>
-                <button disabled={!hasPrev} className="btn btn-info" onClick={prevPage}>
-                  Prev
-                </button>
-                <button disabled={!hasNext} className="btn btn-info" onClick={nextPage}>
-                  Next
-                </button>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+        <div className="admin-panel__body admin-panel__body--compact">
+          <div className="admin-table-wrap table-scroll">
+            <table className="table table-hover admin-table data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Stream</th>
+                </tr>
+              </thead>
+              <tbody>
+                {consumers.slice(start, end).map(([consumerIdentifier, streamName, consumerName]) => (
+                  <tr key={consumerIdentifier}>
+                    <td className="cell-name">
+                      <Link to={`/consumers/${encodeURIComponent(consumerIdentifier)}`}>
+                        {consumerName}
+                      </Link>
+                    </td>
+                    <td>
+                      <Link
+                        to={`/consumers/${encodeURIComponent(consumerIdentifier)}`}
+                        className="tag t-info"
+                      >
+                        {streamName}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan={2}>
+                    <div className="data-foot">
+                      <span>
+                        Showing <strong>{start + 1}-{Math.min(end, consumers.length)}</strong> of{' '}
+                        {consumers.length}
+                      </span>
+                      <div className="button-row">
+                        <button disabled={!hasPrev} className="btn btn--ghost" onClick={prevPage}>
+                          Prev
+                        </button>
+                        <button disabled={!hasNext} className="btn btn--ghost" onClick={nextPage}>
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

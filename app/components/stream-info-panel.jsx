@@ -45,11 +45,7 @@ export default function StreamInfoPanel({ streamInfo }) {
             <div className="stream-info-panel__status">
               <span className="stream-info-panel__status-label">Write stream</span>
               <span
-                className={`stream-info-panel__status-badge ${
-                  streamInfo.isWriteStream
-                    ? 'stream-info-panel__status-badge--active'
-                    : 'stream-info-panel__status-badge--inactive'
-                }`}
+                className={`tag ${streamInfo.isWriteStream ? 't-active' : 't-unavail'}`}
               >
                 {streamInfo.isWriteStream ? 'Yes' : 'No'}
               </span>

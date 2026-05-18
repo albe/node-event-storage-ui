@@ -34,36 +34,66 @@ export async function loader({ params, request }) {
 export default function Consumer() {
   const { indexName, indexLength, consumerName, consumerPosition, consumerState } =
     useLoaderData();
+  const progressDisplay =
+    indexLength > 0 ? `${((consumerPosition / indexLength) * 100).toFixed(2)}%` : 'N/A';
 
   return (
-    <div className="card">
-      <div className="card-header card-header-info">
-        <h2>
-          Consumer '{consumerName}@{indexName}'
-        </h2>
-      </div>
-      <div className="card-body">
-        <table className="table table-hover">
-          <thead>
-            <tr>
-              <th width="5%">Position</th>
-              <th width="10%">Index</th>
-              <th width="10%">Progress</th>
-              <th>State</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{consumerPosition}</td>
-              <td>{indexName}</td>
-              <td>{indexLength > 0 ? (consumerPosition / indexLength) * 100 : 100}%</td>
-              <td>
+    <div className="page-stack">
+      <section className="page-hero hero">
+        <div className="hero-text">
+          <div className="page-eyebrow eyebrow">Consumers</div>
+          <h2 className="page-title hero-title">
+            Consumer '{consumerName}@{indexName}'
+          </h2>
+          <p className="page-subtitle hero-sub">
+            Review current consumer position, progress through the source index, and persisted state.
+          </p>
+        </div>
+        <div className="page-actions hero-actions">
+          <span className="page-pill">
+            <i className="material-icons">timeline</i>
+            {progressDisplay === 'N/A' ? 'Progress unavailable' : `${progressDisplay} progress`}
+          </span>
+        </div>
+      </section>
+
+      <section className="detail-grid">
+        <article className="detail-card">
+          <div className="meta-list__label">Position</div>
+          <div className="detail-card__value">{consumerPosition}</div>
+        </article>
+        <article className="detail-card">
+          <div className="meta-list__label">Index</div>
+          <div className="detail-card__value text-mono">{indexName}</div>
+        </article>
+        <article className="detail-card">
+          <div className="meta-list__label">Progress</div>
+          <div className="detail-card__value">{progressDisplay}</div>
+        </article>
+      </section>
+
+      <section className="admin-panel card">
+        <div className="admin-panel__header card-head">
+          <div className="card-title-wrap">
+            <div className="panel-eyebrow eyebrow">State</div>
+            <h3 className="panel-title card-title">Consumer details</h3>
+          </div>
+        </div>
+        <div className="admin-panel__body card-body card-body--panel">
+          <div className="meta-list">
+            <div className="meta-list__item">
+              <div className="meta-list__label">Index size</div>
+              <div className="meta-list__value">{indexLength}</div>
+            </div>
+            <div className="meta-list__item">
+              <div className="meta-list__label">State</div>
+              <div className="json-surface json-surface--short">
                 <Json data={consumerState} />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
