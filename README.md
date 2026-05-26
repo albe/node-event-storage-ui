@@ -4,19 +4,19 @@ This is an admin dashboard for inspecting a running [node-event-storage](https:/
 
 ### Dashboard
 
-![Dashboard](public/screenshots/dashboard.png)
+![Dashboard](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/dashboard.png)
 
 ### Event Stream
 
-![Event Stream](public/screenshots/event-stream.png)
+![Event Stream](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/event-stream.png)
 
 ### Consumers (create and list)
 
-![Consumers](public/screenshots/consumers-preview-executed.png)
+![Consumers](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/consumers-preview-executed.png)
 
 ### Event commit/write
 
-![Write Events](public/screenshots/write-events-filled.png)
+![Write Events](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/write-events-filled.png)
 
 ## Usage
 

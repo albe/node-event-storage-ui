@@ -1,6 +1,6 @@
 {
   "name": "event-storage-ui",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "A simple UI for node event-storage",
   "type": "module",
   "main": "index.js",
@@ -15,8 +15,25 @@
     "log storage",
     "admin-ui"
   ],
+  "homepage": "https://github.com/albe/node-event-storage-ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/albe/node-event-storage-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/albe/node-event-storage-ui/issues"
+  },
   "author": "Alexander Berl",
   "license": "MIT",
+  "maintainers": [
+    {
+      "name": "Alexander Berl",
+      "email": "a.berl@outlook.com"
+    }
+  ],
+  "engines": {
+    "node": ">=18.0"
+  },
   "files": [
     "app/",
     "helpers/",
