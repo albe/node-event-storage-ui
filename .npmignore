@@ -1,0 +1,3 @@
+# Keep publish tarball lean: runtime assets only.
+public/screenshots/
+
