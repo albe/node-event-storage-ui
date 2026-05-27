@@ -1,8 +1,8 @@
 describe('Core views', () => {
   it('shows stream list and opens a stream detail', () => {
     cy.visit('/streams');
-    cy.contains('Stream browser', { timeout: 20000 }).should('be.visible');
-    cy.get('table tbody tr', { timeout: 20000 }).its('length').should('be.greaterThan', 0);
+    cy.contains('Stream browser').should('be.visible');
+    cy.get('table tbody tr').its('length').should('be.greaterThan', 0);
 
     cy.get('table tbody tr a')
       .first()
@@ -13,22 +13,27 @@ describe('Core views', () => {
       });
   });
 
-  it('creates a consumer from the consumer view and opens its details', () => {
+  it('creates a consumer from the create page and opens its details', () => {
     const consumerName = Cypress._.uniqueId('cypress-core-');
 
-    cy.visit('/consumers');
-    cy.contains('Consumers', { timeout: 20000 }).should('be.visible');
-    cy.get('#streamName option', { timeout: 20000 }).its('length').should('be.greaterThan', 0);
+    cy.visit('/consumers/create');
+    cy.contains('Create Consumer').should('be.visible');
+    //cy.wait(500);
+    // Wait for stream options to be populated (confirms data load + hydration).
+    cy.get('#streamName option').its('length').should('be.greaterThan', 0);
+    cy.get('#streamName').should('be.enabled');
     cy.get('#streamName option')
       .first()
       .then(($option) => {
         cy.get('#streamName').select($option.val());
       });
-    cy.get('#consumerName').type(consumerName);
+    cy.get('#consumerName').should('be.enabled').type(consumerName);
     cy.contains('button', 'Create Consumer').click();
 
-    cy.get('.alert.success').scrollIntoView().should('contain.text', 'created.');
-    cy.contains('table tbody tr td a', consumerName).scrollIntoView().should('be.visible').click();
+    cy.visit('/consumers');
+    cy.contains('Consumer Browser').should('be.visible');
+    cy.contains('table tbody tr td a', `${consumerName}`).click();
+    cy.url().should('contain', `.${consumerName}`)
     cy.contains(`Consumer '${consumerName}@`).should('be.visible');
     cy.contains('Position').should('be.visible');
     cy.contains('State').should('be.visible');
