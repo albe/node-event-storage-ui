@@ -53,9 +53,12 @@
     "dev": "react-router dev",
     "build": "react-router build",
     "start": "react-router-serve ./build/server/index.js",
-    "cypress:run": "cypress run",
-    "cypress:open": "cypress open",
-    "cypress:consumers": "cypress run --spec cypress/e2e/consumers.cy.js"
+    "cypress:run": "npm run cypress:functional",
+    "cypress:functional": "cypress run --spec \"cypress/e2e/functional/**/*.cy.js\"",
+    "cypress:screenshots": "cypress run --spec \"cypress/e2e/screenshots/**/*.cy.js\"",
+    "cypress:screenshots:readme": "cypress run --spec cypress/e2e/screenshots/readme.screenshots.cy.js",
+    "cypress:run:all": "cypress run",
+    "cypress:open": "cypress open"
   },
   "dependencies": {
     "@fontsource/material-icons": "^5.2.7",

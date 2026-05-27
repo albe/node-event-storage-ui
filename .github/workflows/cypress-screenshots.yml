@@ -1,0 +1,75 @@
+name: Cypress Screenshots
+
+on:
+  pull_request:
+    paths:
+      - 'app/routes/**'
+      - 'app/components/**'
+      - 'app/hooks/**'
+      - 'cypress/e2e/screenshots/**'
+      - 'cypress.config.cjs'
+      - 'README.md'
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/routes/**'
+      - 'app/components/**'
+      - 'app/hooks/**'
+      - 'cypress/e2e/screenshots/**'
+      - 'cypress.config.cjs'
+      - 'README.md'
+  workflow_dispatch:
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Build app
+        run: npm run build
+
+      - name: Capture README screenshots
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          start: npm start
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          command: npm run cypress:screenshots
+
+      - name: Sync screenshots referenced in README
+        run: node scripts/update-readme-screenshots.mjs
+
+      - name: Upload screenshots artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: readme-screenshots
+          path: public/screenshots/*.png
+
+      - name: Commit updated screenshots
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/screenshots/*.png
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(ui): refresh README screenshots"
+            git push
+          fi
+

@@ -51,3 +51,9 @@ Configuration is loaded at server startup, so restart the app after changing `ev
   }
 }
 ```
+
+## Cypress test suites
+
+- Functional tests (used in PR CI): `npm run cypress:functional`
+- Screenshot tests (README images only): `npm run cypress:screenshots:readme`
+- After screenshot tests: `node scripts/update-readme-screenshots.mjs`

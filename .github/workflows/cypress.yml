@@ -29,11 +29,11 @@ jobs:
       - name: Build app
         run: npm run build
 
-      - name: Run Cypress tests
+      - name: Run Cypress functional tests
         uses: cypress-io/github-action@v6
         with:
           install: false
           start: npm start
           wait-on: 'http://localhost:3000'
           wait-on-timeout: 120
-          command: npm run cypress:run
+          command: npm run cypress:functional

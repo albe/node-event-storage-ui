@@ -5,13 +5,12 @@ describe('Core views', () => {
     cy.get('table tbody tr', { timeout: 20000 }).its('length').should('be.greaterThan', 0);
 
     cy.get('table tbody tr a')
-        .first()
-        .then(($streamLink) => {
-          const streamName = $streamLink.text().trim();
-          cy.visit($streamLink.attr('href'));
-          cy.contains(`EventStream '${streamName}'`).should('be.visible');
-        });
-
+      .first()
+      .then(($streamLink) => {
+        const streamName = $streamLink.text().trim();
+        cy.visit($streamLink.attr('href'));
+        cy.contains(`EventStream '${streamName}'`).should('be.visible');
+      });
   });
 
   it('creates a consumer from the consumer view and opens its details', () => {
@@ -35,3 +34,4 @@ describe('Core views', () => {
     cy.contains('State').should('be.visible');
   });
 });
+

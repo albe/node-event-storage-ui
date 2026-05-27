@@ -1,18 +1,7 @@
-/**
- * Cypress E2E tests and screenshots for the Commit Events feature.
- *
- * Run with:
- *   npx cypress run --spec cypress/e2e/write-events.cy.js
- *
- * Or open interactively:
- *   npx cypress open
- */
-
-const STORE_PATH = Cypress.env('STORE_PATH') || 'eventstore';
-const DASHBOARD_SCREENSHOT_DELAY_MS = 100000;
+const storePath = Cypress.env('STORE_PATH') || 'eventstore';
 
 describe('Commit Events', () => {
-  it('shows the empty commit-events form', () => {
+  it('shows the commit-events form', () => {
     cy.visit('/commit-events');
     cy.contains('Commit Events').should('be.visible');
     cy.get('#streamName').should('be.visible');
@@ -33,7 +22,6 @@ describe('Commit Events', () => {
     );
     cy.contains('OrderPlaced').should('be.visible');
     cy.get('[type=submit]').should('not.be.disabled');
-    cy.screenshot('write-events-filled', { overwrite: true });
   });
 
   it('shows a syntax error when invalid JSON is entered', () => {
@@ -56,7 +44,6 @@ describe('Commit Events', () => {
       JSON.stringify({ correlationId: 'req-456', source: 'admin-ui' }, null, 2),
       { parseSpecialCharSequences: false }
     );
-    cy.screenshot('write-events-with-metadata', { overwrite: true });
   });
 
   it('commits events and shows success message', () => {
@@ -73,24 +60,16 @@ describe('Commit Events', () => {
 
 describe('Commit Events - Locked Store', () => {
   before(() => {
-    cy.task('lockStore', STORE_PATH);
+    cy.task('lockStore', storePath);
   });
 
   after(() => {
-    cy.task('unlockStore', STORE_PATH);
+    cy.task('unlockStore', storePath);
   });
 
   it('shows the locked store message', () => {
     cy.visit('/commit-events');
     cy.contains('locked by an external process').should('be.visible');
-    cy.screenshot('write-events-locked', { overwrite: true });
-  });
-
-  it('shows ❗ icon in the navbar', () => {
-    cy.visit('/');
-    cy.get('[title*="locked"]').should('be.visible');
-    cy.wait(DASHBOARD_SCREENSHOT_DELAY_MS);
-    cy.screenshot('dashboard', { overwrite: true });
   });
 
   it('hides the Commit Events nav item when locked', () => {
@@ -98,3 +77,4 @@ describe('Commit Events - Locked Store', () => {
     cy.contains('a', 'Commit Events').should('not.exist');
   });
 });
+
