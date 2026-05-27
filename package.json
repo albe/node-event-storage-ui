@@ -76,6 +76,7 @@
     "react-chartjs-2": "^5.3.0",
     "react-dom": "19.2.6",
     "react-router": "^7.15.0",
+    "react-select": "^5.10.2",
     "react18-json-view": "^0.2.10",
     "systeminformation": "^5.31.6"
   },

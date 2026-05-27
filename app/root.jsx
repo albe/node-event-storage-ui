@@ -96,6 +96,13 @@ export default function App() {
                 <i className="material-icons">table_rows</i>
                 <span>Stream Browser</span>
               </NavLink>
+              <NavLink
+                to={`/query${storeSearch}`}
+                className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+              >
+                <i className="material-icons">search</i>
+                <span>Query</span>
+              </NavLink>
               {!storeLocked && (
                 <NavLink
                   to={`/commit-events${storeSearch}`}
