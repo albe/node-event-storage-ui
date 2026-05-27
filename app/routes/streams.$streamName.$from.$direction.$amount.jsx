@@ -36,8 +36,8 @@ export async function loader({ params, request }) {
   let stream = eventstore.getEventStream(streamName);
   if (stream !== false) {
     stream = stream.from(from)[direction](amount);
-    stream.forEach((payload, metadata, eventStream) => {
-      events.push({ payload, metadata, stream: eventStream });
+    stream.forEach((payload, metadata, stream) => {
+      events.push({ payload, metadata, stream });
     });
   }
 
