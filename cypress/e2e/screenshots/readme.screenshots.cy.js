@@ -1,7 +1,10 @@
+const dashboardScreenshotDelayMs = 100000;
+
 describe('README screenshots', () => {
   it('captures dashboard screenshot', () => {
     cy.visit('/');
     cy.contains('Dashboard', { timeout: 20000 }).should('be.visible');
+    cy.wait(dashboardScreenshotDelayMs);
     cy.screenshot('dashboard', { overwrite: true });
   });
 
@@ -42,4 +45,3 @@ describe('README screenshots', () => {
     cy.screenshot('write-events-filled', { overwrite: true });
   });
 });
-
