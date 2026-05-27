@@ -6,22 +6,43 @@ export const meta = ({ params }) => [
   { title: `event-storage: Consumer ${params.consumerIdentifier}` }
 ];
 
+function parseStreamFromIndexName(indexName) {
+  if (indexName === '_all') {
+    return '_all';
+  }
+  if (indexName.startsWith('stream-')) {
+    return indexName.slice(7);
+  }
+  return indexName;
+}
+
+function parseConsumerRouteIdentifier(consumerIdentifier) {
+  const splitIndex = consumerIdentifier.lastIndexOf('.');
+  if (splitIndex < 0) {
+    return { indexName: consumerIdentifier, consumerName: consumerIdentifier };
+  }
+  const indexName = consumerIdentifier.slice(0, splitIndex);
+  const consumerName = consumerIdentifier.slice(splitIndex + 1);
+  return { indexName, consumerName };
+}
+
 export async function loader({ params, request }) {
   const consumerIdentifier = params.consumerIdentifier;
   const url = new URL(request.url);
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  const [indexName, consumerName] = consumerIdentifier.split('.', 2);
-  const consumer = eventstore.getConsumer(indexName, consumerName);
+  const parsed = parseConsumerRouteIdentifier(consumerIdentifier);
+  const streamName = parseStreamFromIndexName(parsed.indexName);
+  const consumer = eventstore.getConsumer(streamName, parsed.consumerName);
   const consumerPosition = consumer.position;
   const consumerState = consumer.state;
   const indexLength = consumer.index.length;
 
   return {
-    indexName,
+    indexName: streamName,
     indexLength,
-    consumerName,
+    consumerName: parsed.consumerName,
     consumerPosition,
     consumerState
   };

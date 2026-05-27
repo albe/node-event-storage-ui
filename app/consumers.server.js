@@ -116,6 +116,11 @@ function replayConsumer({ stream, consumerLogic, initialState }) {
   return state;
 }
 
+function buildConsumerRouteIdentifier(streamName, consumerName) {
+  const indexName = streamName === '_all' ? '_all' : `stream-${streamName}`;
+  return `${indexName}.${consumerName}`;
+}
+
 export async function previewConsumerState(
   { streamNames: streamNamesInput, consumerLogic, initialState = {} },
   storeNameOverride
@@ -188,7 +193,7 @@ export async function createConsumer(
     });
 
     return {
-      consumerIdentifier: `${normalizedStreamName}.${normalizedConsumerName}`,
+      consumerIdentifier: buildConsumerRouteIdentifier(normalizedStreamName, normalizedConsumerName),
       streamName: normalizedStreamName,
       consumerName: normalizedConsumerName
     };

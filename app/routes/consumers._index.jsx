@@ -4,6 +4,25 @@ import usePagination from '../hooks/paginate';
 
 export const meta = () => [{ title: 'event-storage: Consumer Browser' }];
 
+function normalizeScannedConsumer(scannedConsumer) {
+  if (typeof scannedConsumer === 'string') {
+    const splitIndex = scannedConsumer.lastIndexOf('.');
+    const streamName = splitIndex >= 0 ? scannedConsumer.slice(0, splitIndex) : scannedConsumer;
+    const consumerName = splitIndex >= 0 ? scannedConsumer.slice(splitIndex + 1) : scannedConsumer;
+    return {
+      name: scannedConsumer,
+      streamName,
+      consumerName
+    };
+  }
+
+  return {
+    name: scannedConsumer.name,
+    streamName: scannedConsumer.stream,
+    consumerName: scannedConsumer.identifier
+  };
+}
+
 export async function loader({ request }) {
   const url = new URL(request.url);
   const storeNameOverride = url.searchParams.get('store') || undefined;
@@ -23,9 +42,7 @@ export async function loader({ request }) {
   return {
     storeSearch,
     streamCount: Object.keys(eventstore.streams).length,
-    consumers: consumers
-      .map((consumerIdentifier) => [consumerIdentifier].concat(consumerIdentifier.split('.', 2)))
-      .sort((a, b) => a[0].localeCompare(b[0]))
+    consumers: consumers.map(normalizeScannedConsumer).sort((a, b) => a.name.localeCompare(b.name))
   };
 }
 
@@ -74,10 +91,10 @@ export default function ConsumerBrowser() {
                 </tr>
               </thead>
               <tbody>
-                {consumers.slice(start, end).map(([consumerIdentifier, streamName, consumerName]) => {
-                  const consumerPath = `/consumers/${encodeURIComponent(consumerIdentifier)}${storeSearch}`;
+                {consumers.slice(start, end).map(({ name, streamName, consumerName }) => {
+                  const consumerPath = `/consumers/${encodeURIComponent(name)}${storeSearch}`;
                   return (
-                    <tr key={consumerIdentifier}>
+                    <tr key={name}>
                       <td className="cell-name">
                         <Link to={consumerPath}>{consumerName}</Link>
                       </td>
