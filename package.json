@@ -56,7 +56,8 @@
     "cypress:run": "npm run cypress:functional",
     "cypress:functional": "cypress run --spec \"cypress/e2e/functional/**/*.cy.js\"",
     "cypress:screenshots": "cypress run --spec \"cypress/e2e/screenshots/**/*.cy.js\"",
-    "cypress:screenshots:readme": "cypress run --spec cypress/e2e/screenshots/readme.screenshots.cy.js",
+    "screenshots:sync": "node scripts/update-readme-screenshots.mjs",
+    "cypress:screenshots:readme": "cypress run --spec cypress/e2e/screenshots/readme.screenshots.cy.js && npm run screenshots:sync",
     "cypress:run:all": "cypress run",
     "cypress:open": "cypress open"
   },

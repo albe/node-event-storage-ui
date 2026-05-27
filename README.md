@@ -10,15 +10,23 @@ This is an admin dashboard for inspecting a running [node-event-storage](https:/
 
 ![Event Stream](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/event-stream.png)
 
+### Event commit
+
+![Commit Events](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/write-events-filled.png)
+
 ### Consumers (create and list)
 
 ![Consumers](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/consumers-preview-executed.png)
 
+### Consumer Browser
+
+![Consumer Browser](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/consumers-list.png)
+
+### Consumer Detail
+
+![Consumer Detail](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/consumers-detail.png)
+
 ### Event commit/write
-
-![Write Events](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/write-events-filled.png)
-
-## Usage
 
 ```
 git clone https://github.com/albe/node-event-storage-ui.git
@@ -55,5 +63,5 @@ Configuration is loaded at server startup, so restart the app after changing `ev
 ## Cypress test suites
 
 - Functional tests (used in PR CI): `npm run cypress:functional`
-- Screenshot tests (README images only): `npm run cypress:screenshots:readme`
-- After screenshot tests: `node scripts/update-readme-screenshots.mjs`
+- Screenshot tests (README images only, includes automatic sync): `npm run cypress:screenshots:readme`
+- Manual sync only (optional): `npm run screenshots:sync`

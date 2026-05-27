@@ -23,11 +23,27 @@ describe('README screenshots', () => {
   });
 
   it('captures consumers preview screenshot', () => {
-    cy.visit('/consumers');
+    cy.visit('/consumers/create');
     cy.contains('Add Consumer', { timeout: 20000 }).should('be.visible');
-    cy.get('form[action="/consumers?index"]').first().submit();
+    cy.contains('button', 'Preview').click();
     cy.get('.json-surface .json-view', { timeout: 20000 }).should('be.visible');
     cy.screenshot('consumers-preview-executed', { overwrite: true });
+  });
+
+  it('captures consumer browser screenshot', () => {
+    cy.visit('/consumers');
+    cy.contains('Consumer Browser', { timeout: 20000 }).should('be.visible');
+    cy.get('table tbody tr', { timeout: 20000 }).its('length').should('be.greaterThan', 0);
+    cy.screenshot('consumers-list', { overwrite: true });
+  });
+
+  it('captures consumer detail screenshot', () => {
+    cy.visit('/consumers');
+    cy.contains('Consumer Browser', { timeout: 20000 }).should('be.visible');
+    cy.get('table tbody tr td a', { timeout: 20000 }).first().click();
+    cy.contains('Consumer', { timeout: 10000 }).should('be.visible');
+    cy.contains('Position').should('be.visible');
+    cy.screenshot('consumers-detail', { overwrite: true });
   });
 
   it('captures commit-events screenshot', () => {

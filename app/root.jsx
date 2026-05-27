@@ -108,9 +108,17 @@ export default function App() {
               <NavLink
                 to={`/consumers${storeSearch}`}
                 className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+                end
               >
-                <i className="material-icons">restore_page</i>
-                <span>Consumers</span>
+                <i className="material-icons">manage_search</i>
+                <span>Consumer Browser</span>
+              </NavLink>
+              <NavLink
+                to={`/consumers/create${storeSearch}`}
+                className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+              >
+                <i className="material-icons">playlist_add</i>
+                <span>Create Consumer</span>
               </NavLink>
             </nav>
           </aside>
