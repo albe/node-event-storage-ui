@@ -13,59 +13,55 @@ export async function loader({ params, request }) {
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  try {
-    const from = parseInt(params.from ?? '1', 10) || 1;
-    const amount = parseInt(params.amount ?? '10', 10) || 10;
-    const direction = params.direction === 'backwards' ? 'backwards' : 'forwards';
-    const events = [];
-    const streamIndex = eventstore.streams[streamName]?.index;
-    const streamIndexMetadata = streamIndex?.metadata || null;
-    const matcher = streamIndexMetadata?.matcher ?? null;
-    const writePartitionName = `${eventstore.storage.storageFile}.${streamName}`;
-    const writePartition = Object.values(eventstore.storage.partitions).find(
-      (partition) => partition.name === writePartitionName
-    );
-    const isWriteStream = !!writePartition;
-    let partitionMetadata = null;
-    if (writePartition) {
-      writePartition.open();
-      partitionMetadata = writePartition.metadata || null;
-    }
-
-    const until = direction === 'backwards' ? from - amount + 1 : from + amount - 1;
-    const streamLength = eventstore.getStreamVersion(streamName);
-    let stream = eventstore.getEventStream(streamName);
-    if (stream !== false) {
-      stream = stream.from(from)[direction](amount);
-      stream.forEach((payload, metadata, eventStream) => {
-        events.push({ payload, metadata, stream: eventStream });
-      });
-    }
-
-    let next = until + 1;
-    if (direction === 'backwards') {
-      next = until - 1;
-    } else if (until >= streamLength) {
-      next = 0;
-    }
-
-    return {
-      streamName,
-      stream: events,
-      direction,
-      amount,
-      next,
-      prev: direction === 'backwards' ? from + amount : from - amount,
-      streamInfo: {
-        indexMetadata: streamIndexMetadata,
-        matcher,
-        isWriteStream,
-        partitionMetadata
-      }
-    };
-  } finally {
-    eventstore.close();
+  const from = parseInt(params.from ?? '1', 10) || 1;
+  const amount = parseInt(params.amount ?? '10', 10) || 10;
+  const direction = params.direction === 'backwards' ? 'backwards' : 'forwards';
+  const events = [];
+  const streamIndex = eventstore.streams[streamName]?.index;
+  const streamIndexMetadata = streamIndex?.metadata || null;
+  const matcher = streamIndexMetadata?.matcher ?? null;
+  const writePartitionName = `${eventstore.storage.storageFile}.${streamName}`;
+  const writePartition = Object.values(eventstore.storage.partitions).find(
+    (partition) => partition.name === writePartitionName
+  );
+  const isWriteStream = !!writePartition;
+  let partitionMetadata = null;
+  if (writePartition) {
+    writePartition.open();
+    partitionMetadata = writePartition.metadata || null;
   }
+
+  const until = direction === 'backwards' ? from - amount + 1 : from + amount - 1;
+  const streamLength = eventstore.getStreamVersion(streamName);
+  let stream = eventstore.getEventStream(streamName);
+  if (stream !== false) {
+    stream = stream.from(from)[direction](amount);
+    stream.forEach((payload, metadata, eventStream) => {
+      events.push({ payload, metadata, stream: eventStream });
+    });
+  }
+
+  let next = until + 1;
+  if (direction === 'backwards') {
+    next = until - 1;
+  } else if (until >= streamLength) {
+    next = 0;
+  }
+
+  return {
+    streamName,
+    stream: events,
+    direction,
+    amount,
+    next,
+    prev: direction === 'backwards' ? from + amount : from - amount,
+    streamInfo: {
+      indexMetadata: streamIndexMetadata,
+      matcher,
+      isWriteStream,
+      partitionMetadata
+    }
+  };
 }
 
 export default function EventStreamPaged() {

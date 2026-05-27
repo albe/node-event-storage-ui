@@ -12,23 +12,19 @@ export async function loader({ params, request }) {
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  try {
-    const [indexName, consumerName] = consumerIdentifier.split('.', 2);
-    const consumer = eventstore.getConsumer(indexName, consumerName);
-    const consumerPosition = consumer.position;
-    const consumerState = consumer.state;
-    const indexLength = consumer.index.length;
+  const [indexName, consumerName] = consumerIdentifier.split('.', 2);
+  const consumer = eventstore.getConsumer(indexName, consumerName);
+  const consumerPosition = consumer.position;
+  const consumerState = consumer.state;
+  const indexLength = consumer.index.length;
 
-    return {
-      indexName,
-      indexLength,
-      consumerName,
-      consumerPosition,
-      consumerState
-    };
-  } finally {
-    eventstore.close();
-  }
+  return {
+    indexName,
+    indexLength,
+    consumerName,
+    consumerPosition,
+    consumerState
+  };
 }
 
 export default function Consumer() {
@@ -88,7 +84,7 @@ export default function Consumer() {
             <div className="meta-list__item">
               <div className="meta-list__label">State</div>
               <div className="json-surface json-surface--short">
-                <Json data={consumerState} />
+                <Json data={consumerState} collapsed={3} />
               </div>
             </div>
           </div>

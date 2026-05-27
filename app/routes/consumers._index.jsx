@@ -15,26 +15,22 @@ export async function loader({ request }) {
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  try {
-    const consumers = await new Promise((resolve, reject) => {
-      eventstore.scanConsumers((err, scannedConsumers) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(scannedConsumers);
-      });
+  const consumers = await new Promise((resolve, reject) => {
+    eventstore.scanConsumers((err, scannedConsumers) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(scannedConsumers);
     });
+  });
 
-    return {
-      streamNames: Object.keys(eventstore.streams).sort(),
-      consumers: consumers.map((consumerIdentifier) =>
-        [consumerIdentifier].concat(consumerIdentifier.split('.', 2))
-      )
-    };
-  } finally {
-    eventstore.close();
-  }
+  return {
+    streamNames: Object.keys(eventstore.streams).sort(),
+    consumers: consumers.map((consumerIdentifier) =>
+      [consumerIdentifier].concat(consumerIdentifier.split('.', 2))
+    )
+  };
 }
 
 function tryParseInitialState(initialStateText) {

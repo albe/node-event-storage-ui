@@ -96,6 +96,15 @@ export default function App() {
                 <i className="material-icons">table_rows</i>
                 <span>Stream Browser</span>
               </NavLink>
+              {!storeLocked && (
+                <NavLink
+                  to={`/commit-events${storeSearch}`}
+                  className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
+                >
+                  <i className="material-icons">edit</i>
+                  <span>Commit Events</span>
+                </NavLink>
+              )}
               <NavLink
                 to={`/consumers${storeSearch}`}
                 className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
@@ -103,15 +112,6 @@ export default function App() {
                 <i className="material-icons">restore_page</i>
                 <span>Consumers</span>
               </NavLink>
-              {!storeLocked && (
-                <NavLink
-                  to={`/write-events${storeSearch}`}
-                  className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
-                >
-                  <i className="material-icons">edit</i>
-                  <span>Write Events</span>
-                </NavLink>
-              )}
             </nav>
           </aside>
 

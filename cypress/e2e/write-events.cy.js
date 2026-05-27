@@ -1,5 +1,5 @@
 /**
- * Cypress E2E tests and screenshots for the Write Events feature.
+ * Cypress E2E tests and screenshots for the Commit Events feature.
  *
  * Run with:
  *   npx cypress run --spec cypress/e2e/write-events.cy.js
@@ -11,18 +11,17 @@
 const STORE_PATH = Cypress.env('STORE_PATH') || 'eventstore';
 const DASHBOARD_SCREENSHOT_DELAY_MS = 100000;
 
-describe('Write Events', () => {
-  it('shows the empty write-events form', () => {
-    cy.visit('/write-events');
-    cy.contains('Write Events').should('be.visible');
+describe('Commit Events', () => {
+  it('shows the empty commit-events form', () => {
+    cy.visit('/commit-events');
+    cy.contains('Commit Events').should('be.visible');
     cy.get('#streamName').should('be.visible');
     cy.get('#events').should('be.visible');
     cy.get('[type=submit]').should('be.disabled');
-    cy.screenshot('write-events', { overwrite: true });
   });
 
-  it('shows live JSON preview when valid JSON is entered', () => {
-    cy.visit('/write-events');
+  it('shows live JSON preview fully expanded when valid JSON is entered', () => {
+    cy.visit('/commit-events');
     cy.get('#streamName').type('orders');
     cy.get('#events').type(
       JSON.stringify(
@@ -38,7 +37,7 @@ describe('Write Events', () => {
   });
 
   it('shows a syntax error when invalid JSON is entered', () => {
-    cy.visit('/write-events');
+    cy.visit('/commit-events');
     cy.get('#streamName').type('orders');
     cy.get('#events').type('{ invalid json }', { parseSpecialCharSequences: false });
     cy.contains('Syntax error').should('be.visible');
@@ -46,7 +45,7 @@ describe('Write Events', () => {
   });
 
   it('shows metadata section when expanded', () => {
-    cy.visit('/write-events');
+    cy.visit('/commit-events');
     cy.get('#events').type(
       JSON.stringify([{ type: 'OrderPlaced', orderId: 'abc-123' }], null, 2),
       { parseSpecialCharSequences: false }
@@ -61,7 +60,7 @@ describe('Write Events', () => {
   });
 
   it('commits events and shows success message', () => {
-    cy.visit('/write-events');
+    cy.visit('/commit-events');
     cy.get('#streamName').type('cypress-test-stream');
     cy.get('#events').type(
       JSON.stringify([{ type: 'CypressTestEvent', testId: Date.now() }], null, 2),
@@ -72,10 +71,8 @@ describe('Write Events', () => {
   });
 });
 
-describe('Write Events - Locked Store', () => {
+describe('Commit Events - Locked Store', () => {
   before(() => {
-    // Create a .lock folder in the store directory to simulate an external lock.
-    // This requires the Cypress task defined in cypress.config.js.
     cy.task('lockStore', STORE_PATH);
   });
 
@@ -84,7 +81,7 @@ describe('Write Events - Locked Store', () => {
   });
 
   it('shows the locked store message', () => {
-    cy.visit('/write-events');
+    cy.visit('/commit-events');
     cy.contains('locked by an external process').should('be.visible');
     cy.screenshot('write-events-locked', { overwrite: true });
   });
@@ -96,8 +93,8 @@ describe('Write Events - Locked Store', () => {
     cy.screenshot('dashboard', { overwrite: true });
   });
 
-  it('hides the Write Events nav item when locked', () => {
+  it('hides the Commit Events nav item when locked', () => {
     cy.visit('/');
-    cy.contains('a', 'Write Events').should('not.exist');
+    cy.contains('a', 'Commit Events').should('not.exist');
   });
 });

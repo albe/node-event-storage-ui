@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import EventStore from 'event-storage';
 import addStorageStats from './projections/StorageStats';
 
 function readConfig() {
@@ -38,12 +39,19 @@ export function getStoreLockStatus(storeNameOverride) {
   return fs.existsSync(path.join(storePath, '.lock'));
 }
 
+/**
+ * Cached read-only EventStore instances, keyed by resolved store name.
+ * Each instance stays open indefinitely; the FileWatcher inside ReadOnlyStorage
+ * keeps it up to date when a writer appends new events or creates new streams.
+ */
+const readOnlyStoreCache = new Map();
+
 export async function commitToEventStore(streamName, events, metadata, storeNameOverride) {
-  const eventStoreModule = await import('event-storage');
-  const EventStore = eventStoreModule.default || eventStoreModule;
   const config = readConfig();
   const defaultOptions = config.options || {};
   const storeName = resolveStoreName(config, storeNameOverride);
+  // Write stores are always created fresh and never cached.
+  // addStorageStats (consumer registration) is intentionally omitted here.
   const options = Object.assign({}, defaultOptions, { readOnly: false });
 
   return new Promise((resolve, reject) => {
@@ -65,45 +73,40 @@ export async function commitToEventStore(streamName, events, metadata, storeName
   });
 }
 
-const eventStoreCache = {};
 export default async function getEventStore(options, storeNameOverride) {
-  if (eventStoreCache['store'] && eventStoreCache['name'] === storeNameOverride && eventStoreCache['options'] === JSON.stringify(options)) {
-    console.debug('Store cache-hit');
-    return eventStoreCache['store'];
-  }
-  const eventStoreModule = await import('event-storage');
-  const EventStore = eventStoreModule.default || eventStoreModule;
   const config = readConfig();
   const defaultOptions = config.options || {};
   const storeName = resolveStoreName(config, storeNameOverride);
-  options = Object.assign(defaultOptions, options);
-  if (options.readOnly === true) {
-    await initEventStore(storeName, options);
+  options = Object.assign({}, defaultOptions, options);
+
+  if (options.readOnly !== true) {
+    // Non-cached write store – callers are responsible for closing it.
+    return new Promise((resolve) => {
+      const eventstore = new EventStore(storeName, options);
+      eventstore.on('ready', () => resolve({ eventstore }));
+    });
   }
 
-  return new Promise((resolve) => {
-    const eventstore = new EventStore(storeName, options);
-    eventstore.on('ready', () => {
-      if (options.readOnly === true) {
-        addStorageStats(eventstore).then(resolve);
-      } else {
-        resolve({ eventstore });
-      }
-    });
-  }).then(store => {
-    eventStoreCache['store'] = store;
-    eventStoreCache['name'] = storeNameOverride;
-    eventStoreCache['options'] = JSON.stringify(options);
-    return store;
-  });
-}
+  // Read-only: return the cached Promise if available.
+  if (readOnlyStoreCache.has(storeName)) {
+    return readOnlyStoreCache.get(storeName);
+  }
 
+  // Store the Promise synchronously before any await — Node.js is single-threaded,
+  // so any concurrent cache miss will reuse this Promise instead of opening a second store.
+  const storePromise = initEventStore(storeName, options).then(
+    () => new Promise((resolve) => {
+      const eventstore = new EventStore(storeName, options);
+      eventstore.on('ready', () => addStorageStats(eventstore).then(resolve));
+    })
+  );
+  readOnlyStoreCache.set(storeName, storePromise);
+  return storePromise;
+}
 
 export async function initEventStore(storeName, options) {
   try {
     console.time('initEventStore');
-    const eventStoreModule = await import('event-storage');
-    const EventStore = eventStoreModule.default || eventStoreModule;
     await new Promise((resolve) => {
       const eventstore = new EventStore(storeName, Object.assign({}, options, { readOnly: false }));
       eventstore.on('ready', () => {

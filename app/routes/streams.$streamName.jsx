@@ -13,52 +13,48 @@ export async function loader({ params, request }) {
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  try {
-    const from = 1;
-    const amount = 10;
-    const direction = 'forwards';
-    const events = [];
-    const streamIndex = eventstore.streams[streamName]?.index;
-    const streamIndexMetadata = streamIndex?.metadata || null;
-    const matcher = streamIndexMetadata?.matcher ?? null;
-    const writePartitionName = `${eventstore.storage.storageFile}.${streamName}`;
-    const writePartition = Object.values(eventstore.storage.partitions).find(
-      (partition) => partition.name === writePartitionName
-    );
-    const isWriteStream = !!writePartition;
-    let partitionMetadata = null;
-    if (writePartition) {
-      writePartition.open();
-      partitionMetadata = writePartition.metadata || null;
-    }
-
-    const until = from + amount - 1;
-    const streamLength = eventstore.getStreamVersion(streamName);
-    let stream = eventstore.getEventStream(streamName);
-    if (stream !== false) {
-      stream = stream.from(from).forwards(amount);
-      stream.forEach((payload, metadata, eventStream) => {
-        events.push({ payload, metadata, stream: eventStream });
-      });
-    }
-
-    return {
-      streamName,
-      stream: events,
-      direction,
-      amount,
-      next: until >= streamLength ? 0 : until + 1,
-      prev: from - amount,
-      streamInfo: {
-        indexMetadata: streamIndexMetadata,
-        matcher,
-        isWriteStream,
-        partitionMetadata
-      }
-    };
-  } finally {
-    eventstore.close();
+  const from = 1;
+  const amount = 10;
+  const direction = 'forwards';
+  const events = [];
+  const streamIndex = eventstore.streams[streamName]?.index;
+  const streamIndexMetadata = streamIndex?.metadata || null;
+  const matcher = streamIndexMetadata?.matcher ?? null;
+  const writePartitionName = `${eventstore.storage.storageFile}.${streamName}`;
+  const writePartition = Object.values(eventstore.storage.partitions).find(
+    (partition) => partition.name === writePartitionName
+  );
+  const isWriteStream = !!writePartition;
+  let partitionMetadata = null;
+  if (writePartition) {
+    writePartition.open();
+    partitionMetadata = writePartition.metadata || null;
   }
+
+  const until = from + amount - 1;
+  const streamLength = eventstore.getStreamVersion(streamName);
+  let stream = eventstore.getEventStream(streamName);
+  if (stream !== false) {
+    stream = stream.from(from).forwards(amount);
+    stream.forEach((payload, metadata, eventStream) => {
+      events.push({ payload, metadata, stream: eventStream });
+    });
+  }
+
+  return {
+    streamName,
+    stream: events,
+    direction,
+    amount,
+    next: until >= streamLength ? 0 : until + 1,
+    prev: from - amount,
+    streamInfo: {
+      indexMetadata: streamIndexMetadata,
+      matcher,
+      isWriteStream,
+      partitionMetadata
+    }
+  };
 }
 
 export default function EventStream() {

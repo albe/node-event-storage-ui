@@ -5,7 +5,7 @@ import 'react18-json-view/src/dark.css';
 const JsonView = JsonViewModule.default ?? JsonViewModule;
 
 export default function Json({ data, collapsed = true, style = undefined, className = '' }) {
-  const normalizedCollapsed = collapsed === false ? 1 : collapsed === true ? true : collapsed;
+  const normalizedCollapsed = collapsed === true ? true : collapsed === false ? false : collapsed;
 
   return (
     <JsonView

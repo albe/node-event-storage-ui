@@ -5,7 +5,7 @@ import { Form } from 'react-router';
 import { getStoreLockStatus, commitToEventStore } from '../../eventstore';
 import Json from '../components/json';
 
-export const meta = () => [{ title: 'event-storage: Write Events' }];
+export const meta = () => [{ title: 'event-storage: Commit Events' }];
 
 export async function loader({ request }) {
   const url = new URL(request.url);
@@ -97,10 +97,10 @@ export default function WriteEvents() {
       <div className="page-stack">
         <section className="page-hero hero">
           <div className="hero-text">
-            <div className="page-eyebrow eyebrow">Writer</div>
-            <h2 className="page-title hero-title">Write Events ({storeName})</h2>
+            <div className="page-eyebrow eyebrow">Committer</div>
+            <h2 className="page-title hero-title">Commit Events ({storeName})</h2>
             <p className="page-subtitle hero-sub">
-              Writing is disabled while this store is locked by an external process.
+              Committing is disabled while this store is locked by an external process.
             </p>
           </div>
           <div className="page-actions hero-actions">
@@ -116,7 +116,7 @@ export default function WriteEvents() {
             <div className="status-banner" role="alert">
               <span className="status-banner__icon">❗</span>
               <div className="status-banner__text">
-                This Eventstore is currently locked by an external process. Writing is not possible while the
+                This Eventstore is currently locked by an external process. Committing is not possible while the
                 store is locked.
               </div>
             </div>
@@ -130,8 +130,8 @@ export default function WriteEvents() {
     <div className="page-stack">
       <section className="page-hero hero">
         <div className="hero-text">
-          <div className="page-eyebrow eyebrow">Writer</div>
-          <h2 className="page-title hero-title">Write Events ({storeName})</h2>
+          <div className="page-eyebrow eyebrow">Committer</div>
+          <h2 className="page-title hero-title">Commit Events ({storeName})</h2>
           <p className="page-subtitle hero-sub">
             Compose new event payloads, preview parsed JSON, and optionally attach metadata before committing.
           </p>

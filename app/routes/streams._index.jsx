@@ -12,25 +12,21 @@ export async function loader({ request }) {
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  try {
-    const streams = Object.keys(eventstore.streams).map((streamName) => {
-      const stream = eventstore.streams[streamName].index;
-      const crtime = fs.statSync(stream.fileName).birthtimeMs;
-      return {
-        name: streamName,
-        length: stream.length,
-        metadata: stream.metadata,
-        crtime
-      };
-    });
-
+  const streams = Object.keys(eventstore.streams).map((streamName) => {
+    const stream = eventstore.streams[streamName].index;
+    const crtime = fs.statSync(stream.fileName).birthtimeMs;
     return {
-      storeName: eventstore.storeName,
-      streams
+      name: streamName,
+      length: stream.length,
+      metadata: stream.metadata,
+      crtime
     };
-  } finally {
-    eventstore.close();
-  }
+  });
+
+  return {
+    storeName: eventstore.storeName,
+    streams
+  };
 }
 
 export default function StreamsIndex() {

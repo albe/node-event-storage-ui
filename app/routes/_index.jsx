@@ -14,28 +14,24 @@ export async function loader({ request }) {
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const { eventstore, storageStats } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  try {
-    const consumers = await new Promise((resolve, reject) => {
-      eventstore.scanConsumers((err, scannedConsumers) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(scannedConsumers);
-      });
+  const consumers = await new Promise((resolve, reject) => {
+    eventstore.scanConsumers((err, scannedConsumers) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(scannedConsumers);
     });
+  });
 
-    return {
-      storeName: eventstore.storeName,
-      storageDirectory: eventstore.storageDirectory,
-      streamsCount: Object.keys(eventstore.streams).length,
-      eventsCount: eventstore.length,
-      consumersCount: consumers.length,
-      stats: storageStats ?? {}
-    };
-  } finally {
-    eventstore.close();
-  }
+  return {
+    storeName: eventstore.storeName,
+    storageDirectory: eventstore.storageDirectory,
+    streamsCount: Object.keys(eventstore.streams).length,
+    eventsCount: eventstore.length,
+    consumersCount: consumers.length,
+    stats: storageStats ?? {}
+  };
 }
 
 const COLORS = { primary: '#00bcd4', success: '#32d48e', warning: '#f59e0b' };
