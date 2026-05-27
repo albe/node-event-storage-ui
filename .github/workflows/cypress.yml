@@ -24,9 +24,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        # react-chartist@0.14.4 declares peers react@^0.14-17, conflicting with react@19.
-        # --legacy-peer-deps can be removed once react-chartist is replaced or updated.
-        run: npm ci --legacy-peer-deps
+        run: npm ci --ignore-scripts
 
       - name: Build app
         run: npm run build
