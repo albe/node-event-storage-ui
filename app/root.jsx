@@ -136,7 +136,7 @@ export default function App() {
           <div className="main">
             <header className="d-topbar">
               <div className="crumbs">
-                <img src="/logo_white.png" className="topbar-logo" alt="* event-storage" />
+                <img src="/logo_white.svg" className="topbar-logo" alt="* event-storage" />
               </div>
               <div className="topbar-actions">
                 <ul className="nav-right">

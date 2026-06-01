@@ -43,6 +43,8 @@
     "public/favicon.ico",
     "public/logo_color.png",
     "public/logo_white.png",
+    "public/logo_color.svg",
+    "public/logo_white.svg",
     "public/nodejs-icon.png",
     "eventstore.config.json",
     "eventstore.js",
