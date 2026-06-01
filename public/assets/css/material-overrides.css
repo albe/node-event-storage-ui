@@ -52,6 +52,11 @@
   display: block;
 }
 
+.brand-logo-transparent {
+  background: transparent;
+  box-shadow: none;
+}
+
 .d-topbar {
   background: linear-gradient(
     90deg,

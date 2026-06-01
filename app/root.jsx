@@ -72,15 +72,18 @@ export default function App() {
       <body>
         <div className="shell">
           <aside className="d-sidebar">
-            <div className="brand brand--text-only">
+            <div className="brand">
               <div className="brand-text">
                 <div className="brand-name">event-storage-ui</div>
                 <div className="brand-tag">node-event-storage</div>
               </div>
+              <div className="brand-logo brand-logo-transparent">
+                <img alt="" src="/icon-hero-variant-3.svg" />
+              </div>
             </div>
 
             <nav className="nav-section">
-              <div className="nav-label">Workspace</div>
+            <div className="nav-label">Workspace</div>
               <NavLink
                 to={`/${storeSearch}`}
                 className={({ isActive }) => `nav-link${isActive ? ' is-active' : ''}`}
