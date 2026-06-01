@@ -832,3 +832,7 @@
   cursor: not-allowed;
 }
 .btn[disabled]:hover {}
+
+.copyright > i {
+  vertical-align: middle;
+}
