@@ -103,10 +103,10 @@ export default function StreamsIndex() {
                         streams
                       </span>
                       <div className="button-row">
-                      <button disabled={!hasPrev} className="btn btn--primary-soft" onClick={prevPage}>
+                      <button disabled={!hasPrev} className="btn btn--soft-primary" onClick={prevPage}>
                         Prev
                       </button>
-                      <button disabled={!hasNext} className="btn btn--primary-soft" onClick={nextPage}>
+                      <button disabled={!hasNext} className="btn btn--soft-primary" onClick={nextPage}>
                         Next
                       </button>
                       </div>

@@ -162,25 +162,25 @@ export default function EventStream() {
                       </span>
                       <div className="button-row">
                         {prev <= 0 ? (
-                          <button type="button" className="btn btn--primary-soft" disabled>
+                          <button type="button" className="btn btn--soft-primary" disabled>
                             Prev
                           </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
-                            className="btn btn--primary-soft"
+                            className="btn btn--soft-primary"
                           >
                             Prev
                           </Link>
                         )}
                         {next <= 0 ? (
-                          <button type="button" className="btn btn--primary-soft" disabled>
+                          <button type="button" className="btn btn--soft-primary" disabled>
                             Next
                           </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
-                            className="btn btn--primary-soft"
+                            className="btn btn--soft-primary"
                           >
                             Next
                           </Link>
