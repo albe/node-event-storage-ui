@@ -389,6 +389,10 @@
   overflow: hidden;
 }
 
+.admin-panel--allow-overflow {
+  overflow: visible;
+}
+
 .admin-panel__header,
 .admin-panel__footer {
   display: flex;

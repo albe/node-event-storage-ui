@@ -8,6 +8,15 @@ import Json from '../components/json';
 export const meta = () => [{ title: 'event-storage: Query' }];
 const MATCHER_HINT_SAMPLE_SIZE = 120;
 const MATCHER_HINT_EXAMPLE_LIMIT = 4;
+const MATCHER_OPERATORS = [
+  { value: '$eq', label: '$eq (equals)' },
+  { value: '$ne', label: '$ne (not equals)' },
+  { value: '$gt', label: '$gt (greater than)' },
+  { value: '$gte', label: '$gte (greater than or equal)' },
+  { value: '$lt', label: '$lt (less than)' },
+  { value: '$lte', label: '$lte (less than or equal)' }
+];
+const MATCHER_OPERATOR_SET = new Set(MATCHER_OPERATORS.map((operator) => operator.value));
 
 function parsePositiveInt(value, fallback) {
   const parsed = Number.parseInt(value ?? '', 10);
@@ -35,6 +44,14 @@ function buildMatcher(matcherText) {
 
 function isObjectRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isOperatorMatcherObject(value) {
+  if (!isObjectRecord(value)) {
+    return false;
+  }
+  const keys = Object.keys(value);
+  return keys.length > 0 && keys.every((key) => MATCHER_OPERATOR_SET.has(key));
 }
 
 function registerMatcherHintValue(hintMap, path, value) {
@@ -177,6 +194,21 @@ function setMatcherPathValue(target, path, value) {
   cursor[parts[parts.length - 1]] = value;
 }
 
+function getMatcherPathValue(target, path) {
+  const parts = path.split('.').filter(Boolean);
+  if (parts.length === 0) {
+    return undefined;
+  }
+  let cursor = target;
+  for (const part of parts) {
+    if (!isObjectRecord(cursor) || !(part in cursor)) {
+      return undefined;
+    }
+    cursor = cursor[part];
+  }
+  return cursor;
+}
+
 export async function loader({ request }) {
   const url = new URL(request.url);
   const searchParams = url.searchParams;
@@ -227,7 +259,12 @@ export async function loader({ request }) {
   }
 
   try {
-    const { stream: queryStream, condition } = eventstore.query(selectedTypes, matcherResult.matcher, minRevision, false);
+    const { stream: queryStream, condition } = eventstore.query(
+      selectedTypes,
+      matcherResult.matcher,
+      minRevision,
+      false
+    );
     const total = queryStream.length;
     const slicedStream = queryStream.from(from)[direction](amount);
     const events = [];
@@ -335,11 +372,22 @@ export default function QueryPage() {
   const [selectedMatcherPath, setSelectedMatcherPath] = useState('');
   const [selectedMatcherValue, setSelectedMatcherValue] = useState('');
   const [matcherValueMode, setMatcherValueMode] = useState('single');
+  const [selectedMatcherOperator, setSelectedMatcherOperator] = useState('');
   const [matcherBuilderError, setMatcherBuilderError] = useState('');
   const selectedMatcherHint = useMemo(
     () => liveMatcherHints.find((hint) => hint.path === selectedMatcherPath) ?? null,
     [liveMatcherHints, selectedMatcherPath]
   );
+  const matcherValueSuggestions = useMemo(() => {
+    const suggestions = new Set(selectedMatcherHint?.examples ?? []);
+    suggestions.add('0');
+    suggestions.add('1');
+    suggestions.add('true');
+    suggestions.add('false');
+    suggestions.add('null');
+    suggestions.add('""');
+    return [...suggestions];
+  }, [selectedMatcherHint]);
 
   useEffect(() => {
     const selectedSet = new Set(selectedTypes);
@@ -412,7 +460,6 @@ export default function QueryPage() {
 
     try {
       const matcherObject = parseMatcherObject(matcherEditorText);
-      let matcherValue;
       if (matcherValueMode === 'multi') {
         const values = parseCommaSeparatedValues(selectedMatcherValue)
           .map((value) => value.trim())
@@ -422,17 +469,29 @@ export default function QueryPage() {
           setMatcherBuilderError('Please provide at least one value for multi-value matching.');
           return;
         }
-        matcherValue = values;
+        setMatcherPathValue(matcherObject, selectedMatcherPath, values);
+      } else if (matcherValueMode === 'operator') {
+        const operator = selectedMatcherOperator.trim();
+        if (!MATCHER_OPERATOR_SET.has(operator)) {
+          setMatcherBuilderError(`Unsupported operator \"${operator}\". Use one of: ${MATCHER_OPERATORS.map((item) => item.value).join(', ')}`);
+          return;
+        }
+        const matcherValue = parseMatcherValue(selectedMatcherValue);
+        const existingValue = getMatcherPathValue(matcherObject, selectedMatcherPath);
+        if (isOperatorMatcherObject(existingValue)) {
+          existingValue[operator] = matcherValue;
+        } else {
+          setMatcherPathValue(matcherObject, selectedMatcherPath, { [operator]: matcherValue });
+        }
       } else {
-        matcherValue = parseMatcherValue(selectedMatcherValue);
+        setMatcherPathValue(matcherObject, selectedMatcherPath, parseMatcherValue(selectedMatcherValue));
       }
-
-      setMatcherPathValue(matcherObject, selectedMatcherPath, matcherValue);
       setMatcherEditorText(JSON.stringify(matcherObject, null, 2));
       setMatcherBuilderError('');
       setSelectedMatcherPath('');
       setSelectedMatcherValue('');
       setMatcherValueMode('single');
+      setSelectedMatcherOperator('$eq');
     } catch (builderError) {
       setMatcherBuilderError(builderError.message || 'Matcher could not be updated.');
     }
@@ -457,114 +516,34 @@ export default function QueryPage() {
         <input type="hidden" name="amount" value="10" />
 
         <section className="panel-grid panel-grid--halves">
-          <section className="admin-panel card">
+          <section className="admin-panel admin-panel--allow-overflow card">
             <div className="admin-panel__header card-head">
               <div className="card-title-wrap">
                 <div className="panel-eyebrow eyebrow">Query Input</div>
-                <h3 className="panel-title card-title">Event Types</h3>
-              </div>
-            </div>
-            <div className="admin-panel__body card-body card-body--panel">
-              <div className="form-group field">
-                <label htmlFor="types" className="field-label">
-                  Event Types (Streams)
-                </label>
-                <Select
-                  inputId="types"
-                  className="react-select-container"
-                  classNamePrefix="react-select"
-                  isMulti
-                  options={typeOptions}
-                  value={selectedTypeOptions}
-                  onChange={(options) => setSelectedTypeOptions(options ?? [])}
-                  placeholder="Select one or more event types..."
-                  noOptionsMessage={() => 'No matching event types'}
-                />
-                {selectedTypeOptions.map((option) => (
-                  <input key={option.value} type="hidden" name="types" value={option.value} />
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="admin-panel card">
-            <div className="admin-panel__header card-head">
-              <div className="card-title-wrap">
-                <div className="panel-eyebrow eyebrow">Query Input</div>
-                <h3 className="panel-title card-title">Matcher & Revision</h3>
+                <h3 className="panel-title card-title">Types & Revision</h3>
               </div>
             </div>
             <div className="admin-panel__body card-body card-body--panel">
               <div className="form-stack">
                 <div className="form-group field">
-                  <label htmlFor="matcher" className="field-label">
-                    JSON Matcher (optional)
+                  <label htmlFor="types" className="field-label">
+                    Event Types
                   </label>
-                  <textarea
-                    id="matcher"
-                    name="matcher"
-                    className="textarea text-mono"
-                    rows={8}
-                    placeholder={'{\n  "metadata": { "tenant": "acme" }\n}'}
-                    value={matcherEditorText}
-                    onChange={(event) => setMatcherEditorText(event.target.value)}
+                  <Select
+                    inputId="types"
+                    className="react-select-container"
+                    classNamePrefix="react-select"
+                    isMulti
+                    options={typeOptions}
+                    value={selectedTypeOptions}
+                    onChange={(options) => setSelectedTypeOptions(options ?? [])}
+                    placeholder="Select one or more event types..."
+                    noOptionsMessage={() => 'No matching event types'}
                   />
+                  {selectedTypeOptions.map((option) => (
+                    <input key={option.value} type="hidden" name="types" value={option.value} />
+                  ))}
                 </div>
-                {liveMatcherHints.length > 0 && (
-                  <div className="form-group field">
-                    <label className="field-label">Matcher Assistant</label>
-                    {matcherHintsFetcher.state === 'loading' && (
-                      <div className="progress-note">Updating suggestions...</div>
-                    )}
-                    <div className="panel-grid panel-grid--halves">
-                      <select
-                        className="select"
-                        value={matcherValueMode}
-                        onChange={(event) => setMatcherValueMode(event.target.value)}
-                      >
-                        <option value="single">Single value</option>
-                        <option value="multi">Multi-value (comma-separated)</option>
-                      </select>
-
-                      <select
-                        className="select"
-                        value={selectedMatcherPath}
-                        onChange={(event) => setSelectedMatcherPath(event.target.value)}
-                      >
-                        <option value="">Select a suggested field...</option>
-                        {liveMatcherHints.map((hint) => (
-                          <option key={hint.path} value={hint.path}>
-                            {hint.path}
-                          </option>
-                        ))}
-                      </select>
-
-                      <input
-                        type="text"
-                        className="input text-mono"
-                        placeholder="Suggested value (JSON or plain text)"
-                        value={selectedMatcherValue}
-                        onChange={(event) => setSelectedMatcherValue(event.target.value)}
-                      />
-                    </div>
-                    {matcherValueMode === 'multi' && (
-                      <div className="progress-note">
-                        Use a comma-separated list. Put values with commas in double quotes.
-                      </div>
-                    )}
-                    {selectedMatcherHint && selectedMatcherHint.examples.length > 0 && (
-                      <div className="progress-note">
-                        Sample values: {selectedMatcherHint.examples.join(' | ')}
-                      </div>
-                    )}
-                    {matcherBuilderError && <div className="text-danger">{matcherBuilderError}</div>}
-                    <div className="button-row">
-                      <button type="button" className="btn btn--soft-primary" onClick={addMatcherRuleFromHint}>
-                        Add Rule to Matcher
-                      </button>
-                    </div>
-                  </div>
-                )}
                 <div className="form-group field">
                   <label htmlFor="minRevision" className="field-label">
                     Min Revision (optional)
@@ -579,20 +558,133 @@ export default function QueryPage() {
                     defaultValue={minRevisionInput}
                   />
                 </div>
+                <div className="button-row">
+                  <button type="submit" className="btn btn--primary">
+                    <i className="material-icons button-icon-inline">search</i> Run Query
+                  </button>
+                </div>
               </div>
             </div>
           </section>
-        </section>
 
-        <section className="admin-panel card">
-          <div className="admin-panel__footer">
-            <div className="progress-note">
-              Use the multi-select and matcher assistant to build filters from sampled event schemas.
+          <section className="admin-panel card">
+            <div className="admin-panel__header card-head">
+              <div className="card-title-wrap">
+                <div className="panel-eyebrow eyebrow">Query Input</div>
+                <h3 className="panel-title card-title">Matcher</h3>
+              </div>
             </div>
-            <button type="submit" className="btn btn--primary">
-              <i className="material-icons button-icon-inline">search</i> Run Query
-            </button>
-          </div>
+            <div className="admin-panel__body card-body card-body--panel">
+              <div className="form-stack">
+                <div className="form-group field">
+                  <label htmlFor="matcher" className="field-label">
+                    JSON Matcher (optional)
+                  </label>
+                  <textarea
+                    id="matcher"
+                    name="matcher"
+                    className="textarea text-mono"
+                    rows={8}
+                    placeholder={'{\n  "metadata": { "tenant": "acme" },\n  "payload": { "amount": { "$gte": 100 } }\n}'}
+                    value={matcherEditorText}
+                    onChange={(event) => setMatcherEditorText(event.target.value)}
+                  />
+                </div>
+                {liveMatcherHints.length > 0 && (
+                  <div className="form-group field">
+                    <label className="field-label">Matcher Assistant</label>
+                    {matcherHintsFetcher.state === 'loading' && (
+                      <div className="progress-note">Updating suggestions...</div>
+                    )}
+                    <div className="form-stack">
+                      <select
+                        data-testid="matcher-mode"
+                        className="select"
+                        value={matcherValueMode}
+                        onChange={(event) => setMatcherValueMode(event.target.value)}
+                      >
+                        <option value="single">Single value</option>
+                        <option value="multi">Multi-value (comma-separated)</option>
+                        <option value="operator">Operator matcher</option>
+                      </select>
+
+                      <select
+                        data-testid="matcher-path"
+                        className="select"
+                        value={selectedMatcherPath}
+                        onChange={(event) => setSelectedMatcherPath(event.target.value)}
+                      >
+                        <option value="">Select a suggested field...</option>
+                        {liveMatcherHints.map((hint) => (
+                          <option key={hint.path} value={hint.path}>
+                            {hint.path}
+                          </option>
+                        ))}
+                      </select>
+
+                      {matcherValueMode === 'operator' && (
+                        <input
+                          type="text"
+                          data-testid="matcher-operator"
+                          list="matcher-operators"
+                          className="input text-mono"
+                          placeholder="$gte"
+                          value={selectedMatcherOperator}
+                          onChange={(event) => setSelectedMatcherOperator(event.target.value)}
+                        />
+                      )}
+
+                      <input
+                        type="text"
+                        data-testid="matcher-value"
+                        list="matcher-value-suggestions"
+                        className="input text-mono"
+                        placeholder="Suggested value (JSON or plain text)"
+                        value={selectedMatcherValue}
+                        onChange={(event) => setSelectedMatcherValue(event.target.value)}
+                      />
+                      <datalist id="matcher-value-suggestions">
+                        {matcherValueSuggestions.map((suggestedValue) => (
+                          <option key={suggestedValue} value={suggestedValue} />
+                        ))}
+                      </datalist>
+                      <datalist id="matcher-operators">
+                        {MATCHER_OPERATORS.map((operator) => (
+                          <option key={operator.value} value={operator.value} label={operator.label} />
+                        ))}
+                      </datalist>
+                    </div>
+                    {matcherValueMode === 'multi' && (
+                      <div className="progress-note">
+                        Use a comma-separated list. Put values with commas in double quotes.
+                      </div>
+                    )}
+                    {matcherValueMode === 'operator' && (
+                      <div className="progress-note">
+                        Operator matchers use syntax like {'{ "payload": { "amount": { "$gte": 100 } } }'}.
+                      </div>
+                    )}
+                    {selectedMatcherHint && selectedMatcherHint.examples.length > 0 && (
+                      <div className="progress-note">
+                        Sample values: {selectedMatcherHint.examples.join(' | ')}
+                      </div>
+                    )}
+                    {matcherBuilderError && <div className="text-danger">{matcherBuilderError}</div>}
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        data-testid="matcher-add-rule"
+                        className="btn btn--soft-primary"
+                        onClick={addMatcherRuleFromHint}
+                      >
+                        Add Rule to Matcher
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
         </section>
       </Form>
 
