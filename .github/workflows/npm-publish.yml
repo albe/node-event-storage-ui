@@ -107,6 +107,18 @@ jobs:
         run: npm install -g npm@11
       - name: Install dependencies
         run: npm ci --ignore-scripts
-      - run: npm publish --provenance --access public
+      - name: Resolve npm dist-tag
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          if [[ "$VERSION" == *-* ]]; then
+            PREID="${VERSION#*-}"
+            DIST_TAG="${PREID%%.*}"
+          else
+            DIST_TAG="latest"
+          fi
+          echo "Using npm dist-tag: $DIST_TAG for version: $VERSION"
+          echo "NPM_DIST_TAG=$DIST_TAG" >> "$GITHUB_ENV"
+      - run: npm publish --provenance --access public --tag "$NPM_DIST_TAG"
 
 
