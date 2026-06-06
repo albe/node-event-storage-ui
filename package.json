@@ -1,6 +1,6 @@
 {
   "name": "event-storage-ui",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "A simple UI for node event-storage",
   "type": "module",
   "main": "index.js",
