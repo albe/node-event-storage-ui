@@ -8,6 +8,8 @@ const screenshotRoot = path.join(projectRoot, 'public', 'screenshots');
 const readmeScreenshotFiles = [
   'dashboard.png',
   'event-stream.png',
+  'query-page.png',
+  'query-matcher.png',
   'consumers-list.png',
   'consumers-preview-executed.png',
   'consumers-detail.png',
@@ -64,4 +66,3 @@ function copyReadmeScreenshots() {
 }
 
 copyReadmeScreenshots();
-
