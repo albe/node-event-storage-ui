@@ -10,6 +10,14 @@ This is an admin dashboard for inspecting a running [node-event-storage](https:/
 
 ![Event Stream](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/event-stream.png)
 
+### Query
+
+![Query](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/query-page.png)
+
+### Query Matcher
+
+![Query Matcher](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/query-matcher.png)
+
 ### Event commit
 
 ![Commit Events](https://raw.githubusercontent.com/albe/node-event-storage-ui/main/public/screenshots/write-events-filled.png)
