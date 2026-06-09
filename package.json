@@ -38,7 +38,22 @@
     "node": ">=18.0"
   },
   "files": [
+    "app/",
     "bin/",
+    "helpers/",
+    "projections/",
+    "public/.well-known/",
+    "public/assets/",
+    "public/favicon.ico",
+    "public/icon-hero-variant-1.svg",
+    "public/icon-hero-variant-3.svg",
+    "public/icon-spinner-loading.svg",
+    "public/icon.svg",
+    "public/logo_color.png",
+    "public/logo_color.svg",
+    "public/logo_white.png",
+    "public/logo_white.svg",
+    "public/nodejs-icon.png",
     "build/client/.vite/",
     "build/client/assets/",
     "build/client/favicon.ico",
@@ -56,6 +71,9 @@
     "build/server/index.js",
     "build/eventstore.config.json",
     "config.js",
+    "eventstore.config.json",
+    "eventstore.js",
+    "vite.config.js",
     "README.md"
   ],
   "scripts": {

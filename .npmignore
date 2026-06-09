@@ -1,3 +1,4 @@
 # Keep publish tarball lean: runtime assets only.
 public/screenshots/
+build/server/eventstore.config.json
 
