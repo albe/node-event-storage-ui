@@ -443,8 +443,7 @@ function CpuUsageChart({ usage, coreUsage }) {
       <div className="admin-panel__header card-head">
         <div className="card-title-wrap">
           <div className="panel-eyebrow eyebrow">System</div>
-          <h3 className="panel-title card-title">CPU Load
-          <Kpi className="pull-right" value={change} /></h3>
+          <h3 className="panel-title card-title">CPU Load <Kpi value={change} /></h3>
           <p className="panel-subtitle hero-sub">
             {showCoreMode
               ? 'Per-core total CPU load over recent samples.'
@@ -501,11 +500,11 @@ function NetworkUsageChart({ history, networkStats }) {
           <div className="panel-eyebrow eyebrow">Network</div>
           <h3 className="panel-title card-title">RX / TX
             {selectedOnline ?
-              <span className="badge success pull-right text-mono--sm">
+              <span className="kpi-pill up">
                 <i className="material-icons">arrow_upward</i>
               </span>
               :
-              <span className="badge danger pull-right text-mono--sm">
+              <span className="kpi-pill down">
                 <i className="material-icons btn--outline-danger">arrow_downward</i>
               </span>
           }</h3>

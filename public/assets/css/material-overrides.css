@@ -246,6 +246,9 @@
 
 .panel-title {
   font-size: 1.12rem;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .page-subtitle,
@@ -755,6 +758,10 @@
 
 .text-mono--sm {
   font-size: 1.1rem;
+}
+
+.kpi-pill .material-icons {
+  font-size: 1rem;
 }
 
 .button-icon-inline {
