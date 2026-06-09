@@ -71,6 +71,8 @@ or via environment variable:
 EVENT_STORAGE_UI_CONFIG=./path/to/eventstore.config.json npx event-storage-ui
 ```
 
+The config file is required. If the resolved config path does not exist, is not a file, or contains invalid JSON, startup fails immediately with an error.
+
 To adjust the path to your local node-event-storage edit the `eventstore.config.json` file and adjust the `storeName` and `options.storageDirectory` JSON properties.
 
 You can also protect the UI with HTTP Basic Auth by setting `basicAuth.username` and `basicAuth.password`. If either value is empty, Basic Auth is disabled.

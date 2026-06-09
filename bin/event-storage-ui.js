@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
+import { readConfigFile, resolveConfigPath } from '../config.js';
 
 const CONFIG_OPTION = '--config';
 const CONFIG_ALIAS = '-c';
@@ -45,23 +46,6 @@ function parseArguments(argv) {
   return { configuredPath, passThroughArgs, showHelpRequested: false };
 }
 
-function resolveConfigPath(configuredPath, packageDirectory) {
-  if (configuredPath) {
-    return path.isAbsolute(configuredPath)
-      ? configuredPath
-      : path.resolve(process.cwd(), configuredPath);
-  }
-
-  const configuredFromEnv = process.env[ENV_CONFIG_PATH]?.trim();
-  if (configuredFromEnv) {
-    return path.isAbsolute(configuredFromEnv)
-      ? configuredFromEnv
-      : path.resolve(process.cwd(), configuredFromEnv);
-  }
-
-  return path.resolve(packageDirectory, 'build/eventstore.config.json');
-}
-
 function resolveReactRouterServeBin() {
   const require = createRequire(import.meta.url);
   const packageJsonPath = require.resolve('@react-router/serve/package.json');
@@ -83,9 +67,20 @@ function main() {
   }
 
   const packageDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const configPath = resolveConfigPath(parsedArguments.configuredPath, packageDirectory);
+  const configPath = resolveConfigPath({
+    configuredPath: parsedArguments.configuredPath,
+    packageDirectory,
+    env: process.env,
+  });
   const serverEntry = path.resolve(packageDirectory, 'build/server/index.js');
   const reactRouterServeBin = resolveReactRouterServeBin();
+
+  try {
+    readConfigFile(configPath);
+  } catch (error) {
+    console.error(`[event-storage-ui] ${error.message}`);
+    process.exit(1);
+  }
 
   const child = spawn(
     process.execPath,

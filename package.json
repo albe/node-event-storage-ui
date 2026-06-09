@@ -56,6 +56,7 @@
     "build/server/eventstore.config.json",
     "build/server/index.js",
     "build/eventstore.config.json",
+    "config.js",
     "README.md"
   ],
   "scripts": {

@@ -1,48 +1,16 @@
 import { PassThrough } from 'node:stream';
 import { timingSafeEqual } from 'node:crypto';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createReadableStreamFromReadable } from '@react-router/node';
 import { ServerRouter } from 'react-router';
 import { isbot } from 'isbot';
 import { renderToPipeableStream } from 'react-dom/server';
+import { readConfigFile, resolveConfigPath } from '../config';
 
 const streamTimeout = 5_000;
-const configPath = resolveConfigPath();
-let cachedConfig;
-
-function resolveConfigPath() {
-  const configuredPath = process.env.EVENT_STORAGE_UI_CONFIG?.trim();
-  if (configuredPath) {
-    return path.isAbsolute(configuredPath)
-      ? configuredPath
-      : path.resolve(process.cwd(), configuredPath);
-  }
-
-  const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
-  const localConfigPath = path.resolve(moduleDirectory, './eventstore.config.json');
-  if (fs.existsSync(localConfigPath)) {
-    return localConfigPath;
-  }
-
-  return path.resolve(moduleDirectory, '../eventstore.config.json');
-}
+const configPath = resolveConfigPath({ importMetaUrl: import.meta.url });
+const cachedConfig = readConfigFile(configPath);
 
 function readConfig() {
-  if (cachedConfig) return cachedConfig;
-
-  try {
-    const rawConfig = fs.readFileSync(configPath).toString();
-    cachedConfig = JSON.parse(rawConfig);
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      console.error('Invalid JSON in eventstore.config.json, using empty configuration.', error);
-    } else {
-      console.error('Failed to load eventstore.config.json, using empty configuration.', error);
-    }
-    cachedConfig = {};
-  }
 
   return cachedConfig;
 }
