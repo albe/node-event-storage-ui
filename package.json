@@ -71,6 +71,7 @@
     "build/server/index.js",
     "build/eventstore.config.json",
     "config.js",
+    "scripts/copy-build-config.mjs",
     "eventstore.config.json",
     "eventstore.js",
     "vite.config.js",
