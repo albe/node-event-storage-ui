@@ -10,22 +10,57 @@ import {
   useNavigate,
   useSearchParams
 } from 'react-router';
-import materialIconsCss from '@fontsource/material-icons/index.css?url';
-import roboto300Css from '@fontsource/roboto/300.css?url';
-import roboto400Css from '@fontsource/roboto/400.css?url';
-import roboto500Css from '@fontsource/roboto/500.css?url';
-import roboto700Css from '@fontsource/roboto/700.css?url';
-import fontAwesomeCss from 'font-awesome/css/font-awesome.min.css?url';
+import materialIconsWoff2 from '@fontsource/material-icons/files/material-icons-latin-400-normal.woff2?url';
+import roboto300Woff2 from '@fontsource/roboto/files/roboto-latin-300-normal.woff2?url';
+import roboto400Woff2 from '@fontsource/roboto/files/roboto-latin-400-normal.woff2?url';
+import roboto500Woff2 from '@fontsource/roboto/files/roboto-latin-500-normal.woff2?url';
+import roboto700Woff2 from '@fontsource/roboto/files/roboto-latin-700-normal.woff2?url';
 import adminatorCss from 'adminator-admin-dashboard/src/assets/styles/2026/index.scss?url';
 import { listStores, getStoreLockStatus } from '../eventstore';
 
+const fontFacesCss = `
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('${materialIconsWoff2}') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('${roboto300Woff2}') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('${roboto400Woff2}') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('${roboto500Woff2}') format('woff2');
+}
+
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('${roboto700Woff2}') format('woff2');
+}
+`;
+
 export const links = () => [
-  { rel: 'stylesheet', href: materialIconsCss },
-  { rel: 'stylesheet', href: roboto300Css },
-  { rel: 'stylesheet', href: roboto400Css },
-  { rel: 'stylesheet', href: roboto500Css },
-  { rel: 'stylesheet', href: roboto700Css },
-  { rel: 'stylesheet', href: fontAwesomeCss },
   { rel: 'stylesheet', href: adminatorCss },
   { rel: 'stylesheet', href: '/assets/css/material-overrides.css' },
   { rel: 'icon', href: '/favicon.ico' }
@@ -66,6 +101,7 @@ export default function App() {
     <html lang="en" data-theme="dark">
       <head>
         <meta charSet="utf-8" />
+        <style>{fontFacesCss}</style>
         <Meta />
         <Links />
       </head>

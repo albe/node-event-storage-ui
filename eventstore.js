@@ -1,10 +1,28 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import EventStore from 'event-storage';
 import addStorageStats from './projections/StorageStats';
 
+function resolveConfigPath() {
+  const configuredPath = process.env.EVENT_STORAGE_UI_CONFIG?.trim();
+  if (configuredPath) {
+    return path.isAbsolute(configuredPath)
+      ? configuredPath
+      : path.resolve(process.cwd(), configuredPath);
+  }
+
+  const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
+  const localConfigPath = path.resolve(moduleDirectory, './eventstore.config.json');
+  if (fs.existsSync(localConfigPath)) {
+    return localConfigPath;
+  }
+
+  return path.resolve(moduleDirectory, '../eventstore.config.json');
+}
+
 function readConfig() {
-  return JSON.parse(fs.readFileSync('./eventstore.config.json').toString());
+  return JSON.parse(fs.readFileSync(resolveConfigPath()).toString());
 }
 
 export function listStores() {
