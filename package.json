@@ -53,7 +53,6 @@
     "build/client/nodejs-icon.png",
     "build/server/.vite/",
     "build/server/assets/",
-    "build/server/eventstore.config.json",
     "build/server/index.js",
     "build/eventstore.config.json",
     "config.js",
