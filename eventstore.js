@@ -6,21 +6,33 @@ import { readConfigFile, resolveConfigPath } from './config';
 
 const configPath = resolveConfigPath({ importMetaUrl: import.meta.url });
 const cachedConfig = readConfigFile(configPath);
+const configDirectory = path.dirname(configPath);
 
 function readConfig() {
 
   return cachedConfig;
 }
 
+function resolveConfigRelativePath(configuredPath, fallbackPath = null) {
+  if (!configuredPath) {
+    return fallbackPath === null ? null : path.resolve(configDirectory, fallbackPath);
+  }
+
+  return path.isAbsolute(configuredPath)
+    ? configuredPath
+    : path.resolve(configDirectory, configuredPath);
+}
+
 export function listStores() {
   const config = readConfig();
-  if (!config.storesDirectory) return [];
+  const storesDirectory = resolveStoresDirectory(config);
+  if (!storesDirectory) return [];
   try {
-    const entries = fs.readdirSync(config.storesDirectory, { withFileTypes: true });
+    const entries = fs.readdirSync(storesDirectory, { withFileTypes: true });
     return entries
       .filter((entry) => entry.isDirectory())
       .filter((entry) =>
-        fs.existsSync(path.join(config.storesDirectory, entry.name, '.index'))
+        fs.existsSync(path.join(storesDirectory, entry.name, '.index'))
       )
       .map((entry) => entry.name);
   } catch {
@@ -28,20 +40,45 @@ export function listStores() {
   }
 }
 
+function resolveStoresDirectory(config) {
+  return resolveConfigRelativePath(config.storesDirectory);
+}
+
 function resolveStoreName(config, storeNameOverride) {
   const baseName = storeNameOverride || config.storeName || 'eventstore';
   if (config.storesDirectory) {
     const available = listStores();
-    const selected = available.includes(baseName) ? baseName : (available[0] || baseName);
-    return path.join(config.storesDirectory, selected);
+    return available.includes(baseName) ? baseName : (available[0] || baseName);
   }
+
   return baseName;
+}
+
+function resolveStoreOptions(config, overrides = {}) {
+  const options = Object.assign({}, config.options, overrides);
+  options.storageDirectory = resolveStoresDirectory(config)
+    || resolveConfigRelativePath(options.storageDirectory, './data');
+
+  if (options.streamsDirectory) {
+    options.streamsDirectory = resolveConfigRelativePath(options.streamsDirectory);
+  }
+
+  return options;
+}
+
+function getStoreCacheKey(storeName, options) {
+  return `${options.storageDirectory}::${storeName}`;
+}
+
+function resolveStoreLockPath(config, storeNameOverride) {
+  const storeName = resolveStoreName(config, storeNameOverride);
+  const options = resolveStoreOptions(config);
+  return path.resolve(options.storageDirectory, `${storeName}.lock`);
 }
 
 export function getStoreLockStatus(storeNameOverride) {
   const config = readConfig();
-  const storePath = resolveStoreName(config, storeNameOverride);
-  return fs.existsSync(path.join(storePath, '.lock'));
+  return fs.existsSync(resolveStoreLockPath(config, storeNameOverride));
 }
 
 /**
@@ -53,11 +90,10 @@ const readOnlyStoreCache = new Map();
 
 export async function commitToEventStore(streamName, events, metadata, storeNameOverride) {
   const config = readConfig();
-  const defaultOptions = config.options || {};
   const storeName = resolveStoreName(config, storeNameOverride);
   // Write stores are always created fresh and never cached.
   // addStorageStats (consumer registration) is intentionally omitted here.
-  const options = Object.assign({}, defaultOptions, { readOnly: false });
+  const options = resolveStoreOptions(config, { readOnly: false });
 
   return new Promise((resolve, reject) => {
     const eventstore = new EventStore(storeName, options);
@@ -80,9 +116,8 @@ export async function commitToEventStore(streamName, events, metadata, storeName
 
 export default async function getEventStore(options, storeNameOverride) {
   const config = readConfig();
-  const defaultOptions = config.options || {};
   const storeName = resolveStoreName(config, storeNameOverride);
-  options = Object.assign({}, defaultOptions, options);
+  options = resolveStoreOptions(config, options);
 
   if (options.readOnly !== true) {
     // Non-cached write store – callers are responsible for closing it.
@@ -93,8 +128,9 @@ export default async function getEventStore(options, storeNameOverride) {
   }
 
   // Read-only: return the cached Promise if available.
-  if (readOnlyStoreCache.has(storeName)) {
-    return readOnlyStoreCache.get(storeName);
+  const cacheKey = getStoreCacheKey(storeName, options);
+  if (readOnlyStoreCache.has(cacheKey)) {
+    return readOnlyStoreCache.get(cacheKey);
   }
 
   // Store the Promise synchronously before any await — Node.js is single-threaded,
@@ -105,7 +141,7 @@ export default async function getEventStore(options, storeNameOverride) {
       eventstore.on('ready', () => addStorageStats(eventstore).then(resolve));
     })
   );
-  readOnlyStoreCache.set(storeName, storePromise);
+  readOnlyStoreCache.set(cacheKey, storePromise);
   return storePromise;
 }
 

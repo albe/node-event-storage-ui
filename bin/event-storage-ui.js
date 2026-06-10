@@ -86,6 +86,7 @@ function main() {
     process.execPath,
     [reactRouterServeBin, serverEntry, ...parsedArguments.passThroughArgs],
     {
+      cwd: packageDirectory,
       stdio: 'inherit',
       env: {
         ...process.env,
