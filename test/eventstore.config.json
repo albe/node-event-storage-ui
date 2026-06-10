@@ -1,0 +1,7 @@
+{
+  "storeName": "eventstore",
+  "options": {
+    "storageDirectory": "./test/data"
+  }
+}
+

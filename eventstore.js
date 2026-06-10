@@ -1,8 +1,8 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import EventStore from 'event-storage';
-import addStorageStats from './projections/StorageStats';
-import { readConfigFile, resolveConfigPath } from './config';
+import addStorageStats from './projections/StorageStats.js';
+import { readConfigFile, resolveConfigPath } from './config.js';
 
 const configPath = resolveConfigPath({ importMetaUrl: import.meta.url });
 const cachedConfig = readConfigFile(configPath);
@@ -119,6 +119,15 @@ export default async function getEventStore(options, storeNameOverride) {
   const storeName = resolveStoreName(config, storeNameOverride);
   options = resolveStoreOptions(config, options);
 
+  // Force ReadOnly if the store is locked by another process
+  const isLocked = getStoreLockStatus(storeNameOverride);
+  if (isLocked && options.readOnly !== true) {
+    options.readOnly = true;
+    console.warn(
+      `[event-storage-ui] Store is locked by another process. Forcing readOnly mode.`
+    );
+  }
+
   if (options.readOnly !== true) {
     // Non-cached write store – callers are responsible for closing it.
     return new Promise((resolve) => {
@@ -150,6 +159,10 @@ export async function initEventStore(storeName, options) {
     console.time('initEventStore');
     await new Promise((resolve) => {
       const eventstore = new EventStore(storeName, Object.assign({}, options, { readOnly: false }));
+      eventstore.on('error', () => {
+        eventstore.close();
+        resolve();
+      });
       eventstore.on('ready', () => {
         if (eventstore.length > 0) {
           eventstore.close();
