@@ -595,6 +595,15 @@
   color: var(--c-text-muted);
 }
 
+/* Ellipsis on JSON strings */
+.json-view .json-view--string {
+  text-overflow: ellipsis;
+  max-width: 350px;
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
 .form-stack {
   display: flex;
   flex-direction: column;
