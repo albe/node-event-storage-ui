@@ -13,9 +13,8 @@ export async function loader({ params, request }) {
   const storeNameOverride = url.searchParams.get('store') || undefined;
   const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  const from = 1;
   const amount = 10;
-  const direction = 'forwards';
+  const direction = 'backwards';
   const events = [];
   const streamIndex = eventstore.streams[streamName]?.index;
   const streamIndexMetadata = streamIndex?.metadata || null;
@@ -31,11 +30,12 @@ export async function loader({ params, request }) {
     partitionMetadata = writePartition.metadata || null;
   }
 
-  const until = from + amount - 1;
   const streamLength = eventstore.getStreamVersion(streamName);
+  const from = streamLength; // start from the newest event
+  const until = Math.max(1, from - amount + 1);
   let stream = eventstore.getEventStream(streamName);
   if (stream !== false) {
-    stream = stream.from(from).forwards(amount);
+    stream = stream.from(from).backwards(amount);
     stream.forEach((payload, metadata, stream) => {
       events.push({ payload, metadata, stream });
     });
@@ -46,8 +46,8 @@ export async function loader({ params, request }) {
     stream: events,
     direction,
     amount,
-    next: until >= streamLength ? 0 : until + 1,
-    prev: from - amount,
+    next: until <= 1 ? 0 : until - 1,  // older events
+    prev: 0,                             // already at newest
     streamInfo: {
       indexMetadata: streamIndexMetadata,
       matcher,
@@ -163,26 +163,26 @@ export default function EventStream() {
                       <div className="button-row">
                         {prev <= 0 ? (
                           <button type="button" className="btn btn--soft-primary" disabled>
-                            Prev
+                            Newer
                           </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
                             className="btn btn--soft-primary"
                           >
-                            Prev
+                            Newer
                           </Link>
                         )}
                         {next <= 0 ? (
                           <button type="button" className="btn btn--soft-primary" disabled>
-                            Next
+                            Older
                           </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
                             className="btn btn--soft-primary"
                           >
-                            Next
+                            Older
                           </Link>
                         )}
                       </div>

@@ -174,26 +174,26 @@ export default function EventStreamPaged() {
                       <div className="button-row">
                         {prev <= 0 ? (
                           <button type="button" className="btn btn--ghost" disabled>
-                            Prev
+                            Newer
                           </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
                             className="btn btn--ghost"
                           >
-                            Prev
+                            Newer
                           </Link>
                         )}
                         {next <= 0 ? (
                           <button type="button" className="btn btn--ghost" disabled>
-                            Next
+                            Older
                           </button>
                         ) : (
                           <Link
                             to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
                             className="btn btn--ghost"
                           >
-                            Next
+                            Older
                           </Link>
                         )}
                       </div>
