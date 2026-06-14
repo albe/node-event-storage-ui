@@ -847,3 +847,65 @@
 .copyright > i {
   vertical-align: middle;
 }
+
+/* ── Stream tree (hierarchical stream browser) ── */
+
+.stream-cat-row {
+  cursor: pointer;
+  user-select: none;
+  background: color-mix(in srgb, var(--c-primary) 6%, var(--c-bkg-card)) !important;
+  transition: background 0.15s ease;
+}
+
+.stream-cat-row:hover {
+  background: color-mix(in srgb, var(--c-primary) 12%, var(--c-bkg-card)) !important;
+}
+
+.stream-cat-cell {
+  padding: 10px 16px !important;
+}
+
+.stream-cat-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.stream-cat-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--c-primary);
+}
+
+.stream-cat-toggle .material-icons {
+  font-size: 20px;
+}
+
+.stream-cat-label {
+  font-weight: 600;
+  font-size: 0.97rem;
+  color: var(--c-text-base);
+}
+
+.stream-leaf-row td {
+  padding-left: 44px !important;
+  border-top: none !important;
+}
+
+.stream-leaf-row:last-of-type td {
+  border-bottom: 1px solid var(--c-border);
+}
+
+.stream-leaf-name a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stream-leaf-icon {
+  font-size: 15px !important;
+  color: var(--c-text-muted);
+  flex-shrink: 0;
+}
