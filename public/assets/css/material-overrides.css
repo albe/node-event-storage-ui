@@ -861,10 +861,6 @@
   background: color-mix(in srgb, var(--c-primary) 12%, var(--c-bkg-card)) !important;
 }
 
-.stream-cat-cell {
-  padding: 10px 16px !important;
-}
-
 .stream-cat-inner {
   display: flex;
   align-items: center;
@@ -885,12 +881,9 @@
 
 .stream-cat-label {
   font-weight: 600;
-  font-size: 0.97rem;
-  color: var(--c-text-base);
 }
 
 .stream-leaf-row td {
-  padding-left: 44px !important;
   border-top: none !important;
 }
 
@@ -898,14 +891,12 @@
   border-bottom: 1px solid var(--c-border);
 }
 
-.stream-leaf-name a {
+.stream-leaf-row .cell-name a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
-.stream-leaf-icon {
-  font-size: 15px !important;
-  color: var(--c-text-muted);
-  flex-shrink: 0;
+.stream-leaf-row i.material-icons {
+  font-size: 16px !important;
 }

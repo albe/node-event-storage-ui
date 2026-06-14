@@ -15,7 +15,7 @@ export async function loader({ request }) {
 
   const streams = Object.keys(eventstore.streams).map((streamName) => {
     const stream = eventstore.streams[streamName].index;
-    const crtime = fs.statSync(stream.fileName).birthtimeMs;
+    const crtime = stream.crtime || fs.statSync(stream.fileName).birthtimeMs;
     return {
       name: streamName,
       length: stream.length,
@@ -24,8 +24,13 @@ export async function loader({ request }) {
     };
   });
 
-  // Newest streams first
-  streams.sort((a, b) => b.crtime - a.crtime);
+  // Streams starting with '_' should always be shown first, then newest streams.
+  streams.sort((a, b) => {
+    const aIsSystem = a.name.startsWith('_');
+    const bIsSystem = b.name.startsWith('_');
+    if (aIsSystem !== bIsSystem) return aIsSystem ? -1 : 1;
+    return b.crtime - a.crtime;
+  });
 
   return {
     storeName: eventstore.storeName,
@@ -33,81 +38,201 @@ export async function loader({ request }) {
   };
 }
 
-function detectSeparator(streams) {
-  for (const sep of ['-', '.', '/']) {
-    const prefixes = new Set(streams.map((s) => s.name.split(sep)[0]));
-    if (prefixes.size < streams.length) return sep;
-  }
-  return null;
-}
+/** Separates flat streams (no '/') from hierarchical ones and builds a recursive tree for the latter. */
+function buildStreamTree(streams) {
+  const createNode = () => ({ children: {}, stream: null });
+  const root = createNode();
+  const topLevelEntries = [];
 
-function buildTree(streams) {
-  const sep = detectSeparator(streams);
-  if (!sep) return null;
-  const categories = {};
   for (const stream of streams) {
-    const idx = stream.name.indexOf(sep);
-    const category = idx === -1 ? stream.name : stream.name.slice(0, idx);
-    if (!categories[category]) categories[category] = [];
-    categories[category].push(stream);
+    if (!stream.name.includes('/')) {
+      topLevelEntries.push({ type: 'flat', stream });
+      continue;
+    }
+    const parts = stream.name.split('/');
+    const topLevelSegment = parts[0];
+
+    if (!root.children[topLevelSegment]) {
+      root.children[topLevelSegment] = createNode();
+      topLevelEntries.push({
+        type: 'group',
+        segment: topLevelSegment,
+        path: topLevelSegment,
+        node: root.children[topLevelSegment]
+      });
+    }
+
+    let node = root.children[topLevelSegment];
+    for (const part of parts.slice(1, -1)) {
+      if (!node.children[part]) node.children[part] = createNode();
+      node = node.children[part];
+    }
+    const last = parts.at(-1);
+    if (!node.children[last]) node.children[last] = createNode();
+    node.children[last].stream = stream;
   }
-  // Only use tree view when there's actual grouping
-  if (Object.keys(categories).length === streams.length) return null;
-  return { sep, categories };
+
+  return { topLevelEntries, treeRoot: root };
 }
 
-function CategoryGroup({ category, streams, sep }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <>
-      <tr className="stream-cat-row" onClick={() => setOpen((o) => !o)}>
-        <td colSpan={4} className="stream-cat-cell">
+function countLeaves(node) {
+  let count = node.stream ? 1 : 0;
+  for (const child of Object.values(node.children)) count += countLeaves(child);
+  return count;
+}
+
+function buildVisibleRows(topLevelEntries, expandedPaths) {
+  const rows = [];
+
+  const addGroupRow = (segment, node, depth, path) => {
+    const isOpen = expandedPaths.has(path);
+    rows.push({
+      kind: 'group',
+      id: `group:${path}`,
+      path,
+      segment,
+      depth,
+      node,
+      isOpen,
+      leafCount: countLeaves(node),
+      counted: !isOpen
+    });
+
+    if (!isOpen) return;
+
+    for (const [childSegment, childNode] of Object.entries(node.children)) {
+      const childPath = `${path}/${childSegment}`;
+      const hasChildren = Object.keys(childNode.children).length > 0;
+      if (hasChildren) {
+        addGroupRow(childSegment, childNode, depth + 1, childPath);
+      } else if (childNode.stream) {
+        rows.push({
+          kind: 'leaf',
+          id: `leaf:${childNode.stream.name}`,
+          path: childPath,
+          segment: childSegment,
+          depth: depth + 1,
+          stream: childNode.stream,
+          counted: true
+        });
+      }
+    }
+  };
+
+  for (const entry of topLevelEntries) {
+    if (entry.type === 'flat') {
+      rows.push({
+        kind: 'leaf',
+        id: `leaf:${entry.stream.name}`,
+        path: entry.stream.name,
+        segment: entry.stream.name,
+        depth: 0,
+        stream: entry.stream,
+        counted: true
+      });
+      continue;
+    }
+
+    addGroupRow(entry.segment, entry.node, 0, entry.path);
+  }
+
+  return rows;
+}
+
+function buildPagedRows(rows, start, end) {
+  const selectedIds = new Set();
+  const ancestorPaths = new Set();
+  let countedIndex = 0;
+
+  const collectAncestors = (path) => {
+    if (!path.includes('/')) return;
+    const parts = path.split('/');
+    for (let i = 1; i < parts.length; i++) {
+      ancestorPaths.add(parts.slice(0, i).join('/'));
+    }
+  };
+
+  for (const row of rows) {
+    if (!row.counted) continue;
+    if (countedIndex >= start && countedIndex < end) {
+      selectedIds.add(row.id);
+      collectAncestors(row.path);
+    }
+    countedIndex += 1;
+  }
+
+  return rows.filter((row) => selectedIds.has(row.id) || (row.kind === 'group' && ancestorPaths.has(row.path)));
+}
+
+function renderRow(row, expandedPaths, onToggle) {
+  const indent = `calc(0.75rem + ${row.depth * 1.5}em)`;
+
+  if (row.kind === 'group') {
+    return (
+      <tr key={row.id} className="stream-cat-row" onClick={() => onToggle(row.path)}>
+        <td colSpan={4} className="stream-cat-cell" style={{ paddingLeft: indent }}>
           <div className="stream-cat-inner">
             <span className="stream-cat-toggle">
-              <i className="material-icons">{open ? 'folder_open' : 'folder'}</i>
-              <span className="stream-cat-label">{category}</span>
+              <i className="material-icons">{expandedPaths.has(row.path) ? 'folder_open' : 'folder'}</i>
+              <span className="stream-cat-label">{row.segment}</span>
             </span>
             <span className="tag t-primary">
-              {streams.length} stream{streams.length !== 1 ? 's' : ''}
+              {row.leafCount} stream{row.leafCount !== 1 ? 's' : ''}
             </span>
           </div>
         </td>
       </tr>
-      {open &&
-        streams.map((stream) => {
-          const rest = stream.name.startsWith(category + sep)
-            ? stream.name.slice(category.length + sep.length)
-            : stream.name;
-          return (
-            <tr key={stream.name} className="stream-leaf-row">
-              <td className="stream-leaf-name cell-name">
-                <Link to={`/streams/${encodeURIComponent(stream.name)}`} title={stream.name}>
-                  <i className="material-icons stream-leaf-icon">receipt_long</i>
-                  {rest}
-                </Link>
-              </td>
-              <td>
-                <span className="cell-date">
-                  <DateFormat value={stream.crtime} />
-                </span>
-              </td>
-              <td>
-                <span className="tag t-info">{stream.length} events</span>
-              </td>
-              <td className="cell-json">
-                <Json data={stream.metadata} collapsed={true} />
-              </td>
-            </tr>
-          );
-        })}
-    </>
+    );
+  }
+
+  return (
+    <tr key={row.id} className="stream-leaf-row">
+      <td className="cell-name" style={{ paddingLeft: indent }}>
+        <Link to={`/streams/${encodeURIComponent(row.stream.name)}`} title={row.stream.name}>
+          <i className="material-icons">receipt_long</i>
+          {row.segment}
+        </Link>
+      </td>
+      <td>
+        <span className="cell-date">
+          <DateFormat value={row.stream.crtime} />
+        </span>
+      </td>
+      <td>
+        <span className="tag t-info">{row.stream.length} events</span>
+      </td>
+      <td className="cell-json">
+        <Json data={row.stream.metadata} collapsed={true} />
+      </td>
+    </tr>
   );
 }
 
 export default function StreamsIndex() {
   const { storeName, streams } = useLoaderData();
-  const tree = buildTree(streams);
-  const [start, end, nextPage, prevPage, hasNext, hasPrev] = usePagination(streams.length);
+  const { topLevelEntries, treeRoot } = buildStreamTree(streams);
+  const topLevelGroupCount = Object.keys(treeRoot.children).length;
+  const [expandedPaths, setExpandedPaths] = useState(() => new Set());
+
+  const togglePath = (path) => {
+    setExpandedPaths((current) => {
+      const next = new Set(current);
+      if (next.has(path)) {
+        next.delete(path);
+      } else {
+        next.add(path);
+      }
+      return next;
+    });
+  };
+
+  const rows = buildVisibleRows(topLevelEntries, expandedPaths);
+  const countedEntriesTotal = rows.reduce((count, row) => count + (row.counted ? 1 : 0), 0);
+  const [start, end, nextPage, prevPage, hasNext, hasPrev] = usePagination(countedEntriesTotal);
+  const visibleEntries = buildPagedRows(rows, start, end);
+
+  const visibleStart = countedEntriesTotal === 0 ? 0 : Math.min(start + 1, countedEntriesTotal);
+  const visibleEnd = Math.min(end, countedEntriesTotal);
 
   return (
     <div className="page-stack">
@@ -124,17 +249,16 @@ export default function StreamsIndex() {
             <i className="material-icons">table_rows</i>
             {streams.length} total streams
           </span>
-          {tree ? (
+          {topLevelGroupCount > 0 && (
             <span className="page-pill">
               <i className="material-icons">account_tree</i>
-              {Object.keys(tree.categories).length} categories
-            </span>
-          ) : (
-            <span className="page-pill">
-              <i className="material-icons">layers</i>
-              {start + 1}-{Math.min(end, streams.length)} visible
+              {topLevelGroupCount} top-level groups
             </span>
           )}
+          <span className="page-pill">
+            <i className="material-icons">layers</i>
+            {visibleStart}-{visibleEnd} paged items
+          </span>
         </div>
       </section>
 
@@ -157,57 +281,28 @@ export default function StreamsIndex() {
                   <th>Metadata</th>
                 </tr>
               </thead>
-              <tbody>
-                {tree
-                  ? Object.entries(tree.categories).map(([category, catStreams]) => (
-                      <CategoryGroup
-                        key={category}
-                        category={category}
-                        streams={catStreams}
-                        sep={tree.sep}
-                      />
-                    ))
-                  : streams.slice(start, end).map((stream) => (
-                      <tr key={stream.name}>
-                        <td className="cell-name">
-                          <Link to={`/streams/${encodeURIComponent(stream.name)}`}>{stream.name}</Link>
-                        </td>
-                        <td>
-                          <span className="cell-date">
-                            <DateFormat value={stream.crtime} />
-                          </span>
-                        </td>
-                        <td>
-                          <span className="tag t-info">{stream.length} events</span>
-                        </td>
-                        <td className="cell-json">
-                          <Json data={stream.metadata} collapsed={true} />
-                        </td>
-                      </tr>
-                    ))}
-              </tbody>
-              {!tree && (
-                <tfoot>
-                  <tr>
-                    <td colSpan={4}>
-                      <div className="data-foot">
-                        <span>
-                          Showing <strong>{start + 1}-{Math.min(end, streams.length)}</strong> of{' '}
-                          {streams.length} streams
-                        </span>
-                        <div className="button-row">
-                          <button disabled={!hasPrev} className="btn btn--soft-primary" onClick={prevPage}>
-                            Prev
-                          </button>
-                          <button disabled={!hasNext} className="btn btn--soft-primary" onClick={nextPage}>
-                            Next
-                          </button>
-                        </div>
+               <tbody>
+                 {visibleEntries.map((row) => renderRow(row, expandedPaths, togglePath))}
+               </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan={4}>
+                    <div className="data-foot">
+                      <span>
+                        Showing <strong>{visibleStart}-{visibleEnd}</strong> of {streams.length} streams
+                      </span>
+                      <div className="button-row">
+                        <button disabled={!hasPrev} className="btn btn--soft-primary" onClick={prevPage}>
+                          Prev
+                        </button>
+                        <button disabled={!hasNext} className="btn btn--soft-primary" onClick={nextPage}>
+                          Next
+                        </button>
                       </div>
-                    </td>
-                  </tr>
-                </tfoot>
-              )}
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
