@@ -68,6 +68,50 @@ function formatDataRate(bytesPerSecond) {
   return `${formatDataSize(bytesPerSecond)}/s`;
 }
 
+function normalizePathForMatch(path) {
+  if (typeof path !== 'string' || path.length === 0) {
+    return '';
+  }
+
+  return path
+    .replace(/\\+/g, '/')
+    .replace(/\/+$/g, '')
+    .toLowerCase();
+}
+
+function isSameOrParentPath(parentPath, childPath) {
+  if (!parentPath || !childPath) {
+    return false;
+  }
+
+  if (parentPath === childPath) {
+    return true;
+  }
+
+  return childPath.startsWith(`${parentPath}/`);
+}
+
+function getStorageMount(fsSize, storageDirectory) {
+  if (!(fsSize instanceof Array) || fsSize.length === 0) {
+    return null;
+  }
+
+  const normalizedStorageDirectory = normalizePathForMatch(storageDirectory);
+  if (!normalizedStorageDirectory) {
+    return null;
+  }
+
+  return fsSize.reduce((bestMatch, currentMount) => {
+    const normalizedMount = normalizePathForMatch(currentMount?.mount);
+    if (!isSameOrParentPath(normalizedMount, normalizedStorageDirectory)) {
+      return bestMatch;
+    }
+
+    const bestLength = normalizePathForMatch(bestMatch?.mount).length;
+    return normalizedMount.length > bestLength ? currentMount : bestMatch;
+  }, null);
+}
+
 function getNetworkOverview(networkStats) {
   if (!(networkStats instanceof Array) || networkStats.length === 0) {
     return {
@@ -574,9 +618,7 @@ export default function Dashboard() {
   const swapUsage =
     sysinfo.mem && sysinfo.mem.swaptotal > 0 ? sysinfo.mem.swapused / sysinfo.mem.swaptotal : 0;
 
-  if (sysinfo.fsSize instanceof Array) {
-    sysinfo.fsSize = sysinfo.fsSize.find((fs) => storageDirectory.startsWith(fs.mount));
-  }
+  sysinfo.fsSize = getStorageMount(sysinfo.fsSize, storageDirectory);
 
   return (
     <div className="page-stack">
