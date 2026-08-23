@@ -884,10 +884,6 @@
   color: var(--c-primary);
 }
 
-.stream-cat-toggle .material-icons {
-  font-size: 20px;
-}
-
 .stream-cat-label {
   font-weight: 600;
 }
@@ -906,6 +902,7 @@
   gap: 6px;
 }
 
-.stream-leaf-row i.material-icons {
-  font-size: 16px !important;
+.data-table i.material-icons {
+    font-size: 16px;
+    vertical-align: text-bottom;
 }
