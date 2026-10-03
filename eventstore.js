@@ -32,7 +32,7 @@ export function listStores() {
     return entries
       .filter((entry) => entry.isDirectory())
       .filter((entry) =>
-        fs.existsSync(path.join(storesDirectory, entry.name, '.index'))
+        fs.existsSync(path.join(storesDirectory, entry.name, `${entry.name}.index`))
       )
       .map((entry) => entry.name);
   } catch {
