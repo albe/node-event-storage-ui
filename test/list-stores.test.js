@@ -6,33 +6,69 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 describe('listStores', () => {
-  it('lists store directories containing their named index file', () => {
+  for (const [description, streamsDirectory] of [
+    ['the default streams directory', undefined],
+    ['a configured relative streams directory', 'custom/streams']
+  ]) {
+    it(`lists store directories containing their named index file in ${description}`, () => {
+      const testDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'event-storage-ui-stores-'));
+
+      try {
+        const storesDirectory = path.join(testDirectory, 'stores');
+        const storeName = 'valid-store';
+        const validStoreDirectory = path.join(storesDirectory, storeName);
+        const invalidStoreDirectory = path.join(storesDirectory, 'invalid-store');
+        const streamsPath = streamsDirectory || 'streams';
+        fs.mkdirSync(path.join(validStoreDirectory, streamsPath), { recursive: true });
+        fs.mkdirSync(path.join(invalidStoreDirectory, streamsPath, '.index'), { recursive: true });
+        fs.writeFileSync(path.join(validStoreDirectory, streamsPath, `${storeName}.index`), '');
+
+        const configPath = path.join(testDirectory, 'eventstore.config.json');
+        fs.writeFileSync(configPath, JSON.stringify({
+          storesDirectory,
+          options: streamsDirectory ? { streamsDirectory } : {}
+        }));
+
+        const moduleUrl = new URL('../eventstore.js', import.meta.url).href;
+        const result = spawnSync(
+          process.execPath,
+          ['--input-type=module', '-e', `import { listStores } from '${moduleUrl}'; process.stdout.write(JSON.stringify(listStores()));`],
+          {
+            encoding: 'utf8',
+            env: { ...process.env, EVENT_STORAGE_UI_CONFIG: configPath }
+          }
+        );
+
+        expect(result.status).to.be(0);
+        expect(JSON.parse(result.stdout)).to.eql([storeName]);
+      } finally {
+        fs.rmSync(testDirectory, { recursive: true, force: true });
+      }
+    });
+  }
+
+  it('rejects absolute and parent-relative streams directories', () => {
     const testDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'event-storage-ui-stores-'));
 
     try {
-      const storesDirectory = path.join(testDirectory, 'stores');
-      const storeName = 'valid-store';
-      const validStoreDirectory = path.join(storesDirectory, storeName);
-      const invalidStoreDirectory = path.join(storesDirectory, 'invalid-store');
-      fs.mkdirSync(validStoreDirectory, { recursive: true });
-      fs.mkdirSync(path.join(invalidStoreDirectory, '.index'), { recursive: true });
-      fs.writeFileSync(path.join(validStoreDirectory, `${storeName}.index`), '');
-
       const configPath = path.join(testDirectory, 'eventstore.config.json');
-      fs.writeFileSync(configPath, JSON.stringify({ storesDirectory }));
+      fs.writeFileSync(configPath, JSON.stringify({
+        storesDirectory: path.join(testDirectory, 'stores'),
+        options: { streamsDirectory: '../outside' }
+      }));
 
       const moduleUrl = new URL('../eventstore.js', import.meta.url).href;
       const result = spawnSync(
         process.execPath,
-        ['--input-type=module', '-e', `import { listStores } from '${moduleUrl}'; process.stdout.write(JSON.stringify(listStores()));`],
+        ['--input-type=module', '-e', `import { listStores } from '${moduleUrl}'; listStores();`],
         {
           encoding: 'utf8',
           env: { ...process.env, EVENT_STORAGE_UI_CONFIG: configPath }
         }
       );
 
-      expect(result.status).to.be(0);
-      expect(JSON.parse(result.stdout)).to.eql([storeName]);
+      expect(result.status).not.to.be(0);
+      expect(result.stderr).to.contain('must stay within each store directory');
     } finally {
       fs.rmSync(testDirectory, { recursive: true, force: true });
     }

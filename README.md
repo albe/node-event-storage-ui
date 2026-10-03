@@ -73,7 +73,7 @@ EVENT_STORAGE_UI_CONFIG=./path/to/eventstore.config.json npx event-storage-ui
 
 The config file is required. If the resolved config path does not exist, is not a file, or contains invalid JSON, startup fails immediately with an error.
 
-To adjust the path to your local node-event-storage edit the `eventstore.config.json` file and adjust the `storeName` and `options.storageDirectory` JSON properties.
+To adjust the path to your local node-event-storage edit the `eventstore.config.json` file and adjust the `storeName` and `options.storageDirectory` JSON properties. When using `storesDirectory`, `options.streamsDirectory` selects the streams folder within each store directory; it must be a relative path and defaults to `streams`.
 
 You can also protect the UI with HTTP Basic Auth by setting `basicAuth.username` and `basicAuth.password`. If either value is empty, Basic Auth is disabled.
 **WARNING:** Never expose Basic Auth over plain HTTP in untrusted networks; use HTTPS (or a trusted private network only), because credentials are sent with every request and can be intercepted.
@@ -83,7 +83,9 @@ Configuration is loaded at server startup, so restart the app after changing `ev
 {
   "storeName": "eventstore",
   "storesDirectory": null,
-  "options": {},
+  "options": {
+    "streamsDirectory": "streams"
+  },
   "basicAuth": {
     "username": "admin",
     "password": "change-me"

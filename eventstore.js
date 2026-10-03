@@ -27,13 +27,19 @@ export function listStores() {
   const config = readConfig();
   const storesDirectory = resolveStoresDirectory(config);
   if (!storesDirectory) return [];
+  const streamsDirectory = resolveStreamsDirectory(config.options?.streamsDirectory);
   try {
     const entries = fs.readdirSync(storesDirectory, { withFileTypes: true });
     return entries
       .filter((entry) => entry.isDirectory())
-      .filter((entry) =>
-        fs.existsSync(path.join(storesDirectory, entry.name, `${entry.name}.index`))
-      )
+      .filter((entry) => {
+        const indexPath = path.join(storesDirectory, entry.name, streamsDirectory, `${entry.name}.index`);
+        try {
+          return fs.statSync(indexPath).isFile();
+        } catch {
+          return false;
+        }
+      })
       .map((entry) => entry.name);
   } catch {
     return [];
@@ -42,6 +48,23 @@ export function listStores() {
 
 function resolveStoresDirectory(config) {
   return resolveConfigRelativePath(config.storesDirectory);
+}
+
+function resolveStreamsDirectory(streamsDirectory = 'streams') {
+  if (typeof streamsDirectory !== 'string') {
+    throw new TypeError('options.streamsDirectory must be a relative path.');
+  }
+
+  if (path.isAbsolute(streamsDirectory) || path.win32.isAbsolute(streamsDirectory)) {
+    throw new Error('options.streamsDirectory must be a relative path.');
+  }
+
+  const segments = streamsDirectory.split(/[\\/]+/).filter(Boolean);
+  if (segments.includes('..')) {
+    throw new Error('options.streamsDirectory must stay within each store directory.');
+  }
+
+  return segments.length ? path.join(...segments) : '.';
 }
 
 function resolveStoreName(config, storeNameOverride) {
@@ -59,9 +82,7 @@ function resolveStoreOptions(config, overrides = {}) {
   options.storageDirectory = resolveStoresDirectory(config)
     || resolveConfigRelativePath(options.storageDirectory, './data');
 
-  if (options.streamsDirectory) {
-    options.streamsDirectory = resolveConfigRelativePath(options.streamsDirectory);
-  }
+  options.streamsDirectory = resolveStreamsDirectory(options.streamsDirectory);
 
   return options;
 }
