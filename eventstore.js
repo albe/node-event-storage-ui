@@ -51,6 +51,10 @@ function resolveStoresDirectory(config) {
 }
 
 function resolveStreamsDirectory(streamsDirectory = 'streams') {
+  if (streamsDirectory === null || streamsDirectory === '') {
+    return 'streams';
+  }
+
   if (typeof streamsDirectory !== 'string') {
     throw new TypeError('options.streamsDirectory must be a relative path.');
   }
@@ -77,12 +81,17 @@ function resolveStoreName(config, storeNameOverride) {
   return baseName;
 }
 
-function resolveStoreOptions(config, overrides = {}) {
+function resolveStoreOptions(config, overrides = {}, storeName = resolveStoreName(config)) {
   const options = Object.assign({}, config.options, overrides);
-  options.storageDirectory = resolveStoresDirectory(config)
-    || resolveConfigRelativePath(options.storageDirectory, './data');
+  const storesDirectory = resolveStoresDirectory(config);
+  options.storageDirectory = storesDirectory
+    ? path.join(storesDirectory, storeName)
+    : resolveConfigRelativePath(options.storageDirectory, './data');
 
-  options.streamsDirectory = resolveStreamsDirectory(options.streamsDirectory);
+  options.streamsDirectory = path.resolve(
+    options.storageDirectory,
+    resolveStreamsDirectory(options.streamsDirectory)
+  );
 
   return options;
 }
@@ -93,7 +102,7 @@ function getStoreCacheKey(storeName, options) {
 
 function resolveStoreLockPath(config, storeNameOverride) {
   const storeName = resolveStoreName(config, storeNameOverride);
-  const options = resolveStoreOptions(config);
+  const options = resolveStoreOptions(config, {}, storeName);
   return path.resolve(options.storageDirectory, `${storeName}.lock`);
 }
 
@@ -114,7 +123,7 @@ export async function commitToEventStore(streamName, events, metadata, storeName
   const storeName = resolveStoreName(config, storeNameOverride);
   // Write stores are always created fresh and never cached.
   // addStorageStats (consumer registration) is intentionally omitted here.
-  const options = resolveStoreOptions(config, { readOnly: false });
+  const options = resolveStoreOptions(config, { readOnly: false }, storeName);
 
   return new Promise((resolve, reject) => {
     const eventstore = new EventStore(storeName, options);
@@ -138,7 +147,7 @@ export async function commitToEventStore(streamName, events, metadata, storeName
 export default async function getEventStore(options, storeNameOverride) {
   const config = readConfig();
   const storeName = resolveStoreName(config, storeNameOverride);
-  options = resolveStoreOptions(config, options);
+  options = resolveStoreOptions(config, options, storeName);
 
   // Force ReadOnly if the store is locked by another process
   const isLocked = getStoreLockStatus(storeNameOverride);
