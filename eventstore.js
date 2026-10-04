@@ -27,13 +27,19 @@ export function listStores() {
   const config = readConfig();
   const storesDirectory = resolveStoresDirectory(config);
   if (!storesDirectory) return [];
+  const streamsDirectory = resolveStreamsDirectory(config.options?.streamsDirectory);
   try {
     const entries = fs.readdirSync(storesDirectory, { withFileTypes: true });
     return entries
       .filter((entry) => entry.isDirectory())
-      .filter((entry) =>
-        fs.existsSync(path.join(storesDirectory, entry.name, '.index'))
-      )
+      .filter((entry) => {
+        const indexPath = path.join(storesDirectory, entry.name, streamsDirectory, `${entry.name}.index`);
+        try {
+          return fs.statSync(indexPath).isFile();
+        } catch {
+          return false;
+        }
+      })
       .map((entry) => entry.name);
   } catch {
     return [];
@@ -42,6 +48,27 @@ export function listStores() {
 
 function resolveStoresDirectory(config) {
   return resolveConfigRelativePath(config.storesDirectory);
+}
+
+function resolveStreamsDirectory(streamsDirectory = 'streams') {
+  if (streamsDirectory === null || streamsDirectory === '') {
+    return 'streams';
+  }
+
+  if (typeof streamsDirectory !== 'string') {
+    throw new TypeError('options.streamsDirectory must be a relative path.');
+  }
+
+  if (path.isAbsolute(streamsDirectory) || path.win32.isAbsolute(streamsDirectory)) {
+    throw new Error('options.streamsDirectory must be a relative path.');
+  }
+
+  const segments = streamsDirectory.split(/[\\/]+/).filter(Boolean);
+  if (segments.includes('..')) {
+    throw new Error('options.streamsDirectory must stay within each store directory.');
+  }
+
+  return segments.length ? path.join(...segments) : '.';
 }
 
 function resolveStoreName(config, storeNameOverride) {
@@ -54,14 +81,17 @@ function resolveStoreName(config, storeNameOverride) {
   return baseName;
 }
 
-function resolveStoreOptions(config, overrides = {}) {
+function resolveStoreOptions(config, overrides = {}, storeName = resolveStoreName(config)) {
   const options = Object.assign({}, config.options, overrides);
-  options.storageDirectory = resolveStoresDirectory(config)
-    || resolveConfigRelativePath(options.storageDirectory, './data');
+  const storesDirectory = resolveStoresDirectory(config);
+  options.storageDirectory = storesDirectory
+    ? path.join(storesDirectory, storeName)
+    : resolveConfigRelativePath(options.storageDirectory, './data');
 
-  if (options.streamsDirectory) {
-    options.streamsDirectory = resolveConfigRelativePath(options.streamsDirectory);
-  }
+  options.streamsDirectory = path.resolve(
+    options.storageDirectory,
+    resolveStreamsDirectory(options.streamsDirectory)
+  );
 
   return options;
 }
@@ -72,7 +102,7 @@ function getStoreCacheKey(storeName, options) {
 
 function resolveStoreLockPath(config, storeNameOverride) {
   const storeName = resolveStoreName(config, storeNameOverride);
-  const options = resolveStoreOptions(config);
+  const options = resolveStoreOptions(config, {}, storeName);
   return path.resolve(options.storageDirectory, `${storeName}.lock`);
 }
 
@@ -93,7 +123,7 @@ export async function commitToEventStore(streamName, events, metadata, storeName
   const storeName = resolveStoreName(config, storeNameOverride);
   // Write stores are always created fresh and never cached.
   // addStorageStats (consumer registration) is intentionally omitted here.
-  const options = resolveStoreOptions(config, { readOnly: false });
+  const options = resolveStoreOptions(config, { readOnly: false }, storeName);
 
   return new Promise((resolve, reject) => {
     const eventstore = new EventStore(storeName, options);
@@ -117,7 +147,7 @@ export async function commitToEventStore(streamName, events, metadata, storeName
 export default async function getEventStore(options, storeNameOverride) {
   const config = readConfig();
   const storeName = resolveStoreName(config, storeNameOverride);
-  options = resolveStoreOptions(config, options);
+  options = resolveStoreOptions(config, options, storeName);
 
   // Force ReadOnly if the store is locked by another process
   const isLocked = getStoreLockStatus(storeNameOverride);
