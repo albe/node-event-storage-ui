@@ -4,6 +4,7 @@ import getEventStore from '../../eventstore';
 import DateFormat from '../components/date';
 import Json from '../components/json';
 import StreamInfoPanel from '../components/stream-info-panel';
+import useStoreSearch from '../hooks/store';
 
 export const meta = ({ params }) => [{ title: `event-storage: EventStream ${params.streamName}` }];
 
@@ -66,6 +67,7 @@ export async function loader({ params, request }) {
 
 export default function EventStreamPaged() {
   const { streamName, stream, direction, amount, next, prev, streamInfo } = useLoaderData();
+  const storeSearch = useStoreSearch();
   const [showInfo, setShowInfo] = useState(false);
 
   return (
@@ -178,7 +180,7 @@ export default function EventStreamPaged() {
                           </button>
                         ) : (
                           <Link
-                            to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}`}
+                            to={`/streams/${encodeURIComponent(streamName)}/${prev}/${direction}/${amount}${storeSearch}`}
                             className="btn btn--ghost"
                           >
                             Newer
@@ -190,7 +192,7 @@ export default function EventStreamPaged() {
                           </button>
                         ) : (
                           <Link
-                            to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}`}
+                            to={`/streams/${encodeURIComponent(streamName)}/${next}/${direction}/${amount}${storeSearch}`}
                             className="btn btn--ghost"
                           >
                             Older

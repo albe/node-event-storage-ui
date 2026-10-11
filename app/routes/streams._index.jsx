@@ -5,6 +5,7 @@ import getEventStore from '../../eventstore';
 import DateFormat from '../components/date';
 import Json from '../components/json';
 import usePagination from '../hooks/paginate';
+import useStoreSearch from '../hooks/store';
 
 export const meta = () => [{ title: 'event-storage: Stream Browser' }];
 
@@ -164,7 +165,7 @@ function buildPagedRows(rows, start, end) {
   return rows.filter((row) => selectedIds.has(row.id) || (row.kind === 'group' && ancestorPaths.has(row.path)));
 }
 
-function renderRow(row, expandedPaths, onToggle) {
+function renderRow(row, expandedPaths, onToggle, storeSearch) {
   const indent = `calc(0.75rem + ${row.depth * 1.5}em)`;
 
   if (row.kind === 'group') {
@@ -188,7 +189,7 @@ function renderRow(row, expandedPaths, onToggle) {
   return (
     <tr key={row.id} className="stream-leaf-row">
       <td className="cell-name" style={{ paddingLeft: indent }}>
-        <Link to={`/streams/${encodeURIComponent(row.stream.name)}`} title={row.stream.name}>
+        <Link to={`/streams/${encodeURIComponent(row.stream.name)}${storeSearch}`} title={row.stream.name}>
           <i className="material-icons">receipt_long</i>
           {row.segment}
         </Link>
@@ -210,6 +211,7 @@ function renderRow(row, expandedPaths, onToggle) {
 
 export default function StreamsIndex() {
   const { storeName, streams } = useLoaderData();
+  const storeSearch = useStoreSearch();
   const { topLevelEntries, treeRoot } = buildStreamTree(streams);
   const topLevelGroupCount = Object.keys(treeRoot.children).length;
   const [expandedPaths, setExpandedPaths] = useState(() => new Set());
@@ -282,7 +284,7 @@ export default function StreamsIndex() {
                 </tr>
               </thead>
                <tbody>
-                 {visibleEntries.map((row) => renderRow(row, expandedPaths, togglePath))}
+                 {visibleEntries.map((row) => renderRow(row, expandedPaths, togglePath, storeSearch))}
                </tbody>
               <tfoot>
                 <tr>
