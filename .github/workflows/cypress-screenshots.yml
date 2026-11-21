@@ -41,17 +41,26 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
 
+      - name: Install Cypress binary
+        run: npx cypress install
+
       - name: Build app
         run: npm run build
 
+      - name: Start UI server
+        run: |
+          npm start > ui-server.log 2>&1 &
+          for attempt in $(seq 1 120); do
+            if curl --silent --fail --output /dev/null http://localhost:3000; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat ui-server.log
+          exit 1
+
       - name: Capture README screenshots
-        uses: cypress-io/github-action@v6
-        with:
-          install: false
-          start: npm start
-          wait-on: 'http://127.0.0.1:3000'
-          wait-on-timeout: 120
-          command: npm run cypress:screenshots
+        run: npm run cypress:screenshots
 
       - name: Sync screenshots referenced in README
         run: node scripts/update-readme-screenshots.mjs
