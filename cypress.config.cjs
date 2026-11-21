@@ -1,6 +1,5 @@
 const { defineConfig } = require('cypress');
 const fs = require('fs');
-const path = require('path');
 
 module.exports = defineConfig({
   e2e: {
@@ -26,21 +25,19 @@ module.exports = defineConfig({
 
       on('task', {
         /**
-         * Creates a .lock directory inside the store path to simulate an external writer lock.
-         * @param {string} storePath - relative or absolute path to the event store directory
+         * Creates the lock directory of a store to simulate an external writer lock.
+         * @param {string} lockPath - relative or absolute path to the store lock directory (<storageDirectory>/<storeName>.lock)
          */
-        lockStore(storePath) {
-          const lockPath = path.join(storePath, '.lock');
+        lockStore(lockPath) {
           fs.mkdirSync(lockPath, { recursive: true });
           return null;
         },
 
         /**
-         * Removes the .lock directory from the store path to release a simulated lock.
-         * @param {string} storePath - relative or absolute path to the event store directory
+         * Removes the lock directory of a store to release a simulated lock.
+         * @param {string} lockPath - relative or absolute path to the store lock directory
          */
-        unlockStore(storePath) {
-          const lockPath = path.join(storePath, '.lock');
+        unlockStore(lockPath) {
           if (fs.existsSync(lockPath)) {
             fs.rmSync(lockPath, { recursive: true, force: true });
           }

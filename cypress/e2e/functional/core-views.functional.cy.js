@@ -7,7 +7,7 @@ describe('Core views', () => {
     cy.get('table tbody tr a')
       .first()
       .then(($streamLink) => {
-        const streamName = $streamLink.text().trim();
+        const streamName = $streamLink.attr('title');
         cy.visit($streamLink.attr('href'));
         cy.contains(`EventStream '${streamName}'`).should('be.visible');
       });
@@ -29,6 +29,8 @@ describe('Core views', () => {
       });
     cy.get('#consumerName').should('be.enabled').type(consumerName);
     cy.contains('button', 'Create Consumer').click();
+    // Wait for the create action to finish before navigating away, or the request is aborted.
+    cy.contains('[role=alert]', `${consumerName}" created`).should('be.visible');
 
     cy.visit('/consumers');
     cy.contains('Consumer Browser').should('be.visible');

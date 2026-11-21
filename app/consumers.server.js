@@ -127,15 +127,12 @@ export async function previewConsumerState(
 ) {
   validateConsumerLogicInput(consumerLogic);
   const streamNames = normalizeStreamNames(streamNamesInput);
+  // The read-only store is cached and shared by all requests, so it must stay open.
   const { eventstore } = await getEventStore({ readOnly: true }, storeNameOverride);
 
-  try {
-    const stream = readEventsForStreams(eventstore, streamNames);
-    const state = replayConsumer({ stream, consumerLogic, initialState });
-    return { state, streamNames };
-  } finally {
-    eventstore.close();
-  }
+  const stream = readEventsForStreams(eventstore, streamNames);
+  const state = replayConsumer({ stream, consumerLogic, initialState });
+  return { state, streamNames };
 }
 
 export async function createConsumer(

@@ -32,11 +32,29 @@ jobs:
       - name: Build app
         run: npm run build
 
+      - name: Start UI server
+        run: |
+          npm start > ui-server.log 2>&1 &
+          for attempt in $(seq 1 120); do
+            if curl --silent --fail --output /dev/null http://localhost:3000; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat ui-server.log
+          exit 1
+
       - name: Run Cypress functional tests
-        uses: cypress-io/github-action@v6
+        run: npm run cypress:functional
+
+      - name: Upload Cypress failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
         with:
-          install: false
-          start: npm start
-          wait-on: 'http://localhost:3000'
-          wait-on-timeout: 120
-          command: npm run cypress:functional
+          name: cypress-failure-screenshots
+          path: public/screenshots/generated/
+          if-no-files-found: ignore
+
+      - name: Show UI server log
+        if: failure()
+        run: cat ui-server.log
