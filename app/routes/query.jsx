@@ -14,7 +14,8 @@ const MATCHER_OPERATORS = [
   { value: '$gt', label: '$gt (greater than)' },
   { value: '$gte', label: '$gte (greater than or equal)' },
   { value: '$lt', label: '$lt (less than)' },
-  { value: '$lte', label: '$lte (less than or equal)' }
+  { value: '$lte', label: '$lte (less than or equal)' },
+  { value: '$startsWith', label: '$startsWith (string prefix)' }
 ];
 const MATCHER_OPERATOR_SET = new Set(MATCHER_OPERATORS.map((operator) => operator.value));
 
