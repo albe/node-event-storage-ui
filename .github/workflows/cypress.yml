@@ -46,3 +46,15 @@ jobs:
 
       - name: Run Cypress functional tests
         run: npm run cypress:functional
+
+      - name: Upload Cypress failure screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-failure-screenshots
+          path: public/screenshots/generated/
+          if-no-files-found: ignore
+
+      - name: Show UI server log
+        if: failure()
+        run: cat ui-server.log
