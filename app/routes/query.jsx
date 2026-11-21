@@ -266,12 +266,22 @@ export async function loader({ request }) {
       minRevision,
       false
     );
-    const total = queryStream.length;
-    const slicedStream = queryStream.from(from)[direction](amount);
+    // `from` is a 1-based position within the query result. The revisions of the query stream are global
+    // store revisions, so the page is taken from the matching events while counting the total.
+    let total = 0;
     const events = [];
-    slicedStream.forEach((payload, metadata, streamName) => {
-      events.push({ payload, metadata, stream: streamName });
+    queryStream.forEach((payload, metadata, streamName) => {
+      total++;
+      const onPage = direction === 'backwards'
+        ? total <= from && total > from - amount
+        : total >= from && total < from + amount;
+      if (onPage) {
+        events.push({ payload, metadata, stream: streamName });
+      }
     });
+    if (direction === 'backwards') {
+      events.reverse();
+    }
 
     const next = direction === 'backwards'
       ? Math.max(from - amount, 0)
