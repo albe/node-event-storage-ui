@@ -37,6 +37,6 @@ jobs:
         with:
           install: false
           start: npm start
-          wait-on: 'http://localhost:3000'
+          wait-on: 'http://127.0.0.1:3000'
           wait-on-timeout: 120
           command: npm run cypress:functional
