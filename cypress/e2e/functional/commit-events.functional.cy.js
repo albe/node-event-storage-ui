@@ -1,4 +1,5 @@
-const storePath = Cypress.env('STORE_PATH') || 'eventstore';
+// The lock directory of the store served by `npm start` (build/eventstore.config.json: storeName "eventstore" in ./data).
+const storeLockPath = Cypress.env('STORE_LOCK_PATH') || 'build/data/eventstore.lock';
 
 describe('Commit Events', () => {
   it('shows the commit-events form', () => {
@@ -65,11 +66,11 @@ describe('Commit Events', () => {
 
 describe('Commit Events - Locked Store', () => {
   before(() => {
-    cy.task('lockStore', storePath);
+    cy.task('lockStore', storeLockPath);
   });
 
   after(() => {
-    cy.task('unlockStore', storePath);
+    cy.task('unlockStore', storeLockPath);
   });
 
   it('shows the locked store message', () => {
