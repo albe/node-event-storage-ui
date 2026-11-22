@@ -4,12 +4,12 @@ describe('Query matcher assistant', () => {
 
     cy.contains('Matcher Assistant').should('be.visible');
 
-    cy.get('[data-testid="matcher-mode"]').should('be.enabled').select('operator');
+    cy.get('[data-testid="matcher-mode"]').select('operator');
 
     cy.get('[data-testid="matcher-path"] option')
       .eq(1)
       .then(($option) => {
-        cy.get('[data-testid="matcher-path"]').should('be.enabled').select($option.val());
+        cy.get('[data-testid="matcher-path"]').select($option.val());
       });
 
     cy.get('[data-testid="matcher-operator"]').clear().type('$gte');

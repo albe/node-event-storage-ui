@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useLoaderData } from 'react-router';
 import getEventStore from '../../eventstore';
-import { formatTimeAgo } from '../../helpers/format';
 import Chart from '../components/chart';
+import TimeAgo from '../components/time-ago';
 import useSysinfo from '../hooks/sysinfo';
 import Kpi from "../components/kpi.jsx";
 import Radial from "../components/radial.jsx";
@@ -276,7 +276,6 @@ function EventsChart({ datas }) {
   const [currentStream, setStream] = useState('_all');
   const commitTimes = datas[currentStream]?.times || [];
   const lastCommit = commitTimes.length > 0 ? commitTimes[commitTimes.length - 1] : 0;
-  const lastCommitAgo = lastCommit > 0 ? (Date.now() - lastCommit) / 1000 : -1;
 
   return (
     <section className="admin-panel card">
@@ -319,7 +318,7 @@ function EventsChart({ datas }) {
       <div className="admin-panel__footer">
         <div className="admin-chart-meta">
           <i className="material-icons">access_time</i>
-          <span>last commit {formatTimeAgo(lastCommitAgo)}</span>
+          <span>last commit <TimeAgo value={lastCommit} /></span>
         </div>
       </div>
     </section>
