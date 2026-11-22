@@ -18,6 +18,7 @@ import roboto700Woff2 from '@fontsource/roboto/files/roboto-latin-700-normal.wof
 import adminatorCss from 'adminator-admin-dashboard/src/assets/styles/2026/index.scss?url';
 import materialOverridesCss from '../public/assets/css/material-overrides.css?url';
 import {getStoreLockStatus, listStores} from '../eventstore';
+import useHydrated from './hooks/hydrated';
 
 const fontFacesCss = `
 @font-face {
@@ -89,6 +90,7 @@ export default function App() {
     const [searchParams] = useSearchParams();
     const location = useLocation();
     const navigate = useNavigate();
+    const hydrated = useHydrated();
     const currentStore = searchParams.get('store') || (stores.length > 0 ? stores[0] : '');
     const storeSearch = currentStore ? `?store=${currentStore}` : '';
 
@@ -99,7 +101,7 @@ export default function App() {
     }
 
     return (
-        <html lang="en" data-theme="dark">
+        <html lang="en" data-theme="dark" data-hydrated={hydrated ? '' : undefined}>
         <head>
             <meta charSet="utf-8"/>
             <style>{fontFacesCss}</style>

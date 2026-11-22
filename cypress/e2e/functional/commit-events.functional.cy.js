@@ -13,10 +13,8 @@ describe('Commit Events', () => {
   it('shows live JSON preview fully expanded when valid JSON is entered', () => {
     cy.visit('/commit-events');
 
-    cy.get('h2.page-title').should('contain', 'Commit Events');
-    cy.wait(200);
-    cy.get('#streamName').should('be.enabled').type('orders');
-    cy.get('#events').should('be.enabled').type(
+    cy.get('#streamName').type('orders');
+    cy.get('#events').type(
       JSON.stringify(
         [{ type: 'OrderPlaced', orderId: 'abc-123', amount: 99.99, currency: 'USD' }],
         null,
@@ -30,7 +28,7 @@ describe('Commit Events', () => {
 
   it('shows a syntax error when invalid JSON is entered', () => {
     cy.visit('/commit-events');
-    cy.get('#streamName').should('be.enabled').focus({force:true}).type('orders');
+    cy.get('#streamName').type('orders');
     cy.get('#events').type('{ invalid json }', { parseSpecialCharSequences: false });
     cy.contains('Syntax error').should('be.visible');
     cy.get('[type=submit]').should('be.disabled');
@@ -38,7 +36,7 @@ describe('Commit Events', () => {
 
   it('shows metadata section when expanded', () => {
     cy.visit('/commit-events');
-    cy.get('#events').should('be.enabled').focus({force:true}).type(
+    cy.get('#events').type(
       JSON.stringify([{ type: 'OrderPlaced', orderId: 'abc-123' }], null, 2),
       { parseSpecialCharSequences: false }
     );
@@ -52,14 +50,12 @@ describe('Commit Events', () => {
 
   it('commits events and shows success message', () => {
     cy.visit('/commit-events');
-    cy.get('h2.page-title').should('contain', 'Commit Events');
-    cy.wait(200);
-    cy.get('#streamName').should('be.enabled').type('cypress-test-stream');
-    cy.get('#events').should('be.enabled').type(
+    cy.get('#streamName').type('cypress-test-stream');
+    cy.get('#events').type(
       JSON.stringify([{ type: 'CypressTestEvent', testId: Date.now() }], null, 2),
       { parseSpecialCharSequences: false }
     );
-    cy.get('[type=submit]').should('be.enabled').click();
+    cy.get('[type=submit]').click();
     cy.contains('Events committed successfully').should('be.visible');
   });
 });

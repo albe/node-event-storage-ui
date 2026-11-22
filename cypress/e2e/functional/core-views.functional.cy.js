@@ -18,16 +18,12 @@ describe('Core views', () => {
 
     cy.visit('/consumers/create');
     cy.contains('Create Consumer').should('be.visible');
-    //cy.wait(500);
-    // Wait for stream options to be populated (confirms data load + hydration).
-    cy.get('#streamName option').its('length').should('be.greaterThan', 0);
-    cy.get('#streamName').should('be.enabled');
     cy.get('#streamName option')
       .first()
       .then(($option) => {
         cy.get('#streamName').select($option.val());
       });
-    cy.get('#consumerName').should('be.enabled').type(consumerName);
+    cy.get('#consumerName').type(consumerName);
     cy.contains('button', 'Create Consumer').click();
     // Wait for the create action to finish before navigating away, or the request is aborted.
     cy.contains('[role=alert]', `${consumerName}" created`).should('be.visible');
