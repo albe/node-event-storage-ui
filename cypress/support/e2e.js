@@ -2,7 +2,8 @@
 // controls are plain HTML and input typed into them is discarded. The app marks the document once React
 // has rendered it on the client, so every page visit waits for that before a test interacts with the page.
 Cypress.Commands.overwrite('visit', (visit, ...args) => {
-  return visit(...args).then((win) => cy.get('html[data-hydrated]', { log: false }).then(() => win));
+  visit(...args);
+  cy.get('html[data-hydrated]', { log: false });
 });
 
 // Cypress inserts its own script after `<head>` preceded by a space. React cannot hydrate past that text node,
